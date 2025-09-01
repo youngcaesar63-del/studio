@@ -27,9 +27,9 @@ const formSchema = z.object({
   notes: z.string().optional(),
 });
 
-const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'];
-const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'];
-const statuses = ['إجازة', 'إلحاق', 'إرسالية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'مرضية', 'منقول', 'نقل و لم يبلغ', 'هروب'];
+const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'].sort((a,b) => a.localeCompare(b, 'ar'));
+const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'].sort((a,b) => a.localeCompare(b, 'ar'));
+const statuses = ['إجازة', 'إلحاق', 'إرسالية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'مرضية', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 
 export function AddPersonnelForm() {
   const router = useRouter();
@@ -46,13 +46,39 @@ export function AddPersonnelForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: 'محاكاة ناجحة',
-      description: `تمت محاكاة إضافة الفرد ${values.fullName} بنجاح. في تطبيق حقيقي، سيتم حفظ هذه البيانات.`,
-      className: 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
-    });
-    router.push('/dashboard/personnel-list');
+    try {
+      const storedData = localStorage.getItem('personnelData');
+      const personnelList = storedData ? JSON.parse(storedData) : [];
+      
+      const newPersonnel = {
+        id: Date.now(), // Use timestamp for unique ID
+        name: values.fullName,
+        cardId: values.cardId,
+        rank: values.rank,
+        administration: values.administration,
+        status: values.status,
+        // appointmentDate: values.appointmentDate, // Not in the table view
+        // notes: values.notes, // Not in the table view
+      };
+
+      personnelList.push(newPersonnel);
+      localStorage.setItem('personnelData', JSON.stringify(personnelList));
+
+      toast({
+        title: 'تم الحفظ بنجاح',
+        description: `تمت إضافة الفرد ${values.fullName} إلى السجل المحلي.`,
+        className: 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+      });
+      router.push('/dashboard/personnel-list');
+
+    } catch (error) {
+       console.error("Failed to save to localStorage", error);
+       toast({
+        title: 'خطأ في الحفظ',
+        description: `تعذر حفظ بيانات الفرد في السجل المحلي.`,
+        variant: 'destructive',
+      });
+    }
   }
 
   return (

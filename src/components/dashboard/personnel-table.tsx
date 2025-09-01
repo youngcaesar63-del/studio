@@ -36,7 +36,7 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     }
 };
 
-export function PersonnelTable({ data }: { data: Personnel[] }) {
+export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete: (id: number) => void }) {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -46,6 +46,11 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
       description: message,
     });
   };
+
+  const confirmDelete = (person: Personnel) => {
+    onDelete(person.id);
+    handleAction(`تم حذف الفرد: ${person.name}`);
+  }
 
   return (
     <div className="w-full">
@@ -90,7 +95,7 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleAction(`تم حذف الفرد: ${person.name}`)}>حذف</AlertDialogAction>
+                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => confirmDelete(person)}>حذف</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
@@ -103,17 +108,14 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
         </div>
         <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
             <div className="text-sm text-muted-foreground">
-                عرض ١-٥ من ١٢٤٥
+                عرض {data.length} من {data.length}
             </div>
-            <div className="flex space-x-1 rtl:space-x-reverse">
+            {/* Pagination can be re-enabled later if needed */}
+            {/* <div className="flex space-x-1 rtl:space-x-reverse">
                 <Button variant="outline" size="sm">السابق</Button>
                 <Button variant="secondary" size="sm">١</Button>
-                <Button variant="outline" size="sm">٢</Button>
-                <Button variant="outline" size="sm">٣</Button>
-                <span className="px-2">...</span>
-                <Button variant="outline" size="sm">١٢٥</Button>
                 <Button variant="outline" size="sm">التالي</Button>
-            </div>
+            </div> */}
         </div>
     </div>
   );
