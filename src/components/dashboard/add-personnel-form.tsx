@@ -48,8 +48,8 @@ export function AddPersonnelForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
-      title: 'نجاح',
-      description: `تمت إضافة الفرد ${values.fullName} بنجاح.`,
+      title: 'محاكاة ناجحة',
+      description: `تمت محاكاة إضافة الفرد ${values.fullName} بنجاح. في تطبيق حقيقي، سيتم حفظ هذه البيانات.`,
       className: 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
     });
     router.push('/dashboard/personnel-list');
