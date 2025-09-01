@@ -2,11 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 
 const personnelData = [
-    { id: 1, nationalId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', unit: 'الوحدة الأولى', status: 'بالطابور' },
-    { id: 2, nationalId: '29905150201235', name: 'محمد خالد سعيد', rank: 'رائد', unit: 'الوحدة الثانية', status: 'إجازة' },
-    { id: 3, nationalId: '30006150201236', name: 'علي حسن محمد', rank: 'ملازم أول', unit: 'الوحدة الثالثة', status: 'دورة تدريبية' },
-    { id: 4, nationalId: '30107150201237', name: 'محمود سعيد عبدالله', rank: 'عقيد', unit: 'الوحدة الرابعة', status: 'عمليات' },
-    { id: 5, nationalId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', unit: 'الوحدة الأولى', status: 'بالطابور' },
+    { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', administration: 'رئاسة الهيئة', status: 'بالطابور' },
+    { id: 2, cardId: '29905150201235', name: 'محمد خالد سعيد', rank: 'رائد', administration: 'الإدارة العامة للأمن العسكري', status: 'إجازة' },
+    { id: 3, cardId: '30006150201236', name: 'علي حسن محمد', rank: 'ملازم أول', administration: 'الإدارة العامة للاستخبارات', status: 'دورة تدريبية' },
+    { id: 4, cardId: '30107150201237', name: 'محمود سعيد عبدالله', rank: 'عقيد', administration: 'الإدارة العامة للمعلومات الاستراتيجية', status: 'عمليات' },
+    { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', administration: 'رئاسة الهيئة', status: 'بالطابور' },
 ];
 
 export default function PersonnelListPage() {

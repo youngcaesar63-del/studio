@@ -14,11 +14,11 @@ const statusData = [
     { name: 'أخرى', value: 30, fill: 'var(--chart-5)' },
 ];
 
-const unitData = [
-  { unit: 'الوحدة الأولى', count: 350 },
-  { unit: 'الوحدة الثانية', count: 420 },
-  { unit: 'الوحدة الثالثة', count: 280 },
-  { unit: 'الوحدة الرابعة', count: 195 },
+const administrationData = [
+  { administration: 'رئاسة الهيئة', count: 350 },
+  { administration: 'الأمن العسكري', count: 420 },
+  { administration: 'الاستخبارات', count: 280 },
+  { administration: 'المعلومات', count: 195 },
 ];
 
 const trendData = [
@@ -116,13 +116,13 @@ export default function StatisticsPage() {
                 </Card>
                 <Card className="shadow-md">
                     <CardHeader>
-                        <CardTitle>توزيع الأفراد على الوحدات</CardTitle>
+                        <CardTitle>توزيع الأفراد على الإدارات</CardTitle>
                     </CardHeader>
                     <CardContent>
                        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
                             <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={unitData}>
-                                    <XAxis dataKey="unit" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                                <BarChart data={administrationData}>
+                                    <XAxis dataKey="administration" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                     <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                                     <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                                     <Bar dataKey="count" fill="var(--chart-2)" radius={4} />

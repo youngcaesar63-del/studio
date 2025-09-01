@@ -9,7 +9,7 @@ import { Printer, Settings, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const reportTypes = [
-  { value: 'by-unit', label: 'تقرير حسب الوحدة' },
+  { value: 'by-administration', label: 'تقرير حسب الإدارة' },
   { value: 'by-rank', label: 'تقرير حسب الرتبة' },
   { value: 'by-status', label: 'تقرير حسب الحالة' },
   { value: 'full-report', label: 'تقرير شامل' },
@@ -91,24 +91,24 @@ export default function PrintPage() {
                             <tr>
                                 <th className="text-right p-2 border">الاسم</th>
                                 <th className="text-right p-2 border">الرتبة</th>
-                                <th className="text-right p-2 border">الوحدة</th>
+                                <th className="text-right p-2 border">الإدارة</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td className="p-2 border">أحمد محمد علي</td>
                                 <td className="p-2 border">نقيب</td>
-                                <td className="p-2 border">الوحدة الأولى</td>
+                                <td className="p-2 border">رئاسة الهيئة</td>
                             </tr>
                             <tr>
                                 <td className="p-2 border">محمد خالد سعيد</td>
                                 <td className="p-2 border">رائد</td>
-                                <td className="p-2 border">الوحدة الثانية</td>
+                                <td className="p-2 border">الإدارة العامة للأمن العسكري</td>
                             </tr>
                              <tr>
                                 <td className="p-2 border">علي حسن محمد</td>
                                 <td className="p-2 border">ملازم أول</td>
-                                <td className="p-2 border">الوحدة الثالثة</td>
+                                <td className="p-2 border">الإدارة العامة للاستخبارات</td>
                             </tr>
                         </tbody>
                     </table>

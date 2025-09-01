@@ -14,8 +14,8 @@ const allPersonnel = [
   'يوسف إبراهيم أحمد', 'خالد عبدالله محمود', 'سعيد علي حسن', 'عمر محمد يوسف'
 ];
 
-const ranks = ['ملازم', 'ملازم أول', 'نقيب', 'رائد', 'مقدم', 'عقيد', 'عميد', 'لواء'];
-const statuses = ['بالطابور', 'عمليات', 'إجازة', 'إرسالية', 'مرضية', 'دورة تدريبية', 'إنتداب', 'إلحاق', 'نقل و لم يبلغ', 'منقول', 'غياب', 'هروب'];
+const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'];
+const statuses = ['إجازة', 'إلحاق', 'إرسالية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'مرضية', 'منقول', 'نقل و لم يبلغ', 'هروب'];
 
 export function PersonnelSearch() {
   const [query, setQuery] = useState('');
@@ -60,7 +60,7 @@ export function PersonnelSearch() {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="ابحث بالاسم أو الرقم القومي..."
+                placeholder="ابحث بالاسم أو رقم البطاقة..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="pr-10"

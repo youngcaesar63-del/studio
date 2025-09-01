@@ -19,17 +19,17 @@ import { format } from 'date-fns';
 
 const formSchema = z.object({
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
-  nationalId: z.string().length(14, 'الرقم القومي يجب أن يكون 14 رقمًا').regex(/^\d+$/, 'الرقم القومي يجب أن يحتوي على أرقام فقط'),
+  cardId: z.string().length(14, 'رقم البطاقة يجب أن يكون 14 رقمًا').regex(/^\d+$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
-  unit: z.string().min(1, 'الوحدة مطلوبة'),
+  administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
   status: z.string().min(1, 'الحالة مطلوبة'),
   notes: z.string().optional(),
 });
 
-const ranks = ['ملازم', 'ملازم أول', 'نقيب', 'رائد', 'مقدم', 'عقيد', 'عميد', 'لواء'];
-const units = ['الوحدة الأولى', 'الوحدة الثانية', 'الوحدة الثالثة', 'الوحدة الرابعة'];
-const statuses = ['بالطابور', 'عمليات', 'إجازة', 'إرسالية', 'مرضية', 'دورة تدريبية', 'إنتداب', 'إلحاق', 'نقل و لم يبلغ', 'منقول', 'غياب', 'هروب'];
+const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'];
+const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'];
+const statuses = ['إجازة', 'إلحاق', 'إرسالية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'مرضية', 'منقول', 'نقل و لم يبلغ', 'هروب'];
 
 export function AddPersonnelForm() {
   const router = useRouter();
@@ -37,9 +37,9 @@ export function AddPersonnelForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: '',
-      nationalId: '',
+      cardId: '',
       rank: '',
-      unit: '',
+      administration: '',
       status: 'بالطابور',
       notes: '',
     },
@@ -61,14 +61,14 @@ export function AddPersonnelForm() {
         <FormField control={form.control} name="fullName" render={({ field }) => (
           <FormItem><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
-        <FormField control={form.control} name="nationalId" render={({ field }) => (
-          <FormItem><FormLabel>الرقم القومي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        <FormField control={form.control} name="cardId" render={({ field }) => (
+          <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="rank" render={({ field }) => (
           <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
         )} />
-        <FormField control={form.control} name="unit" render={({ field }) => (
-          <FormItem><FormLabel>الوحدة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الوحدة" /></SelectTrigger></FormControl><SelectContent>{units.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        <FormField control={form.control} name="administration" render={({ field }) => (
+          <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="appointmentDate" render={({ field }) => (
           <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>

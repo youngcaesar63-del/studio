@@ -17,10 +17,10 @@ import {
 
 type Personnel = {
   id: number;
-  nationalId: string;
+  cardId: string;
   name: string;
   rank: string;
-  unit: string;
+  administration: string;
   status: string;
 };
 
@@ -41,9 +41,9 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
             <TableHeader>
               <TableRow>
                 <TableHead>الاسم</TableHead>
-                <TableHead className="hidden md:table-cell">الرقم القومي</TableHead>
+                <TableHead className="hidden md:table-cell">رقم البطاقة</TableHead>
                 <TableHead>الرتبة</TableHead>
-                <TableHead className="hidden sm:table-cell">الوحدة</TableHead>
+                <TableHead className="hidden sm:table-cell">الإدارة</TableHead>
                 <TableHead>الحالة</TableHead>
                 <TableHead className="text-left">الإجراءات</TableHead>
               </TableRow>
@@ -52,9 +52,9 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
               {data.map((person) => (
                 <TableRow key={person.id}>
                   <TableCell className="font-medium">{person.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">{person.nationalId}</TableCell>
+                  <TableCell className="hidden md:table-cell">{person.cardId}</TableCell>
                   <TableCell>{person.rank}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{person.unit}</TableCell>
+                  <TableCell className="hidden sm:table-cell">{person.administration}</TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
                   </TableCell>

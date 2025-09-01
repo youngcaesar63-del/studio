@@ -8,15 +8,15 @@ import { Printer, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const reportTypes = [
-  { value: 'by-unit', label: 'تقرير حسب الوحدة' },
+  { value: 'by-administration', label: 'تقرير حسب الإدارة' },
   { value: 'by-rank', label: 'تقرير حسب الرتبة' },
   { value: 'by-status', label: 'تقرير حسب الحالة' },
   { value: 'full-report', label: 'تقرير شامل' },
 ];
 
-const units = ['الوحدة الأولى', 'الوحدة الثانية', 'الوحدة الثالثة', 'الوحدة الرابعة', 'الكل'];
-const ranks = ['ملازم', 'ملازم أول', 'نقيب', 'رائد', 'مقدم', 'عقيد', 'عميد', 'لواء', 'الكل'];
-const statuses = ['بالطابور', 'عمليات', 'إجازة', 'إرسالية', 'مرضية', 'دورة تدريبية', 'إنتداب', 'إلحاق', 'نقل و لم يبلغ', 'منقول', 'غياب', 'هروب', 'الكل'];
+const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة', 'الكل'];
+const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب', 'الكل'];
+const statuses = ['إجازة', 'إلحاق', 'إرسالية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'مرضية', 'منقول', 'نقل و لم يبلغ', 'هروب', 'الكل'];
 
 export default function ReportsPage() {
   const [reportType, setReportType] = useState<string | null>(null);
@@ -42,8 +42,8 @@ export default function ReportsPage() {
   
   const getFilterOptions = () => {
     switch(reportType) {
-        case 'by-unit':
-            return { placeholder: "اختر الوحدة", options: units };
+        case 'by-administration':
+            return { placeholder: "اختر الإدارة", options: administrations };
         case 'by-rank':
             return { placeholder: "اختر الرتبة", options: ranks };
         case 'by-status':
