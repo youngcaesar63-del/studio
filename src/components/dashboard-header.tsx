@@ -34,7 +34,7 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="bg-primary text-primary-foreground py-4 px-6 shadow-lg sticky top-0 z-40">
+    <header className="bg-primary text-primary-foreground py-4 px-6 shadow-lg sticky top-0 z-40 no-print">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4 rtl:space-x-reverse">
           <Users className="w-8 h-8" />

@@ -92,17 +92,17 @@ const NavContent = () => {
 export function DashboardSidebar() {
   return (
     <>
-      <aside className="w-64 bg-card text-card-foreground rounded-lg shadow-md mr-6 h-fit sticky top-24 transition-all duration-300 hidden lg:block">
+      <aside className="w-64 bg-card text-card-foreground rounded-lg shadow-md mr-6 h-fit sticky top-24 transition-all duration-300 hidden lg:block no-print">
         <NavContent />
       </aside>
       <Sheet>
         <SheetTrigger asChild>
-          <Button size="icon" variant="outline" className="lg:hidden fixed top-20 right-4 z-50">
+          <Button size="icon" variant="outline" className="lg:hidden fixed top-20 right-4 z-50 no-print">
             <PanelLeft className="h-5 w-5" />
             <span className="sr-only">Toggle Menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="lg:hidden w-72 p-0">
+        <SheetContent side="right" className="lg:hidden w-72 p-0 no-print">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <SheetDescription className="sr-only">Navigate through the app sections.</SheetDescription>
           <NavContent />
