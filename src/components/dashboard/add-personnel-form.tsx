@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -39,7 +40,7 @@ export function AddPersonnelForm() {
       nationalId: '',
       rank: '',
       unit: '',
-      status: 'بالطABور',
+      status: 'بالطابور',
       notes: '',
     },
   });
