@@ -19,7 +19,7 @@ import {
   Database
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from './ui/sheet';
 import { Button } from './ui/button';
 import { PanelLeft } from 'lucide-react';
 
@@ -103,6 +103,8 @@ export function DashboardSidebar() {
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="lg:hidden w-72 p-0">
+          <SheetTitle className="sr-only">Menu</SheetTitle>
+          <SheetDescription className="sr-only">Navigate through the app sections.</SheetDescription>
           <NavContent />
         </SheetContent>
       </Sheet>
