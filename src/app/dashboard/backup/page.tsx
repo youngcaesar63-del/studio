@@ -19,6 +19,13 @@ const backupHistory = [
 export default function BackupPage() {
     const { toast } = useToast();
 
+    const handleAction = (message: string) => {
+      toast({
+        title: 'تم بنجاح',
+        description: message,
+      });
+    };
+
     const handleNewBackup = () => {
         toast({
             title: 'بدء عملية النسخ الاحتياطي',
@@ -76,10 +83,10 @@ export default function BackupPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem><Download className="ml-2 h-4 w-4" />تحميل</DropdownMenuItem>
-                                                    <DropdownMenuItem><RefreshCw className="ml-2 h-4 w-4" />استعادة</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleAction(`جاري تحميل النسخة الاحتياطية: ${backup.id}`)}><Download className="ml-2 h-4 w-4" />تحميل</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleAction(`جاري استعادة النسخة الاحتياطية: ${backup.id}`)}><RefreshCw className="ml-2 h-4 w-4" />استعادة</DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive"><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => handleAction(`تم حذف النسخة الاحتياطية: ${backup.id}`)}><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

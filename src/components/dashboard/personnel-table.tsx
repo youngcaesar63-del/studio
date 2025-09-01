@@ -1,3 +1,4 @@
+
 'use client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 type Personnel = {
   id: number;
@@ -34,6 +37,16 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 };
 
 export function PersonnelTable({ data }: { data: Personnel[] }) {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleAction = (message: string) => {
+    toast({
+      title: 'تم بنجاح',
+      description: message,
+    });
+  };
+
   return (
     <div className="w-full">
         <div className="rounded-md border">
@@ -60,8 +73,8 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
                   </TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center justify-start gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(`جاري عرض ملف الفرد: ${person.name}`)}><Eye className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(`جاري تعديل بيانات الفرد: ${person.name}`)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
@@ -77,7 +90,7 @@ export function PersonnelTable({ data }: { data: Personnel[] }) {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90">حذف</AlertDialogAction>
+                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleAction(`تم حذف الفرد: ${person.name}`)}>حذف</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

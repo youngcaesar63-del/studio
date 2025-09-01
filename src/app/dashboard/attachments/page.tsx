@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Download, Edit, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const files = [
   { name: 'مستندات الهوية', type: 'folder', lastModified: '2024-05-10', size: '2.5 MB' },
@@ -19,6 +19,15 @@ const files = [
 ];
 
 export default function AttachmentsPage() {
+    const { toast } = useToast();
+
+    const handleAction = (message: string) => {
+      toast({
+        title: 'تم بنجاح',
+        description: message,
+      });
+    };
+    
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
             <Card className="shadow-md">
@@ -27,7 +36,7 @@ export default function AttachmentsPage() {
                         <CardTitle className="text-2xl flex items-center gap-2"><FolderIcon className="h-6 w-6"/>إدارة المرفقات</CardTitle>
                         <CardDescription>تصفح، حمل، وادارة جميع المرفقات والوثائق المتعلقة بالأفراد.</CardDescription>
                     </div>
-                    <Button>
+                    <Button onClick={() => handleAction('سيتم فتح نافذة اختيار الملفات.')}>
                         <Upload className="ml-2 h-4 w-4" />
                         رفع ملف جديد
                     </Button>
@@ -66,10 +75,10 @@ export default function AttachmentsPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem><Download className="ml-2 h-4 w-4" />تحميل</DropdownMenuItem>
-                                                    <DropdownMenuItem><Edit className="ml-2 h-4 w-4" />إعادة تسمية</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleAction(`جاري تحميل ملف: ${file.name}`)}><Download className="ml-2 h-4 w-4" />تحميل</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => handleAction(`جاري إعادة تسمية ملف: ${file.name}`)}><Edit className="ml-2 h-4 w-4" />إعادة تسمية</DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive"><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => handleAction(`تم حذف ملف: ${file.name}`)}><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
