@@ -34,7 +34,7 @@ const roles = [
     description: 'يمكنه عرض البيانات فقط دون تعديل.',
     permissions: [
         { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id إ‘p2’, name: 'إدارة الأفراد', enabled: false },
+        { id: 'p2', name: 'إدارة الأفراد', enabled: false },
         { id: 'p3', name: 'إنشاء التقارير', enabled: true },
         { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: false },
         { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: false },
