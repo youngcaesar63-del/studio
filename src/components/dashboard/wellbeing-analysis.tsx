@@ -1,6 +1,6 @@
 import { analyzePersonnelWellbeing } from "@/ai/flows/analyze-personnel-wellbeing";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Sparkles, AlertTriangle } from "lucide-react";
 
 export async function WellbeingAnalysis() {
   try {
@@ -34,18 +34,22 @@ export async function WellbeingAnalysis() {
       </Card>
     );
   } catch (error) {
-    console.error("Wellbeing analysis failed:", error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error("Wellbeing analysis failed:", errorMessage);
     return (
        <Card className="shadow-md border-destructive">
           <CardHeader>
               <CardTitle className="flex items-center gap-2 text-destructive">
-                  <Sparkles className="text-destructive"/>
+                  <AlertTriangle className="text-destructive"/>
                   خطأ في تحليل المعنويات
               </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-destructive">
-              تعذر تحميل تحليل معنويات الأفراد في الوقت الحالي.
+            <p className="text-sm text-destructive/90">
+              تعذر تحميل تحليل معنويات الأفراد في الوقت الحالي. قد يكون هذا بسبب مشكلة في الاتصال أو خطأ في النظام.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              تفاصيل الخطأ: {errorMessage}
             </p>
           </CardContent>
       </Card>
