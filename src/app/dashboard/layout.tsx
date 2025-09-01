@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';

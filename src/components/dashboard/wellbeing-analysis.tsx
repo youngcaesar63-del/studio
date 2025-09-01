@@ -1,3 +1,4 @@
+
 import { analyzePersonnelWellbeing } from "@/ai/flows/analyze-personnel-wellbeing";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, AlertTriangle } from "lucide-react";
