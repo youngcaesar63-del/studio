@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
-  cardId: z.string().length(14, 'رقم البطاقة يجب أن يكون 14 رقمًا').regex(/^\d+$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
+  cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d+$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
