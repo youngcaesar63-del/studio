@@ -111,7 +111,7 @@ export default function ViewPersonnelPage() {
         )
     }
     
-    const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' / ' + person.specialization : ''}`;
+    const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
 
     return (
         <div className="animate-in fade-in duration-500">
