@@ -40,7 +40,7 @@ const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, lab
         <Icon className="h-6 w-6 text-primary mt-1" />
         <div>
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="font-semibold text-lg">{value || 'غير مسجل'}</p>
+            <div className="font-semibold text-lg">{value || 'غير مسجل'}</div>
         </div>
     </div>
 );
