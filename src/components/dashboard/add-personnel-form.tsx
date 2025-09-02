@@ -18,9 +18,10 @@ import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 
 const formSchema = z.object({
-  fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d+$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
+  specialization: z.string().optional(),
+  fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
   status: z.string().min(1, 'الحالة مطلوبة'),
@@ -30,6 +31,7 @@ const formSchema = z.object({
 });
 
 const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'].sort((a,b) => a.localeCompare(b, 'ar'));
+const specializations = ['ركن', 'مهندس', 'بحري', 'طيار', 'مهندس ركن', 'ركن بحري', 'ركن طيار', 'د.ركن', 'مهندس د.ركن', 'تقني', 'خريج', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
 const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'].sort((a,b) => a.localeCompare(b, 'ar'));
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -44,6 +46,7 @@ export function AddPersonnelForm() {
       fullName: '',
       cardId: '',
       rank: '',
+      specialization: 'لا يوجد',
       administration: '',
       status: 'بالطابور',
       bloodType: '',
@@ -62,6 +65,7 @@ export function AddPersonnelForm() {
         name: values.fullName,
         cardId: values.cardId,
         rank: values.rank,
+        specialization: values.specialization,
         administration: values.administration,
         status: values.status,
         appointmentDate: values.appointmentDate.toISOString(),
@@ -92,14 +96,19 @@ export function AddPersonnelForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField control={form.control} name="fullName" render={({ field }) => (
-          <FormItem><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
         <FormField control={form.control} name="cardId" render={({ field }) => (
-          <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
-        <FormField control={form.control} name="rank" render={({ field }) => (
-          <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        <div className="grid grid-cols-2 gap-4">
+            <FormField control={form.control} name="rank" render={({ field }) => (
+            <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="specialization" render={({ field }) => (
+            <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+            )} />
+        </div>
+        <FormField control={form.control} name="fullName" render={({ field }) => (
+          <FormItem className="md:col-span-2"><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="administration" render={({ field }) => (
           <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>

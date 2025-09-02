@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 
@@ -15,6 +15,7 @@ type Personnel = {
     name: string;
     cardId: string;
     rank: string;
+    specialization?: string;
     administration: string;
     status: string;
     appointmentDate?: string;
@@ -107,6 +108,8 @@ export default function ViewPersonnelPage() {
             </Card>
         )
     }
+    
+    const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' / ' + person.specialization : ''}`;
 
     return (
         <div className="animate-in fade-in duration-500">
@@ -120,7 +123,7 @@ export default function ViewPersonnelPage() {
                         </div>
                         <div>
                             <CardTitle className="text-3xl">{person.name}</CardTitle>
-                            <CardDescription className="text-md mt-1">{person.rank}</CardDescription>
+                            <CardDescription className="text-md mt-1">{displayRank}</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
