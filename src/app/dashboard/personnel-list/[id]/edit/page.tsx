@@ -220,7 +220,7 @@ export default function EditPersonnelPage() {
                     <FormItem className="flex flex-col items-center gap-2">
                         <FormLabel>الصورة الشخصية</FormLabel>
                         <FormControl>
-                        <>
+                          <div>
                             <div className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50">
                             {photoPreview ? (
                                 <Image src={photoPreview} alt="معاينة الصورة" width={128} height={128} className="rounded-lg object-cover w-full h-full" />
@@ -229,7 +229,7 @@ export default function EditPersonnelPage() {
                             )}
                             </div>
                             <Input type="file" accept="image/*" onChange={handlePhotoChange} className="max-w-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
-                        </>
+                          </div>
                         </FormControl>
                         <FormMessage />
                     </FormItem>
