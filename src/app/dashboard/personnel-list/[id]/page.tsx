@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2 } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -21,6 +21,8 @@ type Personnel = {
     status: string;
     appointmentDate?: string;
     lastReturnDate?: string;
+    transferDate?: string;
+    reportingDate?: string;
     bloodType?: string;
     maritalStatus?: string;
     notes?: string;
@@ -148,6 +150,16 @@ export default function ViewPersonnelPage() {
                             icon={Undo2} 
                             label="تاريخ آخر عودة" 
                             value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy') : 'غير مسجل'} 
+                        />
+                         <DetailItem 
+                            icon={ArrowLeftRight} 
+                            label="تاريخ النقل" 
+                            value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy') : 'غير مسجل'} 
+                        />
+                         <DetailItem 
+                            icon={FileCheck} 
+                            label="تاريخ التبليغ" 
+                            value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy') : 'غير مسجل'} 
                         />
                         <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                         <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
