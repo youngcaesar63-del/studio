@@ -127,7 +127,7 @@ export function AddPersonnelForm() {
               <FormItem className="flex flex-col items-center gap-2 lg:col-span-1">
                 <FormLabel>الصورة الشخصية</FormLabel>
                 <FormControl>
-                  <>
+                  <div className='flex flex-col items-center gap-2'>
                     <div className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50">
                       {photoPreview ? (
                         <Image src={photoPreview} alt="معاينة الصورة" width={160} height={160} className="rounded-lg object-cover w-full h-full" />
@@ -136,7 +136,7 @@ export function AddPersonnelForm() {
                       )}
                     </div>
                     <Input type="file" accept="image/*" onChange={handlePhotoChange} className="max-w-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
-                  </>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
