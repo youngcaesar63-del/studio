@@ -23,6 +23,7 @@ type Personnel = {
   cardId: string;
   name: string;
   rank: string;
+  specialization?: string;
   administration: string;
   status: string;
 };
@@ -68,43 +69,46 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((person, index) => (
-                <TableRow key={person.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className="border-r">{person.cardId}</TableCell>
-                  <TableCell className="border-r">{person.rank}</TableCell>
-                  <TableCell className="font-medium border-r">{person.name}</TableCell>
-                  <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
-                  <TableCell className="border-r">
-                    <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-left border-r">
-                    <div className="flex items-center justify-start gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => confirmDelete(person)}>حذف</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {data.map((person, index) => {
+                const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+                return (
+                  <TableRow key={person.id}>
+                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell className="border-r">{person.cardId}</TableCell>
+                    <TableCell className="border-r">{displayRank}</TableCell>
+                    <TableCell className="font-medium border-r">{person.name}</TableCell>
+                    <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
+                    <TableCell className="border-r">
+                      <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-left border-r">
+                      <div className="flex items-center justify-start gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => confirmDelete(person)}>حذف</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
