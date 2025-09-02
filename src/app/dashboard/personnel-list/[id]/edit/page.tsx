@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, User } from 'lucide-react';
+import { CalendarIcon, Edit } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,7 +30,7 @@ const formSchema = z.object({
   notes: z.string().optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string };
 
 const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'].sort((a,b) => a.localeCompare(b, 'ar'));
 const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'].sort((a,b) => a.localeCompare(b, 'ar'));
@@ -63,9 +63,13 @@ export default function EditPersonnelPage() {
         const personToEdit = personnelList.find(p => p.id === id);
         if (personToEdit) {
           form.reset({
-            ...personToEdit,
-            fullName: personToEdit.name, // Map name to fullName
+            fullName: personToEdit.name,
+            cardId: personToEdit.cardId,
+            rank: personToEdit.rank,
+            administration: personToEdit.administration,
+            status: personToEdit.status,
             appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
+            notes: personToEdit.notes || '',
           });
         } else {
             toast({ title: 'خطأ', description: 'الفرد غير موجود.', variant: 'destructive' });
@@ -83,7 +87,7 @@ export default function EditPersonnelPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const storedData = localStorage.getItem('personnelData');
-      const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
+      let personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
       
       const updatedList = personnelList.map(p => {
         if (p.id === id) {
@@ -94,7 +98,7 @@ export default function EditPersonnelPage() {
             rank: values.rank,
             administration: values.administration,
             status: values.status,
-            appointmentDate: values.appointmentDate,
+            appointmentDate: values.appointmentDate.toISOString(),
             notes: values.notes,
           };
         }
@@ -126,7 +130,7 @@ export default function EditPersonnelPage() {
                 <CardTitle className="text-2xl flex items-center gap-2"><Skeleton className="h-8 w-8 rounded-full" /> <Skeleton className="h-8 w-48" /></CardTitle>
                 <Skeleton className="h-4 w-64" />
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
@@ -135,6 +139,10 @@ export default function EditPersonnelPage() {
                 <Skeleton className="h-10 w-full" />
                 <div className="md:col-span-2">
                     <Skeleton className="h-24 w-full" />
+                </div>
+                 <div className="md:col-span-2 flex justify-end gap-4">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-24" />
                 </div>
             </CardContent>
         </Card>
@@ -164,7 +172,7 @@ export default function EditPersonnelPage() {
                 <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="appointmentDate" render={({ field }) => (
-                <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>

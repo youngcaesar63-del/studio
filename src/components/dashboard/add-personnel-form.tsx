@@ -57,8 +57,8 @@ export function AddPersonnelForm() {
         rank: values.rank,
         administration: values.administration,
         status: values.status,
-        // appointmentDate: values.appointmentDate, // Not in the table view
-        // notes: values.notes, // Not in the table view
+        appointmentDate: values.appointmentDate.toISOString(),
+        notes: values.notes,
       };
 
       personnelList.push(newPersonnel);
@@ -67,7 +67,6 @@ export function AddPersonnelForm() {
       toast({
         title: 'تم الحفظ بنجاح',
         description: `تمت إضافة الفرد ${values.fullName} إلى السجل المحلي.`,
-        className: 'bg-green-100 border-green-500 text-green-700 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
       });
       router.push('/dashboard/personnel-list');
 
