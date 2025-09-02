@@ -59,26 +59,26 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12 text-center">م</TableHead>
-                <TableHead className="text-center">رقم البطاقة</TableHead>
-                <TableHead className="text-center">الرتبة</TableHead>
-                <TableHead className="text-center">الاسم</TableHead>
-                <TableHead className="hidden sm:table-cell text-center">الإدارة</TableHead>
-                <TableHead className="text-center">الحالة</TableHead>
-                <TableHead className="text-center">الإجراءات</TableHead>
+                <TableHead className="text-center border-r">رقم البطاقة</TableHead>
+                <TableHead className="text-center border-r">الرتبة</TableHead>
+                <TableHead className="text-center border-r">الاسم</TableHead>
+                <TableHead className="hidden sm:table-cell text-center border-r">الإدارة</TableHead>
+                <TableHead className="text-center border-r">الحالة</TableHead>
+                <TableHead className="text-center border-r">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((person, index) => (
                 <TableRow key={person.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{person.cardId}</TableCell>
-                  <TableCell>{person.rank}</TableCell>
-                  <TableCell className="font-medium">{person.name}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{person.administration}</TableCell>
-                  <TableCell>
+                  <TableCell className="border-r">{person.cardId}</TableCell>
+                  <TableCell className="border-r">{person.rank}</TableCell>
+                  <TableCell className="font-medium border-r">{person.name}</TableCell>
+                  <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
+                  <TableCell className="border-r">
                     <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
                   </TableCell>
-                  <TableCell className="text-left">
+                  <TableCell className="text-left border-r">
                     <div className="flex items-center justify-start gap-2">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
