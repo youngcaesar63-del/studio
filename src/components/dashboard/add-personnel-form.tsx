@@ -24,12 +24,17 @@ const formSchema = z.object({
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
   status: z.string().min(1, 'الحالة مطلوبة'),
+  bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
+  maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   notes: z.string().optional(),
 });
 
 const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'].sort((a,b) => a.localeCompare(b, 'ar'));
 const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'].sort((a,b) => a.localeCompare(b, 'ar'));
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
+const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
+
 
 export function AddPersonnelForm() {
   const router = useRouter();
@@ -41,6 +46,8 @@ export function AddPersonnelForm() {
       rank: '',
       administration: '',
       status: 'بالطابور',
+      bloodType: '',
+      maritalStatus: '',
       notes: '',
     },
   });
@@ -58,6 +65,8 @@ export function AddPersonnelForm() {
         administration: values.administration,
         status: values.status,
         appointmentDate: values.appointmentDate.toISOString(),
+        bloodType: values.bloodType,
+        maritalStatus: values.maritalStatus,
         notes: values.notes,
       };
 
@@ -100,6 +109,12 @@ export function AddPersonnelForm() {
         )} />
         <FormField control={form.control} name="status" render={({ field }) => (
           <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="bloodType" render={({ field }) => (
+          <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="maritalStatus" render={({ field }) => (
+          <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
         )} />
         <FormField control={form.control} name="notes" render={({ field }) => (
           <FormItem className="md:col-span-2"><FormLabel>ملاحظات</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>

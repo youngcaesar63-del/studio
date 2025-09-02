@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 
@@ -18,6 +18,8 @@ type Personnel = {
     administration: string;
     status: string;
     appointmentDate?: string;
+    bloodType?: string;
+    maritalStatus?: string;
     notes?: string;
 };
 
@@ -35,7 +37,7 @@ const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, lab
         <Icon className="h-6 w-6 text-primary mt-1" />
         <div>
             <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="font-semibold text-lg">{value}</p>
+            <p className="font-semibold text-lg">{value || 'غير مسجل'}</p>
         </div>
     </div>
 );
@@ -132,6 +134,8 @@ export default function ViewPersonnelPage() {
                             label="تاريخ التعيين" 
                             value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} 
                         />
+                        <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
+                        <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
                     </div>
                     {person.notes && (
                          <div className="mt-8 pt-6 border-t">
