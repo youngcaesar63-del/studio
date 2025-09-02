@@ -58,13 +58,13 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">م</TableHead>
-                <TableHead>رقم البطاقة</TableHead>
-                <TableHead>الرتبة</TableHead>
-                <TableHead>الاسم</TableHead>
-                <TableHead className="hidden sm:table-cell">الإدارة</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead className="text-left">الإجراءات</TableHead>
+                <TableHead className="w-12 text-center">م</TableHead>
+                <TableHead className="text-center">رقم البطاقة</TableHead>
+                <TableHead className="text-center">الرتبة</TableHead>
+                <TableHead className="text-center">الاسم</TableHead>
+                <TableHead className="hidden sm:table-cell text-center">الإدارة</TableHead>
+                <TableHead className="text-center">الحالة</TableHead>
+                <TableHead className="text-center">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
