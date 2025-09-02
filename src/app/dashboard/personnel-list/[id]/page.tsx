@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -20,6 +20,7 @@ type Personnel = {
     administration: string;
     status: string;
     appointmentDate?: string;
+    lastReturnDate?: string;
     bloodType?: string;
     maritalStatus?: string;
     notes?: string;
@@ -142,6 +143,11 @@ export default function ViewPersonnelPage() {
                             icon={Calendar} 
                             label="تاريخ التعيين" 
                             value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} 
+                        />
+                         <DetailItem 
+                            icon={Undo2} 
+                            label="تاريخ آخر عودة" 
+                            value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy') : 'غير مسجل'} 
                         />
                         <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                         <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
