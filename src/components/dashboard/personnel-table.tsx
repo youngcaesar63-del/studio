@@ -78,8 +78,8 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                   </TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center justify-start gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(`جاري عرض ملف الفرد: ${person.name}`)}><Eye className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(`جاري تعديل بيانات الفرد: ${person.name}`)}><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
