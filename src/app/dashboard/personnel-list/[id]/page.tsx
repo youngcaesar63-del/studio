@@ -6,9 +6,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Award } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 type Personnel = {
     id: number;
@@ -22,6 +23,7 @@ type Personnel = {
     bloodType?: string;
     maritalStatus?: string;
     notes?: string;
+    photo?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -117,8 +119,12 @@ export default function ViewPersonnelPage() {
                 <CardHeader className="bg-muted/30">
                      <div className="flex flex-col sm:flex-row items-center gap-6">
                         <div className="p-1 bg-gradient-to-tr from-primary to-accent rounded-full">
-                           <div className="bg-card p-4 rounded-full">
-                                <User className="h-16 w-16 text-primary" />
+                           <div className="bg-card p-2 rounded-full relative w-24 h-24 flex items-center justify-center">
+                                {person.photo ? (
+                                    <Image src={person.photo} alt={person.name} layout="fill" className="rounded-full object-cover" />
+                                ) : (
+                                    <User className="h-16 w-16 text-primary" />
+                                )}
                            </div>
                         </div>
                         <div>

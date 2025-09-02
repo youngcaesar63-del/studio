@@ -10,7 +10,7 @@ export default function AddPersonnelPage() {
           <CardTitle className="text-2xl">إضافة فرد جديد</CardTitle>
           <CardDescription>أدخل البيانات المطلوبة لإضافة فرد جديد للنظام.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <AddPersonnelForm />
         </CardContent>
       </Card>
