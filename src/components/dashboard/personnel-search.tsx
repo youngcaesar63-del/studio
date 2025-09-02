@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,19 +9,27 @@ import { Search } from 'lucide-react';
 import { fuzzyPersonnelSearch } from '@/ai/flows/fuzzy-personnel-search';
 import { useToast } from '@/hooks/use-toast';
 
-const allPersonnel = [
-  'أحمد محمد علي', 'محمد خالد سعيد', 'علي حسن محمد', 'محمود سعيد عبدالله',
-  'يوسف إبراهيم أحمد', 'خالد عبدالله محمود', 'سعيد علي حسن', 'عمر محمد يوسف'
-];
-
-const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'];
-const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'];
+const ranks = ['رائد', 'عميد', 'عقيد', 'لواء', 'ملازم', 'ملازم أول', 'مقدم', 'نقيب'].sort((a,b) => a.localeCompare(b, 'ar'));
+const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 
 export function PersonnelSearch() {
   const [query, setQuery] = useState('');
+  const [allPersonnel, setAllPersonnel] = useState<string[]>([]);
   const [results, setResults] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    try {
+      const storedData = localStorage.getItem('personnelData');
+      if (storedData) {
+        const personnelList = JSON.parse(storedData);
+        setAllPersonnel(personnelList.map((p: any) => p.name));
+      }
+    } catch (e) {
+      console.error("Failed to load personnel names for search", e);
+    }
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +39,15 @@ export function PersonnelSearch() {
     }
     setIsLoading(true);
     try {
-      const matchedNames = await fuzzyPersonnelSearch({
-        partialName: query,
-        personnelList: allPersonnel,
-      });
-      setResults(matchedNames);
+      if (allPersonnel.length > 0) {
+        const matchedNames = await fuzzyPersonnelSearch({
+          partialName: query,
+          personnelList: allPersonnel,
+        });
+        setResults(matchedNames);
+      } else {
+        setResults([]);
+      }
     } catch (error) {
       console.error("Fuzzy search failed:", error);
       toast({

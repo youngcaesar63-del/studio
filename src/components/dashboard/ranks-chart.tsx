@@ -1,38 +1,79 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis } from 'recharts';
+import { useState, useEffect } from 'react';
+import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Skeleton } from '../ui/skeleton';
 
-const chartData = [
-  { rank: 'ملازم', personnel: 120, fill: 'var(--color-m1)' },
-  { rank: 'ملازم أول', personnel: 95, fill: 'var(--color-m2)' },
-  { rank: 'نقيب', personnel: 80, fill: 'var(--color-n)' },
-  { rank: 'رائد', personnel: 65, fill: 'var(--color-r)' },
-  { rank: 'مقدم', personnel: 50, fill: 'var(--color-m3)' },
-  { rank: 'عقيد', personnel: 35, fill: 'var(--color-a)' },
-  { rank: 'عميد', personnel: 25, fill: 'var(--color-b)' },
-  { rank: 'لواء', personnel: 15, fill: 'var(--color-l)' },
-];
+type Personnel = {
+  rank: string;
+};
+
+const rankColors: { [key: string]: string } = {
+  'ملازم': 'hsl(var(--chart-1))',
+  'ملازم أول': 'hsl(var(--chart-2))',
+  'نقيب': 'hsl(var(--chart-3))',
+  'رائد': 'hsl(var(--chart-4))',
+  'مقدم': 'hsl(var(--chart-5))',
+  'عقيد': '#F59E0B',
+  'عميد': '#10B981',
+  'لواء': '#3B82F6',
+};
 
 const chartConfig = {
   personnel: { label: 'الأفراد' },
-  m1: { label: 'ملازم', color: '#6366F1' },
-  m2: { label: 'ملازم أول', color: '#8B5CF6' },
-  n: { label: 'نقيب', color: '#EC4899' },
-  r: { label: 'رائد', color: '#F43F5E' },
-  m3: { label: 'مقدم', color: '#F97316' },
-  a: { label: 'عقيد', color: '#F59E0B' },
-  b: { label: 'عميد', color: '#10B981' },
-  l: { label: 'لواء', color: '#3B82F6' },
 };
 
 export function RanksChart() {
   const [chartType, setChartType] = useState<'doughnut' | 'bar'>('doughnut');
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+        const storedData = localStorage.getItem('personnelData');
+        const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
+        
+        const rankCounts: { [key: string]: number } = {};
+        personnelList.forEach(p => {
+            rankCounts[p.rank] = (rankCounts[p.rank] || 0) + 1;
+        });
+
+        const data = Object.entries(rankCounts).map(([rank, count]) => ({
+            rank,
+            personnel: count,
+            fill: rankColors[rank] || '#ccc',
+        }));
+        
+        setChartData(data);
+    } catch (e) {
+        console.error("Failed to load chart data", e);
+        setChartData([]);
+    } finally {
+        setLoading(false);
+    }
+  }, []);
+
+  if (loading) {
+    return <Skeleton className="h-[386px] w-full" />
+  }
+   
+  if (chartData.length === 0) {
+    return (
+        <Card className="shadow-md">
+            <CardHeader>
+                <CardTitle>توزيع الأفراد حسب الرتب</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center min-h-[300px]">
+                <p className="text-muted-foreground">لا توجد بيانات لعرضها.</p>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <Card className="shadow-md">
@@ -60,7 +101,19 @@ export function RanksChart() {
                   innerRadius={60}
                   strokeWidth={5}
                   labelLine={false}
-                />
+                  label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                    const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+                    const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+                    return (percent > 0.05) ? (
+                      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-bold">
+                        {`${(percent * 100).toFixed(0)}%`}
+                      </text>
+                    ) : null;
+                  }}
+                >
+                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                </Pie>
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -69,7 +122,9 @@ export function RanksChart() {
                  <YAxis dataKey="rank" type="category" tickLine={false} axisLine={false} tickMargin={10} width={60} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
                  <XAxis dataKey="personnel" type="number" hide />
                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                 <Bar dataKey="personnel" layout="vertical" radius={5} />
+                 <Bar dataKey="personnel" layout="vertical" radius={5}>
+                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
