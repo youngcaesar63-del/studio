@@ -58,20 +58,22 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>الاسم</TableHead>
-                <TableHead className="hidden md:table-cell">رقم البطاقة</TableHead>
+                <TableHead className="w-12">م</TableHead>
+                <TableHead>رقم البطاقة</TableHead>
                 <TableHead>الرتبة</TableHead>
+                <TableHead>الاسم</TableHead>
                 <TableHead className="hidden sm:table-cell">الإدارة</TableHead>
                 <TableHead>الحالة</TableHead>
                 <TableHead className="text-left">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((person) => (
+              {data.map((person, index) => (
                 <TableRow key={person.id}>
-                  <TableCell className="font-medium">{person.name}</TableCell>
-                  <TableCell className="hidden md:table-cell">{person.cardId}</TableCell>
+                  <TableCell className="font-medium">{index + 1}</TableCell>
+                  <TableCell>{person.cardId}</TableCell>
                   <TableCell>{person.rank}</TableCell>
+                  <TableCell className="font-medium">{person.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{person.administration}</TableCell>
                   <TableCell>
                     <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
