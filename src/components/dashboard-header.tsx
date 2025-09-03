@@ -41,13 +41,13 @@ export function DashboardHeader() {
     <header className="bg-primary text-primary-foreground py-4 px-6 shadow-lg sticky top-0 z-40 no-print">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4 rtl:space-x-reverse">
-          <h1 className="text-2xl font-bold">سجل الأفراد</h1>
           <Image
             src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png"
             alt="شعار هيئة الاستخبارات العسكرية"
             width={40}
             height={40}
           />
+          <h1 className="text-2xl font-bold">سجل الأفراد</h1>
         </div>
         <div className="flex items-center space-x-6 rtl:space-x-reverse">
           <DropdownMenu>
