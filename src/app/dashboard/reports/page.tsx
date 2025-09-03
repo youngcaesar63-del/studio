@@ -131,25 +131,27 @@ export default function ReportsPage() {
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
-      const administrationHeader = includeAdministration ? `<th>الإدارة</th>` : '';
-      const administrationLetter = includeAdministration ? `<th>(هـ)</th>` : '';
+      const administrationHeaderTitle = includeAdministration ? `<th>الإدارة</th>` : '';
+      const administrationHeaderLetter = includeAdministration ? `<th>(هـ)</th>` : '';
+      const notesHeaderLetter = includeAdministration ? `<th>(و)</th>` : `<th>(هـ)</th>` ;
+
 
       const headerRow1 = `
-        <th>ملحوظات</th>
-        ${administrationHeader}
-        <th>الاسم</th>
-        <th>الرتبة</th>
-        <th>رقم البطاقة</th>
         <th>م</th>
+        <th>رقم البطاقة</th>
+        <th>الرتبة</th>
+        <th>الاسم</th>
+        ${administrationHeaderTitle}
+        <th>ملحوظات</th>
       `;
 
       const headerRow2 = `
-        <th>(${includeAdministration ? 'و' : 'هـ'})</th>
-        ${administrationLetter}
-        <th>(د)</th>
-        <th>(جـ)</th>
-        <th>(ب)</th>
         <th>(أ)</th>
+        <th>(ب)</th>
+        <th>(جـ)</th>
+        <th>(د)</th>
+        ${administrationHeaderLetter}
+        ${notesHeaderLetter}
       `;
       
       let tableContent = `
@@ -168,12 +170,12 @@ export default function ReportsPage() {
             const adminCell = includeAdministration ? `<td>${person.administration}</td>` : '';
             tableContent += `
               <tr>
-                <td></td>
-                ${adminCell}
-                <td>${person.name}</td>
-                <td>${displayRank}</td>
-                <td>${formatArabicNumber(person.cardId)}</td>
                 <td>${arabicIndex}</td>
+                <td>${formatArabicNumber(person.cardId)}</td>
+                <td>${displayRank}</td>
+                <td>${person.name}</td>
+                ${adminCell}
+                <td></td>
               </tr>
             `;
         });
@@ -240,7 +242,7 @@ export default function ReportsPage() {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        .report-table tbody tr td:last-child {
+        .report-table tbody tr td:first-child {
             background-color: #e0e0e0 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
