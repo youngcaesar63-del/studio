@@ -106,10 +106,12 @@ export function AddPersonnelForm() {
 
       personnelList.push(newPersonnel);
       localStorage.setItem('personnelData', JSON.stringify(personnelList));
+      // Dispatch a custom event to notify other components of the change
+      window.dispatchEvent(new Event('localStorageChange'));
 
       toast({
         title: 'تم الحفظ بنجاح',
-        description: `تمت إضافة الفرد ${values.fullName} إلى السجل المحلي.`,
+        description: `تمت إضافة الفرد ${values.fullName} إلى السجل.`,
       });
       router.push('/dashboard/personnel-list');
 

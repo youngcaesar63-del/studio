@@ -69,8 +69,8 @@ export function UsersTable({ data, onDelete, onToggleStatus }: UsersTableProps) 
                   </TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center justify-start gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700" onClick={() => onToggleStatus(user.id)}>
-                          {user.status === 'نشط' ? <ToggleLeft className="h-5 w-5" /> : <ToggleRight className="h-5 w-5" />}
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleStatus(user.id)}>
+                          {user.status === 'نشط' ? <ToggleLeft className="h-5 w-5 text-green-500" /> : <ToggleRight className="h-5 w-5 text-muted-foreground" />}
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(user.name)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>

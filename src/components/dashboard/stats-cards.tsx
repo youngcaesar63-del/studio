@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, UserPlus, Briefcase, TrendingUp, Minus, ShieldAlert, BookOpen, Plane, UserMinus, UserX, Footprints } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
@@ -33,7 +33,7 @@ export function StatsCards() {
   const [stats, setStats] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const calculateStats = useCallback(() => {
     try {
       const storedData = localStorage.getItem('personnelData');
       const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
@@ -47,11 +47,6 @@ export function StatsCards() {
       const attached = personnelList.filter(p => p.status === 'إلحاق').length;
       const absent = personnelList.filter(p => p.status === 'غياب').length;
       const escaped = personnelList.filter(p => p.status === 'هروب').length;
-
-
-      // New personnel: added in the last 30 days. ID is a timestamp.
-      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-      const newPersonnel = personnelList.filter(p => p.id > thirtyDaysAgo).length;
 
       const calculatedStats = [
         { title: 'إجمالي الأفراد', value: total.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
@@ -74,10 +69,27 @@ export function StatsCards() {
     }
   }, []);
 
+  useEffect(() => {
+    calculateStats();
+    
+    const handleStorageChange = () => {
+        calculateStats();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    // Custom event to listen for changes from within the same page
+    window.addEventListener('localStorageChange', handleStorageChange);
+
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageChange', handleStorageChange);
+    };
+  }, [calculateStats]);
+
   if (loading) {
     return (
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-[126px] w-full" />)}
+        {[...Array(9)].map((_, i) => <Skeleton key={i} className="h-[126px] w-full" />)}
       </div>
     )
   }

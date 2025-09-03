@@ -1,6 +1,6 @@
 
 'use client';
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Settings as SettingsIcon, User, Bell, Palette, Lock } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,6 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
     const { toast } = useToast();
+    
+    const [notificationPreferences, setNotificationPreferences] = useState({
+        email: true,
+        push: false,
+        newPersonnel: true,
+    });
 
     const handleSaveChanges = () => {
         toast({
@@ -35,6 +41,12 @@ export default function SettingsPage() {
             description: 'تم حفظ تفضيلات الإشعارات بنجاح.',
         });
     };
+
+    const handleNotificationToggle = (id: keyof typeof notificationPreferences) => {
+        setNotificationPreferences(prev => ({...prev, [id]: !prev[id]}));
+        handleNotificationPreferences();
+    }
+
 
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
@@ -95,29 +107,28 @@ export default function SettingsPage() {
                             <CardTitle>إعدادات الإشعارات</CardTitle>
                             <CardDescription>اختر كيف تريد أن يتم إعلامك.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6">
+                        <CardContent className="space-y-4">
                             <div className="flex items-center justify-between p-4 rounded-lg border">
                                 <div>
                                     <Label htmlFor="email-notifications" className="font-medium">إشعارات البريد الإلكتروني</Label>
                                     <p className="text-sm text-muted-foreground">تلقي الإشعارات الهامة عبر البريد الإلكتروني.</p>
                                 </div>
-                                <Switch id="email-notifications" defaultChecked />
+                                <Switch id="email-notifications" checked={notificationPreferences.email} onCheckedChange={() => handleNotificationToggle('email')} />
                             </div>
                              <div className="flex items-center justify-between p-4 rounded-lg border">
                                 <div>
                                     <Label htmlFor="push-notifications" className="font-medium">إشعارات المتصفح</Label>
                                     <p className="text-sm text-muted-foreground">تلقي إشعارات مباشرة على جهازك.</p>
                                 </div>
-                                <Switch id="push-notifications" />
+                                <Switch id="push-notifications" checked={notificationPreferences.push} onCheckedChange={() => handleNotificationToggle('push')} />
                             </div>
                              <div className="flex items-center justify-between p-4 rounded-lg border">
                                 <div>
                                     <Label htmlFor="new-personnel-notification" className="font-medium">إضافة فرد جديد</Label>
                                     <p className="text-sm text-muted-foreground">إشعار عند إضافة فرد جديد للنظام.</p>
                                 </div>
-                                <Switch id="new-personnel-notification" defaultChecked />
+                                <Switch id="new-personnel-notification" checked={notificationPreferences.newPersonnel} onCheckedChange={() => handleNotificationToggle('newPersonnel')} />
                             </div>
-                            <Button onClick={handleNotificationPreferences}>حفظ التفضيلات</Button>
                         </CardContent>
                     </Card>
                 </TabsContent>
