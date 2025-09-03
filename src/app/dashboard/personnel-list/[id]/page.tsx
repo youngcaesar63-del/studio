@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -22,6 +22,7 @@ type Personnel = {
     administration: string;
     status: string;
     appointmentDate?: string;
+    certificateType?: string;
     lastReturnDate?: string;
     transferDate?: string;
     reportingDate?: string;
@@ -144,12 +145,14 @@ export default function ViewPersonnelPage() {
                         <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
                         <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
                         <DetailItem icon={Users} label="الدفعة" value={person.batch} />
+                        <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
                         <DetailItem icon={Briefcase} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
                         <DetailItem 
                             icon={Calendar} 
                             label="تاريخ التعيين" 
                             value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} 
                         />
+                        <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
                          <DetailItem 
                             icon={Undo2} 
                             label="تاريخ آخر عودة" 

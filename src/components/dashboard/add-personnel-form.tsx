@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import Image from 'next/image';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+import { Combobox } from '@/components/ui/combobox';
 
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
@@ -29,6 +30,7 @@ const formSchema = z.object({
   academicQualification: z.string().optional(),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
+  certificateType: z.string().min(1, 'نوع البراءة مطلوب'),
   lastReturnDate: z.date().optional(),
   transferDate: z.date().optional(),
   reportingDate: z.date().optional(),
@@ -49,20 +51,20 @@ const administrations = ['إدارة الشئون الإدارية', 'الإدا
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
+const certificateTypes = ['مستديمة', 'موقتة'];
 
 const generateBatches = () => {
-  const batches: string[] = [];
-  for (let i = 30; i <= 70; i++) batches.push(`الدفعة ${i}`);
-  for (let i = 1; i <= 25; i++) batches.push(`تقانة ${i}`);
-  for (let i = 1; i <= 3; i++) batches.push(`جامعيين ${i}`);
-  for (let i = 1; i <= 40; i++) batches.push(`فنيين ${i}`);
-  for (let i = 1; i <= 20; i++) batches.push(`تأهيلية ${i}`);
-  for (let i = 1; i <= 10; i++) batches.push(`اكرامية ${i}`);
-  batches.push('لا يوجد');
+  const batches: { value: string, label: string }[] = [];
+  for (let i = 70; i >= 30; i--) batches.push({ value: `الدفعة ${i}`, label: `الدفعة ${i}` });
+  for (let i = 25; i >= 1; i--) batches.push({ value: `تقانة ${i}`, label: `تقانة ${i}` });
+  for (let i = 3; i >= 1; i--) batches.push({ value: `جامعيين ${i}`, label: `جامعيين ${i}` });
+  for (let i = 40; i >= 1; i--) batches.push({ value: `فنيين ${i}`, label: `فنيين ${i}` });
+  for (let i = 20; i >= 1; i--) batches.push({ value: `تأهيلية ${i}`, label: `تأهيلية ${i}` });
+  for (let i = 10; i >= 1; i--) batches.push({ value: `اكرامية ${i}`, label: `اكرامية ${i}` });
+  batches.push({ value: 'لا يوجد', label: 'لا يوجد' });
   return batches;
 };
 const batches = generateBatches();
-
 
 export function AddPersonnelForm() {
   const router = useRouter();
@@ -78,6 +80,7 @@ export function AddPersonnelForm() {
       academicQualification: 'لا يوجد',
       batch: 'لا يوجد',
       administration: '',
+      certificateType: '',
       status: 'بالطابور',
       bloodType: '',
       maritalStatus: '',
@@ -113,6 +116,7 @@ export function AddPersonnelForm() {
       administration: values.administration,
       status: values.status,
       appointmentDate: values.appointmentDate.toISOString(),
+      certificateType: values.certificateType,
       lastReturnDate: values.lastReturnDate?.toISOString(),
       transferDate: values.transferDate?.toISOString(),
       reportingDate: values.reportingDate?.toISOString(),
@@ -175,10 +179,22 @@ export function AddPersonnelForm() {
                     <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                 )} />
                  <FormField control={form.control} name="batch" render={({ field }) => (
-                    <FormItem><FormLabel>الدفعة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الدفعة" /></SelectTrigger></FormControl><SelectContent className="max-h-60">{batches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                    <FormItem><FormLabel>الدفعة</FormLabel>
+                     <Combobox
+                        options={batches}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="اختر الدفعة..."
+                        filterPlaceholder="ابحث عن دفعة..."
+                      />
+                    <FormMessage />
+                    </FormItem>
                 )} />
                  <FormField control={form.control} name="appointmentDate" render={({ field }) => (
                     <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                )} />
+                 <FormField control={form.control} name="certificateType" render={({ field }) => (
+                    <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                 )} />
                  <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
                     <FormItem className="flex flex-col"><FormLabel>تاريخ آخر عودة</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
