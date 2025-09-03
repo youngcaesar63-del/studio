@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -27,17 +28,21 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
 
+const formatArabicNumber = (num: number) => {
+    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+}
+
 const notifications = [
   {
     title: 'بيانات غير مكتملة',
-    description: 'هناك ٥ أفراد ببيانات غير مكتملة تحتاج مراجعة',
+    description: `هناك ${formatArabicNumber(5)} أفراد ببيانات غير مكتملة تحتاج مراجعة`,
     icon: AlertTriangle,
     style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
     time: 'الآن',
   },
   {
     title: 'مواعيد تجديد',
-    description: 'هناك ١٢ وثيقة تحتاج تجديد خلال الشهر القادم',
+    description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج تجديد خلال الشهر القادم`,
     icon: Clock,
     style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
     time: 'منذ ساعة',

@@ -42,6 +42,12 @@ const chartConfig = {
 
 
 export default function StatisticsPage() {
+    const formatArabicNumber = (num: number) => {
+        return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+    }
+    
+    const arabicNumberFormatter = (value: number) => new Intl.NumberFormat('ar-SA-u-nu-arab').format(value);
+
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
             <Card className="shadow-md">
@@ -58,8 +64,8 @@ export default function StatisticsPage() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1,175</div>
-                        <p className="text-xs text-muted-foreground">+1.5% عن الشهر الماضي</p>
+                        <div className="text-2xl font-bold">{formatArabicNumber(1175)}</div>
+                        <p className="text-xs text-muted-foreground">+{formatArabicNumber(1.5)}% عن الشهر الماضي</p>
                     </CardContent>
                 </Card>
                  <Card>
@@ -68,7 +74,7 @@ export default function StatisticsPage() {
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">8.2 سنوات</div>
+                        <div className="text-2xl font-bold">{formatArabicNumber(8.2)} سنوات</div>
                         <p className="text-xs text-muted-foreground">متوسط خدمة الأفراد الحاليين</p>
                     </CardContent>
                 </Card>
@@ -78,7 +84,7 @@ export default function StatisticsPage() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+15</div>
+                        <div className="text-2xl font-bold">+{formatArabicNumber(15)}</div>
                         <p className="text-xs text-muted-foreground">ترقية هذا الشهر</p>
                     </CardContent>
                 </Card>
@@ -88,8 +94,8 @@ export default function StatisticsPage() {
                         <TrendingDown className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">0.8%</div>
-                        <p className="text-xs text-muted-foreground">-0.2% عن الشهر الماضي</p>
+                        <div className="text-2xl font-bold">{formatArabicNumber(0.8)}%</div>
+                        <p className="text-xs text-muted-foreground">-{formatArabicNumber(0.2)}% عن الشهر الماضي</p>
                     </CardContent>
                 </Card>
             </div>
@@ -103,7 +109,7 @@ export default function StatisticsPage() {
                         <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
                            <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
-                                    <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
+                                    <ChartTooltip formatter={(value: number) => arabicNumberFormatter(value)} content={<ChartTooltipContent nameKey="name" hideLabel />} />
                                     <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
                                         {statusData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -123,8 +129,8 @@ export default function StatisticsPage() {
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={administrationData}>
                                     <XAxis dataKey="administration" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                    <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                    <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                                    <YAxis tickFormatter={arabicNumberFormatter} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                                    <ChartTooltip formatter={(value: number) => arabicNumberFormatter(value)} content={<ChartTooltipContent indicator="dot" />} />
                                     <Bar dataKey="count" fill="var(--chart-2)" radius={4} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -141,8 +147,8 @@ export default function StatisticsPage() {
                         <ResponsiveContainer width="100%" height={300}>
                              <LineChart data={trendData}>
                                 <XAxis dataKey="month" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                <YAxis domain={['dataMin - 20', 'dataMax + 20']} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                                <YAxis domain={['dataMin - 20', 'dataMax + 20']} tickFormatter={arabicNumberFormatter} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                                <ChartTooltip formatter={(value: number) => arabicNumberFormatter(value)} content={<ChartTooltipContent indicator="dot" />} />
                                 <Line type="monotone" dataKey="count" stroke="var(--chart-1)" strokeWidth={2} />
                             </LineChart>
                         </ResponsiveContainer>

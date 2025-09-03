@@ -117,6 +117,10 @@ export default function ReportsPage() {
             return null;
     }
   }
+  
+   const formatArabicNumber = (num: number) => {
+    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+  }
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -365,7 +369,7 @@ export default function ReportsPage() {
                                         const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                                         return (
                                         <TableRow key={person.id}>
-                                            <TableCell className="text-center">{index + 1}</TableCell>
+                                            <TableCell className="text-center">{formatArabicNumber(index + 1)}</TableCell>
                                             <TableCell className="text-center border-r">{person.cardId}</TableCell>
                                             <TableCell className="text-center border-r">{displayRank}</TableCell>
                                             <TableCell className="text-center border-r">{person.name}</TableCell>

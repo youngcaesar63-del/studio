@@ -31,6 +31,10 @@ export default function BackupPage() {
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
 
+    const formatArabicNumber = (num: number) => {
+      return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+    }
+    
     const loadData = useCallback(() => {
         setLoading(true);
         let data = getLocalStorage('backupHistory', null);
@@ -181,7 +185,7 @@ export default function BackupPage() {
                    )}
                      <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
                         <div className="text-sm text-muted-foreground">
-                            عرض {backupHistory.length} من {backupHistory.length} نسخة احتياطية
+                            عرض {formatArabicNumber(backupHistory.length)} من {formatArabicNumber(backupHistory.length)} نسخة احتياطية
                         </div>
                     </div>
                 </CardContent>
