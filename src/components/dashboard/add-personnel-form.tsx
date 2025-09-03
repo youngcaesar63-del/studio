@@ -45,7 +45,7 @@ const formSchema = z.object({
   phoneNumber: z.string().optional(),
   state: z.string().optional(),
   city: z.string().optional(),
-  locality: z_string().optional(),
+  locality: z.string().optional(),
   address: z.string().optional(),
   nextOfKinName: z.string().optional(),
   nextOfKinPhone: z.string().optional(),
@@ -280,7 +280,7 @@ export function AddPersonnelForm() {
               <FormItem className="flex flex-col"><FormLabel>تاريخ النقل</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="reportingDate" render={({ field }) => (
-              <FormItem className="flex flex-col md:col-span-2 lg:col-span-1"><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+              <FormItem className="flex flex-col"><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="notes" render={({ field }) => (
                 <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>ملاحظات</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
@@ -296,5 +296,3 @@ export function AddPersonnelForm() {
     </Form>
   );
 }
-
-    
