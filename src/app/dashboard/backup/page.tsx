@@ -33,6 +33,7 @@ export default function BackupPage() {
 
     const loadData = () => {
         try {
+            setLoading(true);
             const storedData = localStorage.getItem('backupHistory');
             if (storedData) {
                 setBackupHistory(JSON.parse(storedData));
@@ -51,25 +52,31 @@ export default function BackupPage() {
     useEffect(() => {
         loadData();
         
-        const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === 'backupHistory') {
+        const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+            let key;
+            if (event instanceof StorageEvent) {
+                key = event.key;
+            } else if (event instanceof CustomEvent) {
+                key = event.detail.key;
+            }
+
+            if (key === 'backupHistory') {
                 loadData();
             }
         };
 
         window.addEventListener('storage', handleStorageChange);
-        // Custom event for same-tab updates
-        window.addEventListener('localStorageChange', loadData);
+        window.addEventListener('localStorageChange', handleStorageChange);
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
-            window.removeEventListener('localStorageChange', loadData);
+            window.removeEventListener('localStorageChange', handleStorageChange);
         };
     }, []);
 
     const updateLocalStorage = (data: Backup[]) => {
         localStorage.setItem('backupHistory', JSON.stringify(data));
-        window.dispatchEvent(new Event('localStorageChange'));
+        window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'backupHistory' } }));
     };
 
     const handleNewBackup = () => {

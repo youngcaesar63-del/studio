@@ -64,6 +64,7 @@ export default function PermissionsPage() {
 
   const loadData = () => {
       try {
+        setLoading(true);
         const storedData = localStorage.getItem('rolesData');
         if (storedData) {
           setRoles(JSON.parse(storedData));
@@ -82,26 +83,32 @@ export default function PermissionsPage() {
   useEffect(() => {
     loadData();
     
-    const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === 'rolesData') {
+    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+        let key;
+        if (event instanceof StorageEvent) {
+            key = event.key;
+        } else if (event instanceof CustomEvent) {
+            key = event.detail.key;
+        }
+
+        if (key === 'rolesData') {
             loadData();
         }
     };
     
     window.addEventListener('storage', handleStorageChange);
-    // Custom event for same-tab updates
-    window.addEventListener('localStorageChange', loadData);
+    window.addEventListener('localStorageChange', handleStorageChange);
 
     return () => {
         window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('localStorageChange', loadData);
+        window.removeEventListener('localStorageChange', handleStorageChange);
     };
   }, []);
 
   const updateLocalStorage = (data: Role[]) => {
     try {
       localStorage.setItem('rolesData', JSON.stringify(data));
-       window.dispatchEvent(new Event('localStorageChange'));
+      window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'rolesData' } }));
     } catch (error) {
       console.error("Failed to save roles to localStorage", error);
     }

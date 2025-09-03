@@ -35,6 +35,7 @@ export default function PersonnelListPage() {
 
   const loadData = useCallback(() => {
     try {
+      setLoading(true);
       const storedData = localStorage.getItem('personnelData');
       let data;
       if (storedData) {
@@ -64,20 +65,26 @@ export default function PersonnelListPage() {
   useEffect(() => {
     loadData();
 
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'personnelData') {
-        loadData();
+    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+      let key;
+      if (event instanceof StorageEvent) {
+          key = event.key;
+      } else if (event instanceof CustomEvent) {
+          key = event.detail.key;
+      }
+
+      if (key === 'personnelData') {
+          loadData();
       }
     };
     
     window.addEventListener('storage', handleStorageChange);
-    // Add listener for custom event to handle same-tab updates
-    window.addEventListener('localStorageChange', loadData);
+    window.addEventListener('localStorageChange', handleStorageChange);
 
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('localStorageChange', loadData);
+      window.removeEventListener('localStorageChange', handleStorageChange);
     };
   }, [loadData]);
 
@@ -85,8 +92,7 @@ export default function PersonnelListPage() {
     const updatedData = personnelData.filter(p => p.id !== personId);
     setPersonnelData(updatedData);
     localStorage.setItem('personnelData', JSON.stringify(updatedData));
-    // Dispatch custom event after delete to notify other components in the same tab
-    window.dispatchEvent(new Event('localStorageChange'));
+    window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'personnelData' } }));
   };
 
 

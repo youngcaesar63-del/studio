@@ -155,8 +155,7 @@ notes: personToEdit.notes || '',
       });
 
       localStorage.setItem('personnelData', JSON.stringify(updatedList));
-      // Dispatch a custom event to notify other components of the change
-      window.dispatchEvent(new Event('localStorageChange'));
+      window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'personnelData' } }));
 
       toast({
         title: 'تم التحديث بنجاح',
