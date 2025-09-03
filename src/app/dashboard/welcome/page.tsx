@@ -3,9 +3,35 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Calendar, Clock, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const MilitaryIntelligenceLogo = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" {...props}>
+        <defs>
+            <linearGradient id="gold_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#d4af37', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#a88807', stopOpacity: 1 }} />
+            </linearGradient>
+            <filter id="drop_shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+                <feOffset in="blur" dx="2" dy="2" result="offsetBlur" />
+                <feMerge>
+                    <feMergeNode in="offsetBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+        <g filter="url(#drop_shadow)">
+            <path d="M100 20 L170 60 L170 140 L100 180 L30 140 L30 60 Z" fill="#003366" stroke="url(#gold_grad)" strokeWidth="4" />
+            <circle cx="100" cy="100" r="45" fill="#0c4a8a" stroke="url(#gold_grad)" strokeWidth="3" />
+            <path d="M100 55 L125 75 L125 125 L100 145 L75 125 L75 75 Z" fill="#003366" />
+            <path d="M85 85 h30 l-15 30 z" fill="#d4af37" />
+            <path d="M100,20 L110,60 M100,20 L90,60 M170,60 L130,70 M170,140 L130,130 M100,180 L110,140 M100,180 L90,140 M30,140 L70,130 M30,60 L70,70" fill="none" stroke="url(#gold_grad)" strokeWidth="1.5" opacity="0.6" />
+        </g>
+    </svg>
+);
+
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -47,13 +73,7 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000">
         <div className="mb-6">
-          <Image
-            src="https://storage.googleapis.com/studiogpt-config-metadata/military-intelligence-logo.png"
-            alt="شعار هيئة الاستخبارات العسكرية"
-            width={180}
-            height={180}
-            priority
-          />
+           <MilitaryIntelligenceLogo className="w-[180px] h-[180px]" />
         </div>
 
         <div className="mb-8">
