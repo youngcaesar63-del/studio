@@ -177,15 +177,13 @@ export default function ReportsPage() {
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
-            margin: 20px;
+            margin: 1cm;
         }
         .print-header {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-bottom: 20px;
-            padding-top: 1cm;
-            border-top: 2px solid black;
         }
         .print-header h1 {
             font-size: 1.5rem;
@@ -206,21 +204,18 @@ export default function ReportsPage() {
           width: 100%; 
           border-collapse: collapse; 
           font-size: 12px; 
-          border: 2px double #000;
+          border: 2px solid #000;
         }
         .report-table th, .report-table td {
-          border: 2px double #000; 
+          border: 1px solid #000; 
           padding: 8px;
           text-align: center;
         }
-        .report-table thead {
+        .report-table thead tr {
           background-color: #e0e0e0;
         }
-        .report-table .header-row-titles th {
-           border-bottom: 1px solid #000;
-        }
-        .report-table .header-row-letters th {
-          background-color: #f2f2f2;
+        .report-table tbody tr td:first-child {
+            background-color: #e0e0e0;
         }
       `);
       printWindow.document.write('</style>');
@@ -400,5 +395,9 @@ export default function ReportsPage() {
 
 
     
+
+    
+
+
 
     
