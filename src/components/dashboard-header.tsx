@@ -24,14 +24,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 export function DashboardHeader() {
   const { setTheme } = useTheme();
+  const router = useRouter();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
     toast({ title: 'تم تسجيل الخروج بنجاح' });
     setLogoutModalOpen(false);
+    router.push('/login');
   };
 
   return (
