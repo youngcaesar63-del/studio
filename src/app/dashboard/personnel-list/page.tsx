@@ -15,7 +15,7 @@ const initialPersonnelData = [
     { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', batch: 'الدفعة 45', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'A-', maritalStatus: 'متزوج', serviceOperations: [], trainingCourses: [] },
     { id: 6, cardId: '30309150201239', name: 'سالم فهد', rank: 'فريق', specialization: 'لا يوجد', academicQualification: 'ماجستير', batch: 'الدفعة 40', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'O-', maritalStatus: 'متزوج', serviceOperations: [], trainingCourses: [] },
     { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', academicQualification: 'دكتوراه', batch: 'الدفعة 38', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'B-', maritalStatus: 'متزوج', serviceOperations: [], trainingCourses: [] },
-];
+].map(p => ({ ...p, trainingCourses: p.trainingCourses || [] }));
 
 const rankOrder: { [key: string]: number } = {
   'فريق أول': 1,

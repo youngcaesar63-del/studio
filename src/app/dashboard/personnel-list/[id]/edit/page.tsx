@@ -37,6 +37,7 @@ const trainingCourseSchema = z.object({
   institute: z.string().min(1, 'اسم المعهد مطلوب'),
   periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+  grade: z.string().optional(),
 });
 
 const formSchema = z.object({
@@ -71,7 +72,7 @@ const formSchema = z.object({
   trainingCourses: z.array(trainingCourseSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; }[] };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[] };
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -85,6 +86,7 @@ const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
 const certificateTypes = ['مستديمة', 'موقتة'];
 const states = ["الخرطوم", "الجزيرة", "البحر الأحمر", "كسلا", "القضارف", "سنار", "النيل الأبيض", "النيل الأزرق", "الشمالية", "نهر النيل", "غرب كردفان", "جنوب كردفان", "شمال دارفور", "غرب دارفور", "جنوب دارفور", "شرق دارفور", "وسط دارفور"].sort((a,b) => a.localeCompare(b, 'ar'));
+const courseGrades = ['أ', 'ب', 'جـ', 'د'];
 
 const generateBatches = () => {
   const batches: { value: string, label: string }[] = [];
@@ -418,16 +420,19 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">الدورات التدريبية</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date(), grade: 'أ' })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة دورة تدريبية
                       </Button>
                     </div>
                     <div className="space-y-4">
                       {courseFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
                            <FormField control={form.control} name={`trainingCourses.${index}.courseName`} render={({ field }) => (
-                              <FormItem className="lg:col-span-2"><FormLabel>اسم الدورة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem><FormLabel>اسم الدورة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`trainingCourses.${index}.institute`} render={({ field }) => (
+                              <FormItem><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                           )} />
                            <FormField control={form.control} name={`trainingCourses.${index}.courseType`} render={({ field }) => (
                             <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
@@ -435,8 +440,8 @@ export default function EditPersonnelPage() {
                           <FormField control={form.control} name={`trainingCourses.${index}.imperativeness`} render={({ field }) => (
                             <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                           )} />
-                           <FormField control={form.control} name={`trainingCourses.${index}.institute`} render={({ field }) => (
-                              <FormItem className="lg:col-span-2"><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          <FormField control={form.control} name={`trainingCourses.${index}.grade`} render={({ field }) => (
+                            <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                           )} />
                            <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
                               <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>

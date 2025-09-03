@@ -26,6 +26,7 @@ type TrainingCourse = {
     institute: string;
     periodFrom: string;
     periodTo: string;
+    grade?: string;
 }
 
 type Personnel = {
@@ -235,6 +236,7 @@ export default function ViewPersonnelPage() {
                                             <TableHead className="text-center">اسم الدورة</TableHead>
                                             <TableHead className="text-center border-r">النوع</TableHead>
                                             <TableHead className="text-center border-r">الحتمية</TableHead>
+                                            <TableHead className="text-center border-r">التقدير</TableHead>
                                             <TableHead className="text-center border-r">المعهد</TableHead>
                                             <TableHead className="text-center border-r">من</TableHead>
                                             <TableHead className="text-center border-r">إلى</TableHead>
@@ -246,6 +248,7 @@ export default function ViewPersonnelPage() {
                                                 <TableCell className="text-center">{course.courseName}</TableCell>
                                                 <TableCell className="text-center border-r">{course.courseType}</TableCell>
                                                 <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
+                                                <TableCell className="text-center border-r">{course.grade || '-'}</TableCell>
                                                 <TableCell className="text-center border-r">{course.institute}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy')}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy')}</TableCell>
