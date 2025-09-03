@@ -264,7 +264,7 @@ export default function EditPersonnelPage() {
                              <Combobox
                                 options={batches}
                                 value={field.value}
-                                onChange={(value) => form.setValue('batch', value)}
+                                onChange={(value) => form.setValue('batch', value === field.value ? '' : value)}
                                 placeholder="اختر الدفعة..."
                                 filterPlaceholder="ابحث عن دفعة..."
                               />
@@ -366,4 +366,5 @@ export default function EditPersonnelPage() {
   );
 }
 
+    
     
