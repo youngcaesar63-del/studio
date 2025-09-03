@@ -5,11 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Calendar, Clock, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import Image from 'next/image';
 
-const MilitaryIntelligenceLogo = (props: React.SVGProps<SVGSVGElement>) => (
+const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
     <div {...props}>
-      <Image 
+      <img 
         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAGsSURBVHhe7dJNCsJAEAbgp+k+6k56l14k2ZBuJd2J6i68i6AI0k20Uu/TBwUhvA/cD76g/2/A/wQO0wnUTqB2ArUTqJ1A7QQSJ1A7gdoJ1E6gdgK1E0icQO0EaifQSiB3AqlDILcI5BYhBSitxo/ck8gqEWgXkHkEahHQp0CUU7n3ZTKqBKAtQG0SagcQO4HaCVROILUCyC1AlBHILkCUEUivQCqBLCCQXoBUEEiuQKqZQKkEUgMgtQOpYQKlgkAsBSitQSoY5HIGaA+gOgC1B1AdgJIDqA5AbQCiA1AbgOgAJA6gNgC1AagNQG0AggNQG4DaANQGoDYAkAOoDUBtAGoDUJuA0AGkDyA9gPQA0gNIHiA9gPQA0gNIAyA9gPQA0gNIAyA9gPQA0gNIAyA5gPQA0gNIAyANgNIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA/QdQO0E6idQO0EaifQOAJ1E6idQO0EaidQO4HGARg/S+w9/kce4c0AAAAASUVORK5CYII=" 
         alt="شعار هيئة الاستخبارات العسكرية" 
         width={100} 
