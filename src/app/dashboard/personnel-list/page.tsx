@@ -12,7 +12,22 @@ const initialPersonnelData = [
     { id: 3, cardId: '30006150201236', name: 'علي حسن محمد', rank: 'ملازم أول', specialization: 'مهندس', administration: 'الإدارة العامة للاستخبارات', status: 'دورة تدريبية', appointmentDate: new Date().toISOString(), bloodType: 'B+', maritalStatus: 'أعزب' },
     { id: 4, cardId: '30107150201237', name: 'محمود سعيد عبدالله', rank: 'عقيد', specialization: 'ركن', administration: 'الإدارة العامة للمعلومات الاستراتيجية', status: 'عمليات', appointmentDate: new Date().toISOString(), bloodType: 'AB+', maritalStatus: 'متزوج' },
     { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A-', maritalStatus: 'متزوج' },
+    { id: 6, cardId: '30309150201239', name: 'سالم فهد', rank: 'فريق', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'O-', maritalStatus: 'متزوج' },
+    { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'B-', maritalStatus: 'متزوج' },
 ];
+
+const rankOrder: { [key: string]: number } = {
+  'فريق أول': 1,
+  'فريق': 2,
+  'لواء': 3,
+  'عميد': 4,
+  'عقيد': 5,
+  'مقدم': 6,
+  'رائد': 7,
+  'نقيب': 8,
+  'ملازم أول': 9,
+  'ملازم': 10,
+};
 
 export default function PersonnelListPage() {
   const [personnelData, setPersonnelData] = useState<any[]>([]);
@@ -21,13 +36,23 @@ export default function PersonnelListPage() {
   useEffect(() => {
     try {
       const storedData = localStorage.getItem('personnelData');
+      let data;
       if (storedData) {
-        setPersonnelData(JSON.parse(storedData));
+        data = JSON.parse(storedData);
       } else {
         // If no data in local storage, use initial data and set it
+        data = initialPersonnelData;
         localStorage.setItem('personnelData', JSON.stringify(initialPersonnelData));
-        setPersonnelData(initialPersonnelData);
       }
+      
+      const sortedData = data.sort((a: any, b: any) => {
+        const rankA = rankOrder[a.rank] || 99;
+        const rankB = rankOrder[b.rank] || 99;
+        return rankA - rankB;
+      });
+
+      setPersonnelData(sortedData);
+
     } catch (error) {
         console.error("Failed to read from localStorage", error);
         setPersonnelData(initialPersonnelData);

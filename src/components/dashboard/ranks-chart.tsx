@@ -22,6 +22,8 @@ const rankColors: { [key: string]: string } = {
   'عقيد': '#F59E0B',
   'عميد': '#10B981',
   'لواء': '#3B82F6',
+  'فريق': '#6366F1',
+  'فريق أول': '#8B5CF6',
 };
 
 const chartConfig = {
