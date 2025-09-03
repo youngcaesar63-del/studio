@@ -193,16 +193,18 @@ export default function ReportsPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {reportData.length > 0 ? reportData.map((person, index) => (
+                                    {reportData.length > 0 ? reportData.map((person, index) => {
+                                        const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+                                        return (
                                         <TableRow key={person.id}>
                                             <TableCell className="text-center">{index + 1}</TableCell>
                                             <TableCell className="text-center border-r">{person.cardId}</TableCell>
-                                            <TableCell className="text-center border-r">{person.rank}</TableCell>
+                                            <TableCell className="text-center border-r">{displayRank}</TableCell>
                                             <TableCell className="text-center border-r">{person.name}</TableCell>
                                             <TableCell className="text-center border-r">{person.administration}</TableCell>
                                             <TableCell className="text-center border-r">{person.status}</TableCell>
                                         </TableRow>
-                                    )) : (
+                                    )}) : (
                                         <TableRow>
                                             <TableCell colSpan={6} className="text-center text-muted-foreground h-24">
                                                 لا توجد بيانات تطابق هذه الفلاتر.
