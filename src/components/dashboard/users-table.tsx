@@ -51,24 +51,24 @@ export function UsersTable({ data, onDelete, onToggleStatus }: UsersTableProps) 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>الاسم</TableHead>
-                <TableHead>الدور</TableHead>
-                <TableHead>آخر تسجيل دخول</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead className="text-left">الإجراءات</TableHead>
+                <TableHead className="text-center">الاسم</TableHead>
+                <TableHead className="text-center border-r">الدور</TableHead>
+                <TableHead className="text-center border-r">آخر تسجيل دخول</TableHead>
+                <TableHead className="text-center border-r">الحالة</TableHead>
+                <TableHead className="text-center border-r">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell className="text-muted-foreground">{user.lastLogin}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-medium text-center">{user.name}</TableCell>
+                  <TableCell className="text-center border-r">{user.role}</TableCell>
+                  <TableCell className="text-muted-foreground text-center border-r">{user.lastLogin}</TableCell>
+                  <TableCell className="text-center border-r">
                     <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
                   </TableCell>
-                  <TableCell className="text-left">
-                    <div className="flex items-center justify-start gap-2">
+                  <TableCell className="text-center border-r">
+                    <div className="flex items-center justify-center gap-2">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleStatus(user.id)}>
                           {user.status === 'نشط' ? <ToggleLeft className="h-5 w-5 text-green-500" /> : <ToggleRight className="h-5 w-5 text-muted-foreground" />}
                         </Button>
