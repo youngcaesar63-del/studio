@@ -122,7 +122,7 @@ export default function ReportsPage() {
     <div className="animate-in fade-in duration-500 space-y-6">
         <Card className="shadow-md no-print">
             <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6" /> الطباعة والتقارير</CardTitle>
+                <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/> الطباعة والتقارير</CardTitle>
                 <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -177,9 +177,14 @@ export default function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
-                        <h1 className="text-center text-lg font-bold mb-4 print-only">
-                            {reportTitle} <br /> <span className="text-sm font-normal">{filterSubtitle}</span>
-                        </h1>
+                        <div className="print-only mb-6 hidden">
+                            <h1 className="text-center text-lg font-bold">
+                                {reportTitle}
+                            </h1>
+                             <h2 className="text-center text-sm font-normal text-muted-foreground">
+                                {filterSubtitle}
+                            </h2>
+                        </div>
                         <div className="rounded-md border">
                             <Table>
                                 <TableHeader>
@@ -214,7 +219,7 @@ export default function ReportsPage() {
                                 </TableBody>
                             </Table>
                         </div>
-                         <div className="text-xs text-muted-foreground mt-4 print-only">
+                         <div className="text-xs text-muted-foreground mt-4 print-only hidden">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                            <p>عدد السجلات: {reportData.length}</p>
                         </div>
