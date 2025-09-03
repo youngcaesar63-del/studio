@@ -8,6 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Printer, FileText, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+
 
 type Personnel = {
   id: number;
@@ -37,6 +41,7 @@ const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد'
     return (rankOrder[a] || 99) - (rankOrder[b] || 99);
 });
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب', 'الكل'].sort((a,b) => a.localeCompare(b, 'ar'));
+const confidentialityLevels = ['سري', 'سري للغاية', 'سري وشخصي', 'محظور'];
 
 export default function ReportsPage() {
   const [reportType, setReportType] = useState<string | null>(null);
@@ -45,6 +50,9 @@ export default function ReportsPage() {
   const [reportData, setReportData] = useState<Personnel[] | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [isPrintDialogOpen, setPrintDialogOpen] = useState(false);
+  const [confidentiality, setConfidentiality] = useState(confidentialityLevels[0]);
+  const [reportTitleInput, setReportTitleInput] = useState('');
 
   useEffect(() => {
     try {
@@ -118,26 +126,11 @@ export default function ReportsPage() {
     }
 
     const printContent = printArea.innerHTML;
-    const originalContent = document.body.innerHTML;
-    
     const printWindow = window.open('', '_blank', 'height=600,width=800');
     
     if (printWindow) {
       printWindow.document.write('<html><head><title>طباعة التقرير</title>');
-      // Add styles for printing
-      const styles = Array.from(document.styleSheets)
-        .map(styleSheet => {
-          try {
-            return Array.from(styleSheet.cssRules)
-              .map(rule => rule.cssText)
-              .join('');
-          } catch (e) {
-            console.warn('Could not read stylesheet rules:', e);
-            return '';
-          }
-        })
-        .join('');
-        
+      
       printWindow.document.write('<style>');
       printWindow.document.write(`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
@@ -146,34 +139,40 @@ export default function ReportsPage() {
             direction: rtl;
             margin: 20px;
         }
+        .print-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-top: 1cm;
+        }
+        .print-header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .print-header .confidentiality, .print-header .title {
+            text-align: center;
+            width: 100%;
+            border-bottom: 1px solid black;
+            padding-bottom: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
         table { 
             width: 100%; 
             border-collapse: collapse; 
             font-size: 12px;
+            border: 1px solid #000;
         }
         th, td { 
-            border: 1px solid #ddd; 
+            border: 1px solid #000; 
             padding: 8px; 
             text-align: center; 
         }
         th { 
             background-color: #f2f2f2; 
         }
-        .print-only { display: block !important; }
-        .no-print { display: none !important; }
-        .print-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .print-header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-         .print-header h2 {
-            font-size: 1.1rem;
-            color: #555;
-        }
-         .print-footer {
+        .print-footer {
             margin-top: 20px;
             text-align: center;
             font-size: 0.8rem;
@@ -182,16 +181,27 @@ export default function ReportsPage() {
       `);
       printWindow.document.write('</style>');
       printWindow.document.write('</head><body>');
+      
+      const headerContent = `
+        <div class="print-header">
+            <h1>بسم الله الرحمن الرحيم</h1>
+            <div class="confidentiality">${confidentiality}</div>
+            ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
+        </div>
+      `;
+
+      printWindow.document.write(headerContent);
       printWindow.document.write(printContent);
       printWindow.document.write('</body></html>');
       
       printWindow.document.close();
       printWindow.focus();
-      setTimeout(() => { // Timeout necessary for styles to load
+      setTimeout(() => {
           printWindow.print();
           printWindow.close();
       }, 500);
 
+      setPrintDialogOpen(false);
     } else {
         toast({ title: 'خطأ', description: 'لم يتمكن المتصفح من فتح نافذة الطباعة.', variant: 'destructive' });
     }
@@ -203,7 +213,7 @@ export default function ReportsPage() {
 
   return (
     <div className="animate-in fade-in duration-500 space-y-6">
-        <Card className="shadow-md">
+        <Card className="shadow-md no-print">
             <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/> الطباعة والتقارير</CardTitle>
                 <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
@@ -247,20 +257,65 @@ export default function ReportsPage() {
         </Card>
 
         {reportData && (
-            <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
+            <Card id="report-card">
+                <CardHeader className="flex flex-row justify-between items-center no-print">
                     <div>
                         <CardTitle>{reportTitle}</CardTitle>
                         <CardDescription>{filterSubtitle}</CardDescription>
                     </div>
-                    <Button onClick={handlePrint} variant="outline">
-                        <Printer className="ml-2 h-4 w-4" />
-                        طباعة
-                    </Button>
+                     <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                <Printer className="ml-2 h-4 w-4" />
+                                طباعة
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>خيارات الطباعة</DialogTitle>
+                                <DialogDescription>
+                                    اختر الخيارات التالية لتضمينها في رأس التقرير المطبوع.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="confidentiality" className="text-right">
+                                        درجة السرية
+                                    </Label>
+                                    <Select dir="rtl" value={confidentiality} onValueChange={setConfidentiality}>
+                                        <SelectTrigger className="col-span-3">
+                                            <SelectValue placeholder="اختر درجة السرية" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {confidentialityLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="report-title" className="text-right">
+                                        العنوان
+                                    </Label>
+                                    <Input
+                                        id="report-title"
+                                        value={reportTitleInput}
+                                        onChange={(e) => setReportTitleInput(e.target.value)}
+                                        className="col-span-3"
+                                        placeholder="أدخل عنوان التقرير (اختياري)"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={handlePrint}>
+                                    <Printer className="ml-2 h-4 w-4" />
+                                    تأكيد الطباعة
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </CardHeader>
                 <CardContent id="print-area">
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
-                        <div className="print-header">
+                        <div className="print-header hidden">
                             <h1 className="text-center text-lg font-bold">
                                 {reportTitle}
                             </h1>
@@ -302,7 +357,7 @@ export default function ReportsPage() {
                                 </TableBody>
                             </Table>
                         </div>
-                         <div className="print-footer">
+                         <div className="print-footer hidden">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                            <p>عدد السجلات: {reportData.length}</p>
                         </div>
