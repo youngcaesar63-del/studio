@@ -190,10 +190,10 @@ export default function ReportsPage() {
             margin: 0;
         }
         .print-header .confidentiality, .print-header .title {
+            display: inline-block;
             text-align: center;
-            width: 100%;
             border-bottom: 1px solid black;
-            padding-bottom: 5px;
+            padding-bottom: 2px;
             margin-top: 10px;
         }
          .print-header .title {
@@ -395,14 +395,3 @@ export default function ReportsPage() {
     </div>
   );
 }
-
-
-    
-
-    
-
-
-
-    
-
-    
