@@ -137,23 +137,23 @@ export default function BackupPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>تاريخ النسخة</TableHead>
-                                    <TableHead>الحجم</TableHead>
-                                    <TableHead>الحالة</TableHead>
-                                    <TableHead className="text-left w-24">الإجراءات</TableHead>
+                                    <TableHead className="text-center">تاريخ النسخة</TableHead>
+                                    <TableHead className="text-center border-r">الحجم</TableHead>
+                                    <TableHead className="text-center border-r">الحالة</TableHead>
+                                    <TableHead className="text-center border-r w-24">الإجراءات</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {backupHistory.map((backup) => (
                                     <TableRow key={backup.id} className="hover:bg-muted/30">
-                                        <TableCell className="font-medium">{backup.date}</TableCell>
-                                        <TableCell className="text-muted-foreground">{backup.size}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="font-medium text-center">{backup.date}</TableCell>
+                                        <TableCell className="text-muted-foreground text-center border-r">{backup.size}</TableCell>
+                                        <TableCell className="text-center border-r">
                                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusVariant(backup.status)}`}>
                                                 {backup.status}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="text-left">
+                                        <TableCell className="text-center border-r">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8" disabled={backup.status === 'جاري الإنشاء...'}>
