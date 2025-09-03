@@ -10,7 +10,7 @@ import Image from 'next/image';
 const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
     <div {...props}>
       <Image 
-        src="https://i.imgur.com/sB0inBq.png" 
+        src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
         width={180} 
         height={180} 
