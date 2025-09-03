@@ -10,10 +10,10 @@ import Image from 'next/image';
 const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
     <div {...props}>
       <Image 
-        src="https://storage.googleapis.com/studiostack-public/mil-intel-logo-1e1e1e.png" 
+        src="https://i.imgur.com/sB0inBq.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={100} 
-        height={100} 
+        width={180} 
+        height={180} 
         data-ai-hint="military emblem"
         priority
       />
@@ -61,7 +61,7 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000">
         <div className="mb-6">
-           <MilitaryIntelligenceLogo className="w-[100px] h-[100px]" />
+           <MilitaryIntelligenceLogo className="w-[180px] h-[180px]" />
         </div>
 
         <div className="mb-8">
