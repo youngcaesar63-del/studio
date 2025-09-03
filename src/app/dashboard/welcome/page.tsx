@@ -7,27 +7,66 @@ import { Calendar, Clock, User } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const MilitaryIntelligenceLogo = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" {...props}>
         <defs>
-            <linearGradient id="gold_grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#d4af37', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#a88807', stopOpacity: 1 }} />
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{stopColor: 'rgb(255,215,0)', stopOpacity:1}} />
+            <stop offset="100%" style={{stopColor: 'rgb(218,165,32)', stopOpacity:1}} />
             </linearGradient>
-            <filter id="drop_shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
-                <feOffset in="blur" dx="2" dy="2" result="offsetBlur" />
-                <feMerge>
-                    <feMergeNode in="offsetBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
+            <style>
+                {`@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@700&display=swap');`}
+            </style>
         </defs>
-        <g filter="url(#drop_shadow)">
-            <path d="M100 20 L170 60 L170 140 L100 180 L30 140 L30 60 Z" fill="#003366" stroke="url(#gold_grad)" strokeWidth="4" />
-            <circle cx="100" cy="100" r="45" fill="#0c4a8a" stroke="url(#gold_grad)" strokeWidth="3" />
-            <path d="M100 55 L125 75 L125 125 L100 145 L75 125 L75 75 Z" fill="#003366" />
-            <path d="M85 85 h30 l-15 30 z" fill="#d4af37" />
-            <path d="M100,20 L110,60 M100,20 L90,60 M170,60 L130,70 M170,140 L130,130 M100,180 L110,140 M100,180 L90,140 M30,140 L70,130 M30,60 L70,70" fill="none" stroke="url(#gold_grad)" strokeWidth="1.5" opacity="0.6" />
+        <g transform="translate(0, -20)">
+            <g transform="translate(200, 150)">
+                <path d="M0 -110 L-150 -40 A160 160 0 0 0 -150 100 L0 170 L150 100 A160 160 0 0 0 150 -40 Z" fill="#166534"/>
+                <path d="M0 -100 L-140 -35 A150 150 0 0 0 -140 95 L0 160 L140 95 A150 150 0 0 0 140 -35 Z" fill="#15803d" stroke="#f0fdf4" strokeWidth="2"/>
+                
+                {/* Fronds */}
+                <g stroke="#14532d" strokeWidth="1.5">
+                    {[...Array(7)].map((_, i) => (
+                        <g key={`frond-left-${i}`}>
+                            <path d={`M-30 ${-90 + i*25} Q -80 ${-80 + i*25} -135 ${-30 + i*24}`} fill="none" strokeDasharray="3 3" opacity="0.5"/>
+                        </g>
+                    ))}
+                    {[...Array(7)].map((_, i) => (
+                        <g key={`frond-right-${i}`}>
+                           <path d={`M30 ${-90 + i*25} Q 80 ${-80 + i*25} 135 ${-30 + i*24}`} fill="none" strokeDasharray="3 3" opacity="0.5"/>
+                        </g>
+                    ))}
+                </g>
+            </g>
+            
+            {/* Hoopoe Bird */}
+            <g transform="translate(200, 200)">
+                <path d="M-5 -15 C -20 -25, -30 -10, -25 5 C -20 20, 0 25, 10 20 C 20 15, 25 0, 15 -10 C 10 -20, 5 -20, -5 -15 Z" fill="#4a4a4a"/>
+                <path d="M-5 -15 C 0 -22, 10 -22, 15 -10 L18 -5 C 25 0, 20 15, 10 20 L5 22 C -5 23, -15 15, -20 5 L -25 0 C-30 -10, -20 -25, -5 -15" fill="#5e5e5e"/>
+                <path d="M-25,2 C-27, -5, -20, -15, -10, -13" fill="none" stroke="#333" strokeWidth="2"/>
+                <path d="M-28, -8 a 5 3 0 0 1 10 0 a 5 3 0 0 1 -10 0" fill="#333"/>
+                <path d="M15 -10 C 25 -20, 35 -15, 30 -5 C 25 5, 18 -5, 15 -10" fill="#a3a3a3"/>
+                <path d="M30 -5 L45 -8 L32 -3 Z" fill="white"/>
+                <circle cx="-18" cy="-5" r="1.5" fill="white"/>
+            </g>
+
+            {/* Sword and Key */}
+            <g transform="translate(240, 90) rotate(20)">
+                <rect x="-35" y="-4" width="70" height="8" fill="#facc15" rx="2"/>
+                <rect x="28" y="-7" width="12" height="14" fill="#facc15"/>
+                <circle cx="34" cy="0" r="4" fill="#d97706"/>
+                <g transform="rotate(90) translate(0, 0)">
+                    <path d="M0 -40 L5 0 L-5 0 Z" fill="#ef4444"/>
+                    <path d="M-10 0 L10 0 L10 5 L-10 5 Z" fill="#b91c1c"/>
+                </g>
+            </g>
+            
+            {/* Banner */}
+            <g transform="translate(200, 280)">
+                <path d="M-160 0 C -100 20, 100 20, 160 0 L 170 30 C 100 10, -100 10, -170 30 Z" fill="#16a34a"/>
+                <path d="M-160,2 L-180,20 L-150,15 Z" fill="#dc2626"/>
+                <path d="M160,2 L180,20 L150,15 Z" fill="#dc2626"/>
+                <text x="0" y="22" fontFamily="'Scheherazade New', serif" fontSize="28" fill="white" textAnchor="middle" fontWeight="bold">هيئة الاستخبارات العسكرية</text>
+                 <text x="0" y="50" fontFamily="'Scheherazade New', serif" fontSize="18" fill="#f0fdf4" textAnchor="middle" fontWeight="bold">قوة .. صدق .. إخلاص</text>
+            </g>
         </g>
     </svg>
 );
@@ -73,7 +112,7 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000">
         <div className="mb-6">
-           <MilitaryIntelligenceLogo className="w-[180px] h-[180px]" />
+           <MilitaryIntelligenceLogo className="w-[250px] h-[250px]" />
         </div>
 
         <div className="mb-8">
