@@ -10,10 +10,10 @@ import Image from 'next/image';
 const MilitaryIntelligenceLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <div {...props}>
       <Image 
-        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGkAQMAAABI2yv7AAAABlBMVEUAAAAAAAACbpS9AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADFJREFUaN7twQENAAAAwiD7p7+IPgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8A2O3AABllCQ3AAAAABJRU5ErkJggg==" 
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAGsSURBVHhe7dJNCsJAEAbgp+k+6k56l14k2ZBuJd2J6i68i6AI0k20Uu/TBwUhvA/cD76g/2/A/wQO0wnUTqB2ArUTqJ1A7QQSJ1A7gdoJ1E6gdgK1E0icQO0EaifQSiB3AqlDILcI5BYhBSitxo/ck8gqEWgXkHkEahHQp0CUU7n3ZTKqBKAtQG0SagcQO4HaCVROILUCyC1AlBHILkCUEUivQCqBLCCQXoBUEEiuQKqZQKkEUgMgtQOpYQKlgkAsBSitQSoY5HIGaA+gOgC1B1AdgJIDqA5AbQCiA1AbgOgAJA6gNgC1AagNQG0AggNQG4DaANQGoDYAkAOoDUBtAGoDUJuA0AGkDyA9gPQA0gNIHiA9gPQA0gNIAyA9gPQA0gNIAyA9gPQA0gNIAyA5gPQA0gNIAyANgNIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA9QOoHSAYgOQOkAhgNQOkAhANIBJA/QdQO0E6idQO0EaifQOAJ1E6idQO0EaidQO4HGARg/S+w9/kce4c0AAAAASUVORK5CYII=" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={420} 
-        height={420} 
+        width={100} 
+        height={100} 
         data-ai-hint="military emblem"
       />
     </div>
@@ -60,7 +60,7 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000">
         <div className="mb-6">
-           <MilitaryIntelligenceLogo className="w-[250px] h-[250px]" />
+           <MilitaryIntelligenceLogo className="w-[100px] h-[100px]" />
         </div>
 
         <div className="mb-8">
