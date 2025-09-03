@@ -172,12 +172,11 @@ export default function ReportsPage() {
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4;
-            margin: 0;
+            margin: 1cm;
         }
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
-            margin: 1cm;
         }
         .print-header {
             display: flex;
@@ -212,10 +211,14 @@ export default function ReportsPage() {
           text-align: center;
         }
         .report-table thead tr {
-          background-color: #e0e0e0;
+          background-color: #e0e0e0 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
         .report-table tbody tr td:first-child {
-            background-color: #e0e0e0;
+            background-color: #e0e0e0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
       `);
       printWindow.document.write('</style>');
@@ -399,5 +402,7 @@ export default function ReportsPage() {
     
 
 
+
+    
 
     
