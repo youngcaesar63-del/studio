@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Edit, GraduationCap, User } from 'lucide-react';
+import { CalendarIcon, Edit, GraduationCap, User, PlusCircle, Trash2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -23,6 +23,12 @@ import Image from 'next/image';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
+
+const serviceOperationSchema = z.object({
+  areaName: z.string().min(1, 'اسم المنطقة مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
 
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
@@ -52,9 +58,10 @@ const formSchema = z.object({
   nextOfKinName: z.string().optional(),
   nextOfKinPhone: z.string().optional(),
   nextOfKinAddress: z.string().optional(),
+  serviceOperations: z.array(serviceOperationSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[];};
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -114,7 +121,13 @@ export default function EditPersonnelPage() {
         nextOfKinName: '',
         nextOfKinPhone: '',
         nextOfKinAddress: '',
+        serviceOperations: [],
       },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "serviceOperations",
   });
 
   useEffect(() => {
@@ -131,6 +144,11 @@ export default function EditPersonnelPage() {
         transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
         reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
         dateOfBirth: personToEdit.dateOfBirth ? new Date(personToEdit.dateOfBirth) : undefined,
+        serviceOperations: personToEdit.serviceOperations?.map(op => ({
+          ...op,
+          periodFrom: new Date(op.periodFrom),
+          periodTo: new Date(op.periodTo),
+        })) || [],
       });
       if (personToEdit.photo) {
         setPhotoPreview(personToEdit.photo);
@@ -169,6 +187,11 @@ export default function EditPersonnelPage() {
           transferDate: values.transferDate?.toISOString(),
           reportingDate: values.reportingDate?.toISOString(),
           dateOfBirth: values.dateOfBirth?.toISOString(),
+          serviceOperations: values.serviceOperations?.map(op => ({
+            ...op,
+            periodFrom: op.periodFrom.toISOString(),
+            periodTo: op.periodTo.toISOString(),
+          })),
         };
       }
       return p;
@@ -264,7 +287,7 @@ export default function EditPersonnelPage() {
                              <Combobox
                                 options={batches}
                                 value={field.value}
-                                onChange={(value) => form.setValue('batch', value === field.value ? '' : value)}
+                                onChange={(value) => form.setValue('batch', value)}
                                 placeholder="اختر الدفعة..."
                                 filterPlaceholder="ابحث عن دفعة..."
                               />
@@ -272,7 +295,7 @@ export default function EditPersonnelPage() {
                             </FormItem>
                         )} />
                          <FormField control={form.control} name="appointmentDate" render={({ field }) => (
-                            <FormItem><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                            <FormItem><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                         )} />
                          <FormField control={form.control} name="certificateType" render={({ field }) => (
                             <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
@@ -284,7 +307,7 @@ export default function EditPersonnelPage() {
                 <h3 className="text-xl font-semibold mb-4">المعلومات الشخصية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ الميلاد</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                        <FormItem><FormLabel>تاريخ الميلاد</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="nationalId" render={({ field }) => (
                         <FormItem><FormLabel>الرقم الوطني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -334,19 +357,51 @@ export default function EditPersonnelPage() {
                 
                 <Separator className="my-8" />
 
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>
+                      <Button type="button" variant="outline" size="sm" onClick={() => append({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
+                          <PlusCircle className="ml-2 h-4 w-4" />
+                          إضافة منطقة خدمة
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50">
+                           <FormField control={form.control} name={`serviceOperations.${index}.areaName`} render={({ field }) => (
+                              <FormItem className="md:col-span-2"><FormLabel>اسم المنطقة / الوحدة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`serviceOperations.${index}.periodFrom`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`serviceOperations.${index}.periodTo`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                          <div className="flex items-end">
+                              <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+
+                <Separator className="my-8" />
+
                 <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="status" render={({ field }) => (
                         <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ آخر عودة</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                        <FormItem><FormLabel>تاريخ آخر عودة</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
                      <FormField control={form.control} name="transferDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ النقل</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                        <FormItem><FormLabel>تاريخ النقل</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
                      <FormField control={form.control} name="reportingDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                        <FormItem><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="notes" render={({ field }) => (
                         <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>ملاحظات</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>

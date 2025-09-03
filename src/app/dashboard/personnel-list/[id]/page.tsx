@@ -6,11 +6,18 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+type ServiceOperation = {
+    areaName: string;
+    periodFrom: string;
+    periodTo: string;
+}
 
 type Personnel = {
     id: number;
@@ -41,6 +48,7 @@ type Personnel = {
     nextOfKinName?: string;
     nextOfKinPhone?: string;
     nextOfKinAddress?: string;
+    serviceOperations?: ServiceOperation[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -177,6 +185,34 @@ export default function ViewPersonnelPage() {
                         </div>
                     </div>
                     
+                    <Separator />
+
+                    {person.serviceOperations && person.serviceOperations.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><LandPlot className="h-5 w-5" /> مناطق خدمة العمليات</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">المنطقة / الوحدة</TableHead>
+                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.serviceOperations.map((op, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{op.areaName}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy')}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy')}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+
                     <Separator />
                     
                     <div>
