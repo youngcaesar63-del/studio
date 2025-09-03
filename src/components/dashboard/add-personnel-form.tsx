@@ -28,6 +28,15 @@ const serviceOperationSchema = z.object({
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
 
+const trainingCourseSchema = z.object({
+  courseName: z.string().min(1, 'اسم الدورة مطلوب'),
+  courseType: z.string().min(1, 'نوع الدورة مطلوب'),
+  imperativeness: z.string().min(1, 'حتمية الدورة مطلوبة'),
+  institute: z.string().min(1, 'اسم المعهد مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
+
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
@@ -57,6 +66,7 @@ const formSchema = z.object({
   nextOfKinPhone: z.string().optional(),
   nextOfKinAddress: z.string().optional(),
   serviceOperations: z.array(serviceOperationSchema).optional(),
+  trainingCourses: z.array(trainingCourseSchema).optional(),
 });
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
@@ -116,12 +126,18 @@ export function AddPersonnelForm() {
       nextOfKinPhone: '',
       nextOfKinAddress: '',
       serviceOperations: [],
+      trainingCourses: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
     control: form.control,
     name: "serviceOperations",
+  });
+
+  const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({
+    control: form.control,
+    name: "trainingCourses",
   });
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +169,11 @@ export function AddPersonnelForm() {
         ...op,
         periodFrom: op.periodFrom.toISOString(),
         periodTo: op.periodTo.toISOString(),
+      })),
+      trainingCourses: values.trainingCourses?.map(course => ({
+        ...course,
+        periodFrom: course.periodFrom.toISOString(),
+        periodTo: course.periodTo.toISOString(),
       })),
     };
 
@@ -289,14 +310,14 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => append({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة منطقة خدمة
               </Button>
             </div>
             <div className="space-y-4">
-              {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50">
+              {serviceFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
                    <FormField control={form.control} name={`serviceOperations.${index}.areaName`} render={({ field }) => (
                       <FormItem className="md:col-span-2"><FormLabel>اسم المنطقة / الوحدة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
@@ -306,11 +327,48 @@ export function AddPersonnelForm() {
                    <FormField control={form.control} name={`serviceOperations.${index}.periodTo`} render={({ field }) => (
                       <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                   )} />
-                  <div className="flex items-end">
-                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                          <Trash2 className="h-4 w-4" />
-                      </Button>
-                  </div>
+                  <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
+                      <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+        </div>
+
+        <Separator className="my-8" />
+        
+        <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">الدورات التدريبية</h3>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date() })}>
+                  <PlusCircle className="ml-2 h-4 w-4" />
+                  إضافة دورة تدريبية
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {courseFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                   <FormField control={form.control} name={`trainingCourses.${index}.courseName`} render={({ field }) => (
+                      <FormItem className="lg:col-span-2"><FormLabel>اسم الدورة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`trainingCourses.${index}.courseType`} render={({ field }) => (
+                    <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name={`trainingCourses.${index}.imperativeness`} render={({ field }) => (
+                    <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`trainingCourses.${index}.institute`} render={({ field }) => (
+                      <FormItem className="lg:col-span-2"><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`trainingCourses.${index}.periodTo`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                  <Button type="button" variant="destructive" size="icon" onClick={() => removeCourse(index)}>
+                      <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>

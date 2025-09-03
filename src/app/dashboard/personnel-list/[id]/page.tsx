@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -15,6 +15,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 type ServiceOperation = {
     areaName: string;
+    periodFrom: string;
+    periodTo: string;
+}
+
+type TrainingCourse = {
+    courseName: string;
+    courseType: string;
+    imperativeness: string;
+    institute: string;
     periodFrom: string;
     periodTo: string;
 }
@@ -49,6 +58,7 @@ type Personnel = {
     nextOfKinPhone?: string;
     nextOfKinAddress?: string;
     serviceOperations?: ServiceOperation[];
+    trainingCourses?: TrainingCourse[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -205,6 +215,40 @@ export default function ViewPersonnelPage() {
                                                 <TableCell className="text-center">{op.areaName}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy')}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy')}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+                     {(person.serviceOperations && person.serviceOperations.length > 0) && (person.trainingCourses && person.trainingCourses.length > 0) && <Separator />}
+
+
+                    {person.trainingCourses && person.trainingCourses.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><BookOpen className="h-5 w-5" /> الدورات التدريبية</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">اسم الدورة</TableHead>
+                                            <TableHead className="text-center border-r">النوع</TableHead>
+                                            <TableHead className="text-center border-r">الحتمية</TableHead>
+                                            <TableHead className="text-center border-r">المعهد</TableHead>
+                                            <TableHead className="text-center border-r">من</TableHead>
+                                            <TableHead className="text-center border-r">إلى</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.trainingCourses.map((course, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{course.courseName}</TableCell>
+                                                <TableCell className="text-center border-r">{course.courseType}</TableCell>
+                                                <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
+                                                <TableCell className="text-center border-r">{course.institute}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy')}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy')}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
