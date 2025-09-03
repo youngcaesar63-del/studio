@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -17,6 +17,7 @@ type Personnel = {
     cardId: string;
     rank: string;
     specialization?: string;
+    academicQualification?: string;
     administration: string;
     status: string;
     appointmentDate?: string;
@@ -140,6 +141,7 @@ export default function ViewPersonnelPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
                         <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
+                        <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
                         <DetailItem icon={Briefcase} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
                         <DetailItem 
                             icon={Calendar} 

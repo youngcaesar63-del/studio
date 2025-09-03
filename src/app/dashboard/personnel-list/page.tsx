@@ -8,13 +8,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 
 const initialPersonnelData = [
-    { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A+', maritalStatus: 'أعزب' },
-    { id: 2, cardId: '29905150201235', name: 'محمد خالد سعيد', rank: 'رائد', specialization: 'طيار', administration: 'الإدارة العامة للأمن العسكري', status: 'إجازة', appointmentDate: new Date().toISOString(), bloodType: 'O+', maritalStatus: 'متزوج' },
-    { id: 3, cardId: '30006150201236', name: 'علي حسن محمد', rank: 'ملازم أول', specialization: 'مهندس', administration: 'الإدارة العامة للاستخبارات', status: 'دورة تدريبية', appointmentDate: new Date().toISOString(), bloodType: 'B+', maritalStatus: 'أعزب' },
-    { id: 4, cardId: '30107150201237', name: 'محمود سعيد عبدالله', rank: 'عقيد', specialization: 'ركن', administration: 'الإدارة العامة للمعلومات الاستراتيجية', status: 'عمليات', appointmentDate: new Date().toISOString(), bloodType: 'AB+', maritalStatus: 'متزوج' },
-    { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A-', maritalStatus: 'متزوج' },
-    { id: 6, cardId: '30309150201239', name: 'سالم فهد', rank: 'فريق', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'O-', maritalStatus: 'متزوج' },
-    { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'B-', maritalStatus: 'متزوج' },
+    { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A+', maritalStatus: 'أعزب' },
+    { id: 2, cardId: '29905150201235', name: 'محمد خالد سعيد', rank: 'رائد', specialization: 'طيار', academicQualification: 'ماجستير', administration: 'الإدارة العامة للأمن العسكري', status: 'إجازة', appointmentDate: new Date().toISOString(), bloodType: 'O+', maritalStatus: 'متزوج' },
+    { id: 3, cardId: '30006150201236', name: 'علي حسن محمد', rank: 'ملازم أول', specialization: 'مهندس', academicQualification: 'بكالوريوس', administration: 'الإدارة العامة للاستخبارات', status: 'دورة تدريبية', appointmentDate: new Date().toISOString(), bloodType: 'B+', maritalStatus: 'أعزب' },
+    { id: 4, cardId: '30107150201237', name: 'محمود سعيد عبدالله', rank: 'عقيد', specialization: 'ركن', academicQualification: 'دكتوراه', administration: 'الإدارة العامة للمعلومات الاستراتيجية', status: 'عمليات', appointmentDate: new Date().toISOString(), bloodType: 'AB+', maritalStatus: 'متزوج' },
+    { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A-', maritalStatus: 'متزوج' },
+    { id: 6, cardId: '30309150201239', name: 'سالم فهد', rank: 'فريق', specialization: 'لا يوجد', academicQualification: 'ماجستير', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'O-', maritalStatus: 'متزوج' },
+    { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', academicQualification: 'دكتوراه', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'B-', maritalStatus: 'متزوج' },
 ];
 
 const rankOrder: { [key: string]: number } = {
