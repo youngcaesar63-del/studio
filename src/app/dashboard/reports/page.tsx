@@ -119,16 +119,46 @@ export default function ReportsPage() {
   }
 
   const handlePrint = () => {
-    const printArea = document.getElementById('print-area');
-    if (!printArea) {
-      toast({ title: 'خطأ', description: 'لم يتم العثور على منطقة الطباعة.', variant: 'destructive' });
-      return;
-    }
-
-    const printContent = printArea.innerHTML;
-    const printWindow = window.open('', '_blank', 'height=600,width=800');
+    const printWindow = window.open('', '_blank');
     
     if (printWindow) {
+      const reportTitle = reportType === 'full-report' ? 'تقرير شامل' : `تقرير حسب ${reportTypes.find(rt => rt.value === reportType)?.label?.split(' ')[2]}`;
+      const filterSubTitle = filterValue && filterValue !== 'الكل' ? filterValue : 'كافة السجلات';
+
+      let tableContent = `
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #000;">
+          <thead>
+            <tr style="background-color: #e0e0e0; border-bottom: 2px solid black;"><th colspan="6" style="padding: 8px;"></th></tr>
+            <tr>
+              <th style="border: 1px double #000; padding: 8px; width: 5%;">هـ</th>
+              <th style="border: 1px double #000; padding: 8px; width: 25%;">د</th>
+              <th style="border: 1px double #000; padding: 8px; width: 20%;">ج</th>
+              <th style="border: 1px double #000; padding: 8px; width: 20%;">ب</th>
+              <th style="border: 1px double #000; padding: 8px; width: 25%;">أ</th>
+              <th style="border: 1px double #000; padding: 8px; width: 5%;">م</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      if (reportData) {
+        reportData.forEach((person, index) => {
+            const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+            tableContent += `
+              <tr>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;"></td>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.administration}</td>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.name}</td>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;">${displayRank}</td>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.cardId}</td>
+                <td style="border: 1px double #000; padding: 8px; text-align: center;">${index + 1}</td>
+              </tr>
+            `;
+        });
+      }
+      
+      tableContent += '</tbody></table>';
+
       printWindow.document.write('<html><head><title>طباعة التقرير</title>');
       
       printWindow.document.write('<style>');
@@ -145,10 +175,12 @@ export default function ReportsPage() {
             align-items: center;
             margin-bottom: 20px;
             padding-top: 1cm;
+            border-top: 2px solid black;
         }
         .print-header h1 {
             font-size: 1.5rem;
             font-weight: bold;
+            margin: 0;
         }
         .print-header .confidentiality, .print-header .title {
             text-align: center;
@@ -156,27 +188,9 @@ export default function ReportsPage() {
             border-bottom: 1px solid black;
             padding-bottom: 5px;
             margin-top: 10px;
+        }
+         .print-header .title {
             font-weight: bold;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 12px;
-            border: 1px solid #000;
-        }
-        th, td { 
-            border: 1px solid #000; 
-            padding: 8px; 
-            text-align: center; 
-        }
-        th { 
-            background-color: #f2f2f2; 
-        }
-        .print-footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #777;
         }
       `);
       printWindow.document.write('</style>');
@@ -191,7 +205,7 @@ export default function ReportsPage() {
       `;
 
       printWindow.document.write(headerContent);
-      printWindow.document.write(printContent);
+      printWindow.document.write(tableContent);
       printWindow.document.write('</body></html>');
       
       printWindow.document.close();
@@ -259,7 +273,9 @@ export default function ReportsPage() {
                 <CardHeader className="flex flex-row justify-between items-center no-print">
                     <div>
                         <CardTitle>معاينة التقرير</CardTitle>
-                        <CardDescription>هذا التقرير جاهز للطباعة.</CardDescription>
+                        <CardDescription>
+                            {reportType === 'full-report' ? 'تقرير شامل' : `تقرير حسب ${reportTypes.find(rt => rt.value === reportType)?.label?.split(' ')[2]}`} - ({filterValue && filterValue !== 'الكل' ? filterValue : 'كافة السجلات'}) - ({reportData.length} سجل/سجلات)
+                        </CardDescription>
                     </div>
                      <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
                         <DialogTrigger asChild>
@@ -355,3 +371,5 @@ export default function ReportsPage() {
   );
 }
 
+
+    
