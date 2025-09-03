@@ -84,9 +84,6 @@
     border: none !important;
     box-shadow: none !important;
   }
-  #print-area > * {
-    display: block;
-  }
   .print-only {
     display: block !important;
   }
