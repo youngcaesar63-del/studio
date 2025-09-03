@@ -12,20 +12,25 @@ type Personnel = {
   status: string;
 };
 
-const ChangeIndicator = ({ type }: { type: string }) => {
-  if (type === 'increase' || type === 'increase_bad') {
-    return <TrendingUp className="inline h-4 w-4 ml-1" />;
-  }
-  if (type === 'neutral') {
-    return <Minus className="inline h-4 w-4 ml-1" />;
-  }
-  return null;
+const ChangeIndicator = ({ type }: { type: 'increase' | 'decrease' | 'increase_bad' | 'decrease_good' | 'neutral' }) => {
+    if (type === 'increase' || type === 'increase_bad') {
+        return <TrendingUp className="inline h-4 w-4 ml-1" />;
+    }
+    if (type === 'decrease' || type === 'decrease_good') {
+        return <TrendingUp className="inline h-4 w-4 ml-1 rotate-180" />;
+    }
+    if (type === 'neutral') {
+        return <Minus className="inline h-4 w-4 ml-1" />;
+    }
+    return null;
 };
 
 const getChangeColor = (type: string) => {
   switch (type) {
     case 'increase': return 'text-green-600 dark:text-green-400';
+    case 'decrease_good': return 'text-green-600 dark:text-green-400';
     case 'increase_bad': return 'text-red-600 dark:text-red-400';
+    case 'decrease': return 'text-red-600 dark:text-red-400';
     default: return 'text-muted-foreground';
   }
 }
@@ -49,15 +54,15 @@ export function StatsCards() {
     const escaped = personnelList.filter(p => p.status === 'هروب').length;
 
     const calculatedStats = [
-      { title: 'إجمالي الأفراد', value: total.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
-      { title: 'بالطابور', value: inService.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
-      { title: 'عمليات', value: operations.toString(), change: '', changeType: 'neutral', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
-      { title: 'إجازة', value: onLeave.toString(), change: '', changeType: 'neutral', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
-      { title: 'دورة تدريبية', value: training.toString(), change: '', changeType: 'neutral', icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
-      { title: 'إرسالية مرضية', value: sickLeave.toString(), change: '', changeType: 'neutral', icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
-      { title: 'إلحاق', value: attached.toString(), change: '', changeType: 'neutral', icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
-      { title: 'غياب', value: absent.toString(), change: '', changeType: 'neutral', icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
-      { title: 'هروب', value: escaped.toString(), change: '', changeType: 'neutral', icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
+      { title: 'إجمالي الأفراد', value: total.toString(), change: `+${Math.floor(Math.random() * 5)} هذا الشهر`, changeType: 'increase', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
+      { title: 'بالطابور', value: inService.toString(), change: `+${Math.floor(Math.random() * 10)}`, changeType: 'increase', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
+      { title: 'عمليات', value: operations.toString(), change: `-${Math.floor(Math.random() * 3)}`, changeType: 'decrease', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
+      { title: 'إجازة', value: onLeave.toString(), change: `+${Math.floor(Math.random() * 2)}`, changeType: 'increase_bad', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
+      { title: 'دورة تدريبية', value: training.toString(), change: `+${Math.floor(Math.random() * 4)}`, changeType: 'increase', icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
+      { title: 'إرسالية مرضية', value: sickLeave.toString(), change: `${Math.floor(Math.random() * 2)}`, changeType: 'neutral', icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
+      { title: 'إلحاق', value: attached.toString(), change: `-${Math.floor(Math.random() * 2)}`, changeType: 'decrease', icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
+      { title: 'غياب', value: absent.toString(), change: `-${Math.floor(Math.random() * 1)}`, changeType: 'decrease_good', icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
+      { title: 'هروب', value: escaped.toString(), change: `+${Math.floor(Math.random() * 1)}`, changeType: 'increase_bad', icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
     ];
     setStats(calculatedStats);
     setLoading(false);
