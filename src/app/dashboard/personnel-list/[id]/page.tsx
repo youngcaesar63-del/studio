@@ -18,6 +18,7 @@ type Personnel = {
     rank: string;
     specialization?: string;
     academicQualification?: string;
+    batch?: string;
     administration: string;
     status: string;
     appointmentDate?: string;
@@ -142,6 +143,7 @@ export default function ViewPersonnelPage() {
                         <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
                         <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
                         <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
+                        <DetailItem icon={Users} label="الدفعة" value={person.batch} />
                         <DetailItem icon={Briefcase} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
                         <DetailItem 
                             icon={Calendar} 

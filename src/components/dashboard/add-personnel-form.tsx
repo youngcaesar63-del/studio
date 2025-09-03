@@ -25,6 +25,7 @@ const formSchema = z.object({
   rank: z.string().min(1, 'الرتبة مطلوبة'),
   specialization: z.string().optional(),
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
+  batch: z.string().optional(),
   academicQualification: z.string().optional(),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
@@ -49,6 +50,20 @@ const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إن
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
 
+const generateBatches = () => {
+  const batches: string[] = [];
+  for (let i = 30; i <= 70; i++) batches.push(`الدفعة ${i}`);
+  for (let i = 1; i <= 25; i++) batches.push(`تقانة ${i}`);
+  for (let i = 1; i <= 3; i++) batches.push(`جامعيين ${i}`);
+  for (let i = 1; i <= 40; i++) batches.push(`فنيين ${i}`);
+  for (let i = 1; i <= 20; i++) batches.push(`تأهيلية ${i}`);
+  for (let i = 1; i <= 10; i++) batches.push(`اكرامية ${i}`);
+  batches.push('لا يوجد');
+  return batches;
+};
+const batches = generateBatches();
+
+
 export function AddPersonnelForm() {
   const router = useRouter();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -61,6 +76,7 @@ export function AddPersonnelForm() {
       rank: '',
       specialization: 'لا يوجد',
       academicQualification: 'لا يوجد',
+      batch: 'لا يوجد',
       administration: '',
       status: 'بالطابور',
       bloodType: '',
@@ -93,6 +109,7 @@ export function AddPersonnelForm() {
       rank: values.rank,
       specialization: values.specialization,
       academicQualification: values.academicQualification,
+      batch: values.batch,
       administration: values.administration,
       status: values.status,
       appointmentDate: values.appointmentDate.toISOString(),
@@ -156,6 +173,9 @@ export function AddPersonnelForm() {
                 )} />
                 <FormField control={form.control} name="academicQualification" render={({ field }) => (
                     <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                )} />
+                 <FormField control={form.control} name="batch" render={({ field }) => (
+                    <FormItem><FormLabel>الدفعة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الدفعة" /></SelectTrigger></FormControl><SelectContent className="max-h-60">{batches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                 )} />
                  <FormField control={form.control} name="appointmentDate" render={({ field }) => (
                     <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>

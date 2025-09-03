@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Edit, User } from 'lucide-react';
+import { CalendarIcon, Edit, GraduationCap, User } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -27,6 +27,7 @@ const formSchema = z.object({
   rank: z.string().min(1, 'الرتبة مطلوبة'),
   specialization: z.string().optional(),
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
+  batch: z.string().optional(),
   academicQualification: z.string().optional(),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
@@ -53,6 +54,19 @@ const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إن
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
 
+const generateBatches = () => {
+  const batches: string[] = [];
+  for (let i = 30; i <= 70; i++) batches.push(`الدفعة ${i}`);
+  for (let i = 1; i <= 25; i++) batches.push(`تقانة ${i}`);
+  for (let i = 1; i <= 3; i++) batches.push(`جامعيين ${i}`);
+  for (let i = 1; i <= 40; i++) batches.push(`فنيين ${i}`);
+  for (let i = 1; i <= 20; i++) batches.push(`تأهيلية ${i}`);
+  for (let i = 1; i <= 10; i++) batches.push(`اكرامية ${i}`);
+  batches.push('لا يوجد');
+  return batches;
+};
+const batches = generateBatches();
+
 export default function EditPersonnelPage() {
   const router = useRouter();
   const params = useParams();
@@ -68,6 +82,7 @@ export default function EditPersonnelPage() {
         rank: '',
         specialization: '',
         academicQualification: '',
+        batch: '',
         administration: '',
         status: '',
         bloodType: '',
@@ -89,6 +104,7 @@ export default function EditPersonnelPage() {
         rank: personToEdit.rank,
         specialization: personToEdit.specialization || 'لا يوجد',
         academicQualification: personToEdit.academicQualification || 'لا يوجد',
+        batch: personToEdit.batch || 'لا يوجد',
         administration: personToEdit.administration,
         status: personToEdit.status,
         appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
@@ -135,6 +151,7 @@ export default function EditPersonnelPage() {
           rank: values.rank,
           specialization: values.specialization,
           academicQualification: values.academicQualification,
+          batch: values.batch,
           administration: values.administration,
           status: values.status,
           appointmentDate: values.appointmentDate.toISOString(),
@@ -234,6 +251,9 @@ export default function EditPersonnelPage() {
                         )} />
                         <FormField control={form.control} name="academicQualification" render={({ field }) => (
                             <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                        )} />
+                        <FormField control={form.control} name="batch" render={({ field }) => (
+                            <FormItem><FormLabel>الدفعة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الدفعة" /></SelectTrigger></FormControl><SelectContent className="max-h-60">{batches.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                         )} />
                          <FormField control={form.control} name="appointmentDate" render={({ field }) => (
                             <FormItem className="flex flex-col"><FormLabel>تاريخ التعيين</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>

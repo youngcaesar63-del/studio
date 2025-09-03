@@ -24,6 +24,7 @@ type Personnel = {
   name: string;
   rank: string;
   specialization?: string;
+  batch?: string;
   administration: string;
   status: string;
 };
@@ -59,6 +60,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                 <TableHead className="text-center border-r">رقم البطاقة</TableHead>
                 <TableHead className="text-center border-r">الرتبة</TableHead>
                 <TableHead className="text-center border-r">الاسم</TableHead>
+                <TableHead className="text-center border-r">الدفعة</TableHead>
                 <TableHead className="hidden sm:table-cell text-center border-r">الإدارة</TableHead>
                 <TableHead className="text-center border-r">الحالة</TableHead>
                 <TableHead className="text-center border-r">الإجراءات</TableHead>
@@ -73,6 +75,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                     <TableCell className="border-r">{person.cardId}</TableCell>
                     <TableCell className="border-r">{displayRank}</TableCell>
                     <TableCell className="font-medium border-r">{person.name}</TableCell>
+                    <TableCell className="border-r">{person.batch}</TableCell>
                     <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
                     <TableCell className="border-r">
                       <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
