@@ -208,8 +208,6 @@ export default function ReportsPage() {
   }
 
   const filterOptions = getFilterOptions();
-  const reportTitle = reportType ? reportTypes.find(rt => rt.value === reportType)?.label : '';
-  const filterSubtitle = filterValue && filterValue !== 'الكل' ? `(تصفية: ${filterValue})` : '(كافة السجلات)';
 
   return (
     <div className="animate-in fade-in duration-500 space-y-6">
@@ -258,10 +256,10 @@ export default function ReportsPage() {
 
         {reportData && (
             <Card id="report-card">
-                <CardHeader className="flex flex-row justify-between items-center">
+                <CardHeader className="flex flex-row justify-between items-center no-print">
                     <div>
-                        <CardTitle>{reportTitle}</CardTitle>
-                        <CardDescription>{filterSubtitle}</CardDescription>
+                        <CardTitle>معاينة التقرير</CardTitle>
+                        <CardDescription>هذا التقرير جاهز للطباعة.</CardDescription>
                     </div>
                      <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
                         <DialogTrigger asChild>
@@ -348,9 +346,6 @@ export default function ReportsPage() {
                                     )}
                                 </TableBody>
                             </Table>
-                        </div>
-                         <div className="print-footer hidden">
-                           <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                         </div>
                     </div>
                 </CardContent>
