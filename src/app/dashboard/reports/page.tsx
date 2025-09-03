@@ -135,21 +135,21 @@ export default function ReportsPage() {
       const administrationLetter = includeAdministration ? `<th>(هـ)</th>` : '';
 
       const headerRow1 = `
-        <th>م</th>
-        <th>رقم البطاقة</th>
-        <th>الرتبة</th>
-        <th>الاسم</th>
-        ${administrationHeader}
         <th>ملحوظات</th>
+        ${administrationHeader}
+        <th>الاسم</th>
+        <th>الرتبة</th>
+        <th>رقم البطاقة</th>
+        <th>م</th>
       `;
 
       const headerRow2 = `
-        <th>(أ)</th>
-        <th>(ب)</th>
-        <th>(جـ)</th>
-        <th>(د)</th>
-        ${administrationLetter}
         <th>(${includeAdministration ? 'و' : 'هـ'})</th>
+        ${administrationLetter}
+        <th>(د)</th>
+        <th>(جـ)</th>
+        <th>(ب)</th>
+        <th>(أ)</th>
       `;
       
       let tableContent = `
@@ -168,12 +168,12 @@ export default function ReportsPage() {
             const adminCell = includeAdministration ? `<td>${person.administration}</td>` : '';
             tableContent += `
               <tr>
-                <td>${arabicIndex}</td>
-                <td>${formatArabicNumber(person.cardId)}</td>
-                <td>${displayRank}</td>
-                <td>${person.name}</td>
-                ${adminCell}
                 <td></td>
+                ${adminCell}
+                <td>${person.name}</td>
+                <td>${displayRank}</td>
+                <td>${formatArabicNumber(person.cardId)}</td>
+                <td>${arabicIndex}</td>
               </tr>
             `;
         });
@@ -202,7 +202,7 @@ export default function ReportsPage() {
         }
         .print-header h1 {
             font-family: 'Amiri', serif;
-            font-size: 1.8rem;
+            font-size: 16px;
             font-weight: bold;
             margin: 0;
         }
@@ -240,7 +240,7 @@ export default function ReportsPage() {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
-        .report-table tbody tr td:first-child {
+        .report-table tbody tr td:last-child {
             background-color: #e0e0e0 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
