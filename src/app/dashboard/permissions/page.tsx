@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ export default function PermissionsPage() {
   const loadData = useCallback(() => {
     setLoading(true);
     let data = getLocalStorage('rolesData', null);
-    if (data === null) {
+    if (data === null || data.length === 0) {
         data = initialRoles;
         updateLocalStorage('rolesData', initialRoles);
     }
@@ -91,7 +92,8 @@ export default function PermissionsPage() {
   }, [loadData]);
 
   const handlePermissionChange = (roleName: string, permissionId: string, newEnabledState: boolean) => {
-    const updatedRoles = roles.map(role => 
+    const currentRoles = getLocalStorage('rolesData', []);
+    const updatedRoles = currentRoles.map((role: Role) => 
       role.name === roleName
         ? {
             ...role,

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
@@ -33,7 +34,7 @@ export default function BackupPage() {
     const loadData = useCallback(() => {
         setLoading(true);
         let data = getLocalStorage('backupHistory', null);
-        if (data === null) {
+        if (data === null || data.length === 0) {
             data = initialBackupHistory;
             updateLocalStorage('backupHistory', initialBackupHistory);
         }
@@ -68,7 +69,8 @@ export default function BackupPage() {
             status: 'جاري الإنشاء...',
         };
 
-        const updatedHistory = [newBackup, ...backupHistory];
+        const currentHistory = getLocalStorage('backupHistory', []);
+        const updatedHistory = [newBackup, ...currentHistory];
         updateLocalStorage('backupHistory', updatedHistory);
         
         toast({
@@ -77,7 +79,7 @@ export default function BackupPage() {
         });
 
         setTimeout(() => {
-            const finalHistory = updatedHistory.map(b => {
+            const finalHistory = getLocalStorage('backupHistory', []).map((b : Backup) => {
                 if (b.id === newBackupId) {
                     return { ...b, status: 'مكتمل', size: `${(15 + Math.random() * 2).toFixed(1)} MB` };
                 }
@@ -100,7 +102,8 @@ export default function BackupPage() {
     };
     
     const handleDelete = (backupId: string) => {
-        const updatedHistory = backupHistory.filter(b => b.id !== backupId);
+        const currentHistory = getLocalStorage('backupHistory', []);
+        const updatedHistory = currentHistory.filter((b: Backup) => b.id !== backupId);
         updateLocalStorage('backupHistory', updatedHistory);
         handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
     };

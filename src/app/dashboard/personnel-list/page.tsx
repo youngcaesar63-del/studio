@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -36,7 +37,7 @@ export default function PersonnelListPage() {
   const loadData = useCallback(() => {
     setLoading(true);
     let data = getLocalStorage('personnelData', null);
-    if (data === null) {
+    if (data === null || data.length === 0) {
       data = initialPersonnelData;
       updateLocalStorage('personnelData', initialPersonnelData);
     }
@@ -69,9 +70,9 @@ export default function PersonnelListPage() {
   }, [loadData]);
 
   const handleDelete = (personId: number) => {
-    const updatedData = personnelData.filter(p => p.id !== personId);
+    const currentData = getLocalStorage('personnelData', []);
+    const updatedData = currentData.filter((p: any) => p.id !== personId);
     updateLocalStorage('personnelData', updatedData);
-    // The event listener will handle the state update
   };
 
   return (
