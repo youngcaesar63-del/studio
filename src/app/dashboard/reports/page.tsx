@@ -131,13 +131,16 @@ export default function ReportsPage() {
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
+      const administrationHeader = includeAdministration ? `<th>الإدارة</th>` : '';
+      const administrationLetter = includeAdministration ? `<th>(هـ)</th>` : '';
+
       const headerRow1 = `
-        <th style="width: 5%;">م</th>
-        <th style="width: 20%;">رقم البطاقة</th>
-        <th style="width: 20%;">الرتبة</th>
-        <th style="width: 30%;">الاسم</th>
-        ${includeAdministration ? `<th style="width: 25%;">الإدارة</th>` : ''}
-        <th style="width: 25%;">ملحوظات</th>
+        <th>م</th>
+        <th>رقم البطاقة</th>
+        <th>الرتبة</th>
+        <th>الاسم</th>
+        ${administrationHeader}
+        <th>ملحوظات</th>
       `;
 
       const headerRow2 = `
@@ -145,7 +148,8 @@ export default function ReportsPage() {
         <th>(ب)</th>
         <th>(جـ)</th>
         <th>(د)</th>
-        ${includeAdministration ? `<th>(هـ)</th><th>(و)</th>` : `<th>(هـ)</th>`}
+        ${administrationLetter}
+        <th>(${includeAdministration ? 'و' : 'هـ'})</th>
       `;
       
       let tableContent = `
@@ -181,7 +185,7 @@ export default function ReportsPage() {
       
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4;
             margin: 1cm;
@@ -197,7 +201,8 @@ export default function ReportsPage() {
             margin-bottom: 20px;
         }
         .print-header h1 {
-            font-size: 1.5rem;
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
             font-weight: bold;
             margin: 0;
         }
@@ -221,7 +226,15 @@ export default function ReportsPage() {
           border: 1px solid #000; 
           padding: 8px;
           text-align: center;
+          border-left: 2px solid #000;
+          border-right: 2px solid #000;
         }
+         .report-table th:first-child, .report-table td:first-child {
+            border-right: 2px solid #000;
+         }
+         .report-table th:last-child, .report-table td:last-child {
+            border-left: 2px solid #000;
+         }
         .report-table thead tr {
           background-color: #e0e0e0 !important;
           -webkit-print-color-adjust: exact;
