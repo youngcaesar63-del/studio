@@ -25,6 +25,12 @@ import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers'
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
 
+const importantJobSchema = z.object({
+  jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
+
 const serviceOperationSchema = z.object({
   areaName: z.string().min(1, 'اسم المنطقة مطلوب'),
   periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
@@ -69,11 +75,12 @@ const formSchema = z.object({
   nextOfKinName: z.string().optional(),
   nextOfKinPhone: z.string().optional(),
   nextOfKinAddress: z.string().optional(),
+  importantJobs: z.array(importantJobSchema).optional(),
   serviceOperations: z.array(serviceOperationSchema).optional(),
   trainingCourses: z.array(trainingCourseSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[] };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[] };
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -134,9 +141,15 @@ export default function EditPersonnelPage() {
         nextOfKinName: '',
         nextOfKinPhone: '',
         nextOfKinAddress: '',
+        importantJobs: [],
         serviceOperations: [],
         trainingCourses: [],
       },
+  });
+
+  const { fields: jobFields, append: appendJob, remove: removeJob } = useFieldArray({
+    control: form.control,
+    name: "importantJobs",
   });
 
   const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
@@ -163,6 +176,11 @@ export default function EditPersonnelPage() {
         transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
         reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
         dateOfBirth: personToEdit.dateOfBirth ? new Date(personToEdit.dateOfBirth) : undefined,
+        importantJobs: personToEdit.importantJobs?.map(job => ({
+          ...job,
+          periodFrom: new Date(job.periodFrom),
+          periodTo: new Date(job.periodTo),
+        })) || [],
         serviceOperations: personToEdit.serviceOperations?.map(op => ({
           ...op,
           periodFrom: new Date(op.periodFrom),
@@ -211,6 +229,11 @@ export default function EditPersonnelPage() {
           transferDate: values.transferDate?.toISOString(),
           reportingDate: values.reportingDate?.toISOString(),
           dateOfBirth: values.dateOfBirth?.toISOString(),
+          importantJobs: values.importantJobs?.map(job => ({
+            ...job,
+            periodFrom: job.periodFrom.toISOString(),
+            periodTo: job.periodTo.toISOString(),
+          })),
           serviceOperations: values.serviceOperations?.map(op => ({
             ...op,
             periodFrom: op.periodFrom.toISOString(),
@@ -386,6 +409,38 @@ export default function EditPersonnelPage() {
                 
                 <Separator className="my-8" />
 
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold">أهم الوظائف التي شغلها</h3>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+                          <PlusCircle className="ml-2 h-4 w-4" />
+                          إضافة وظيفة
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {jobFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                           <FormField control={form.control} name={`importantJobs.${index}.jobTitle`} render={({ field }) => (
+                              <FormItem className="md:col-span-2"><FormLabel>المسمى الوظيفي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`importantJobs.${index}.periodFrom`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`importantJobs.${index}.periodTo`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                          <div className="flex items-end">
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeJob(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+
+                <Separator className="my-8" />
+                
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>

@@ -6,13 +6,19 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+type ImportantJob = {
+    jobTitle: string;
+    periodFrom: string;
+    periodTo: string;
+}
 
 type ServiceOperation = {
     areaName: string;
@@ -59,6 +65,7 @@ type Personnel = {
     nextOfKinName?: string;
     nextOfKinPhone?: string;
     nextOfKinAddress?: string;
+    importantJobs?: ImportantJob[];
     serviceOperations?: ServiceOperation[];
     trainingCourses?: TrainingCourse[];
 };
@@ -198,6 +205,35 @@ export default function ViewPersonnelPage() {
                     </div>
                     
                     <Separator />
+                    
+                    {person.importantJobs && person.importantJobs.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Star className="h-5 w-5" /> أهم الوظائف التي شغلها</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">المسمى الوظيفي</TableHead>
+                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.importantJobs.map((job, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{job.jobTitle}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(job.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(job.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {(person.importantJobs && person.importantJobs.length > 0) && (person.serviceOperations && person.serviceOperations.length > 0) && <Separator />}
+
 
                     {person.serviceOperations && person.serviceOperations.length > 0 && (
                         <div>
