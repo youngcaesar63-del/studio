@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
-const files = [
+const initialFiles = [
   { name: 'مستندات الهوية', type: 'folder', lastModified: '2024-05-10', size: '2.5 MB' },
   { name: 'شهادات التدريب', type: 'folder', lastModified: '2024-05-12', size: '8.1 MB' },
   { name: 'التقارير الطبية.pdf', type: 'file', lastModified: '2024-05-18', size: '750 KB' },
@@ -20,6 +21,8 @@ const files = [
 
 export default function AttachmentsPage() {
     const { toast } = useToast();
+    const [files, setFiles] = useState(initialFiles);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleAction = (message: string) => {
       toast({
@@ -27,6 +30,15 @@ export default function AttachmentsPage() {
         description: message,
       });
     };
+
+    const handleDelete = (fileName: string) => {
+        setFiles(files.filter(f => f.name !== fileName));
+        handleAction(`تم حذف ملف: ${fileName}`);
+    }
+
+    const filteredFiles = files.filter(file => 
+        file.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
@@ -36,7 +48,7 @@ export default function AttachmentsPage() {
                         <CardTitle className="text-2xl flex items-center gap-2"><FolderIcon className="h-6 w-6"/>إدارة المرفقات</CardTitle>
                         <CardDescription>تصفح، حمل، وادارة جميع المرفقات والوثائق المتعلقة بالأفراد.</CardDescription>
                     </div>
-                    <Button onClick={() => handleAction('سيتم فتح نافذة اختيار الملفات.')}>
+                    <Button onClick={() => handleAction('سيتم فتح نافذة اختيار الملفات للرفع.')}>
                         <Upload className="ml-2 h-4 w-4" />
                         رفع ملف جديد
                     </Button>
@@ -45,7 +57,12 @@ export default function AttachmentsPage() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="relative w-full max-w-sm">
                             <Search className="absolute right-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                            <Input placeholder="ابحث عن ملف أو مجلد..." className="pr-10" />
+                            <Input 
+                                placeholder="ابحث عن ملف أو مجلد..." 
+                                className="pr-10" 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div className="rounded-md border">
@@ -59,7 +76,7 @@ export default function AttachmentsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {files.map((file) => (
+                                {filteredFiles.map((file) => (
                                     <TableRow key={file.name} className="hover:bg-muted/30 cursor-pointer">
                                         <TableCell className="font-medium flex items-center gap-2">
                                             {file.type === 'folder' ? <FolderIcon className="h-5 w-5 text-primary" /> : <FileText className="h-5 w-5 text-muted-foreground" />}
@@ -78,7 +95,7 @@ export default function AttachmentsPage() {
                                                     <DropdownMenuItem onSelect={() => handleAction(`جاري تحميل ملف: ${file.name}`)}><Download className="ml-2 h-4 w-4" />تحميل</DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => handleAction(`جاري إعادة تسمية ملف: ${file.name}`)}><Edit className="ml-2 h-4 w-4" />إعادة تسمية</DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => handleAction(`تم حذف ملف: ${file.name}`)}><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => handleDelete(file.name)}><Trash2 className="ml-2 h-4 w-4" />حذف</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
