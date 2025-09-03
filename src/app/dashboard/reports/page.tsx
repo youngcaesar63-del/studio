@@ -111,7 +111,90 @@ export default function ReportsPage() {
   }
 
   const handlePrint = () => {
-    window.print();
+    const printArea = document.getElementById('print-area');
+    if (!printArea) {
+      toast({ title: 'خطأ', description: 'لم يتم العثور على منطقة الطباعة.', variant: 'destructive' });
+      return;
+    }
+
+    const printContent = printArea.innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    const printWindow = window.open('', '_blank', 'height=600,width=800');
+    
+    if (printWindow) {
+      printWindow.document.write('<html><head><title>طباعة التقرير</title>');
+      // Add styles for printing
+      const styles = Array.from(document.styleSheets)
+        .map(styleSheet => {
+          try {
+            return Array.from(styleSheet.cssRules)
+              .map(rule => rule.cssText)
+              .join('');
+          } catch (e) {
+            console.warn('Could not read stylesheet rules:', e);
+            return '';
+          }
+        })
+        .join('');
+        
+      printWindow.document.write('<style>');
+      printWindow.document.write(`
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            direction: rtl;
+            margin: 20px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 12px;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: center; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        .print-only { display: block !important; }
+        .no-print { display: none !important; }
+        .print-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .print-header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+         .print-header h2 {
+            font-size: 1.1rem;
+            color: #555;
+        }
+         .print-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+        }
+      `);
+      printWindow.document.write('</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(printContent);
+      printWindow.document.write('</body></html>');
+      
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { // Timeout necessary for styles to load
+          printWindow.print();
+          printWindow.close();
+      }, 500);
+
+    } else {
+        toast({ title: 'خطأ', description: 'لم يتمكن المتصفح من فتح نافذة الطباعة.', variant: 'destructive' });
+    }
   }
 
   const filterOptions = getFilterOptions();
@@ -120,7 +203,7 @@ export default function ReportsPage() {
 
   return (
     <div className="animate-in fade-in duration-500 space-y-6">
-        <Card className="shadow-md no-print">
+        <Card className="shadow-md">
             <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/> الطباعة والتقارير</CardTitle>
                 <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
@@ -164,8 +247,8 @@ export default function ReportsPage() {
         </Card>
 
         {reportData && (
-            <Card className="shadow-md" id="print-area">
-                <CardHeader className="flex flex-row justify-between items-center no-print">
+            <Card>
+                <CardHeader className="flex flex-row justify-between items-center">
                     <div>
                         <CardTitle>{reportTitle}</CardTitle>
                         <CardDescription>{filterSubtitle}</CardDescription>
@@ -175,9 +258,9 @@ export default function ReportsPage() {
                         طباعة
                     </Button>
                 </CardHeader>
-                <CardContent>
+                <CardContent id="print-area">
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
-                        <div className="print-only mb-6 hidden">
+                        <div className="print-header">
                             <h1 className="text-center text-lg font-bold">
                                 {reportTitle}
                             </h1>
@@ -219,7 +302,7 @@ export default function ReportsPage() {
                                 </TableBody>
                             </Table>
                         </div>
-                         <div className="text-xs text-muted-foreground mt-4 print-only hidden">
+                         <div className="print-footer">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                            <p>عدد السجلات: {reportData.length}</p>
                         </div>

@@ -62,29 +62,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-@media print {
-  .no-print {
-    display: none !important;
-  }
-  body > * {
-    display: none;
-  }
-  body > #print-area {
-    display: block;
-  }
-  #print-area {
-    display: block !important;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: 2rem;
-    border: none !important;
-    box-shadow: none !important;
-  }
-  .print-only {
-    display: block !important;
-  }
-}
