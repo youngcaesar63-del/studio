@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -25,6 +24,7 @@ import {
 import { toast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export function DashboardHeader() {
   const { setTheme } = useTheme();
@@ -41,7 +41,13 @@ export function DashboardHeader() {
     <header className="bg-primary text-primary-foreground py-4 px-6 shadow-lg sticky top-0 z-40 no-print">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4 rtl:space-x-reverse">
-          <Users className="w-8 h-8" />
+           <Image
+            src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png"
+            alt="شعار هيئة الاستخبارات العسكرية"
+            width={40}
+            height={40}
+            className="ml-2"
+          />
           <h1 className="text-2xl font-bold">سجل الأفراد</h1>
         </div>
         <div className="flex items-center space-x-6 rtl:space-x-reverse">
