@@ -3,13 +3,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { Separator } from '@/components/ui/separator';
 
 type Personnel = {
     id: number;
@@ -30,6 +31,13 @@ type Personnel = {
     maritalStatus?: string;
     notes?: string;
     photo?: string;
+    dateOfBirth?: string;
+    nationalId?: string;
+    phoneNumber?: string;
+    state?: string;
+    city?: string;
+    locality?: string;
+    address?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -41,9 +49,9 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     }
 };
 
-const DetailItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) => (
-    <div className="flex items-start gap-4">
-        <Icon className="h-6 w-6 text-primary mt-1" />
+const DetailItem = ({ icon: Icon, label, value, fullWidth = false }: { icon: React.ElementType, label: string, value: React.ReactNode, fullWidth?: boolean }) => (
+    <div className={`flex items-start gap-4 ${fullWidth ? 'md:col-span-2 lg:col-span-3' : ''}`}>
+        <Icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
         <div>
             <p className="text-sm text-muted-foreground">{label}</p>
             <div className="font-semibold text-lg">{value || 'غير مسجل'}</div>
@@ -91,12 +99,7 @@ export default function ViewPersonnelPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
+                    {[...Array(12)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
                     <div className="md:col-span-2 lg:col-span-3">
                        <Skeleton className="h-24 w-full" />
                     </div>
@@ -139,49 +142,67 @@ export default function ViewPersonnelPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-6 md:p-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
-                        <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
-                        <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
-                        <DetailItem icon={Users} label="الدفعة" value={person.batch} />
-                        <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
-                        <DetailItem icon={Briefcase} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
-                        <DetailItem 
-                            icon={Calendar} 
-                            label="تاريخ التعيين" 
-                            value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} 
-                        />
-                        <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
-                         <DetailItem 
-                            icon={Undo2} 
-                            label="تاريخ آخر عودة" 
-                            value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy') : 'غير مسجل'} 
-                        />
-                         <DetailItem 
-                            icon={ArrowLeftRight} 
-                            label="تاريخ النقل" 
-                            value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy') : 'غير مسجل'} 
-                        />
-                         <DetailItem 
-                            icon={FileCheck} 
-                            label="تاريخ التبليغ" 
-                            value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy') : 'غير مسجل'} 
-                        />
-                        <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
-                        <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
+                <CardContent className="p-6 md:p-8 space-y-8">
+                    
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><User className="h-5 w-5" /> المعلومات الشخصية</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
+                            <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId} />
+                            <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
+                            <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
+                            <DetailItem icon={Phone} label="رقم الهاتف" value={person.phoneNumber} />
+                        </div>
                     </div>
+
+                    <Separator />
+
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Briefcase className="h-5 w-5" /> المعلومات الوظيفية</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
+                             <DetailItem icon={Badge} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
+                            <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
+                            <DetailItem icon={Users} label="الدفعة" value={person.batch} />
+                            <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
+                            <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
+                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                        </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><MapPin className="h-5 w-5" /> بيانات العنوان</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                             <DetailItem icon={Globe} label="الولاية" value={person.state} />
+                             <DetailItem icon={Building} label="المدينة" value={person.city} />
+                             <DetailItem icon={MapPin} label="المحلية" value={person.locality} />
+                             <DetailItem icon={Info} label="العنوان بالتفصيل" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.address}</p>} fullWidth />
+                        </div>
+                    </div>
+
                     {person.notes && (
-                         <div className="mt-8 pt-6 border-t">
-                             <DetailItem icon={Info} label="ملاحظات" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} />
-                         </div>
+                         <>
+                            <Separator />
+                            <div>
+                                <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Info className="h-5 w-5" /> ملاحظات</h3>
+                                <div className="grid grid-cols-1">
+                                    <DetailItem icon={Info} label="ملاحظات" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} fullWidth />
+                                </div>
+                            </div>
+                         </>
                     )}
-                    <div className="mt-8 pt-6 border-t flex justify-end">
-                        <Button onClick={() => router.back()}>
-                           <ArrowRight className="ml-2 h-4 w-4" /> العودة
-                        </Button>
-                    </div>
                 </CardContent>
+                <CardFooter className="mt-8 pt-6 border-t flex justify-end">
+                    <Button onClick={() => router.back()}>
+                       <ArrowRight className="ml-2 h-4 w-4" /> العودة
+                    </Button>
+                </CardFooter>
             </Card>
         </div>
     );
