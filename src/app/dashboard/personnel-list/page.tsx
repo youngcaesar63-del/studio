@@ -65,34 +65,23 @@ export default function PersonnelListPage() {
   useEffect(() => {
     loadData();
 
-    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
-      let key;
-      if (event instanceof StorageEvent) {
-          key = event.key;
-      } else if (event instanceof CustomEvent) {
-          key = event.detail.key;
-      }
-
-      if (key === 'personnelData') {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'personnelData') {
           loadData();
       }
     };
     
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('localStorageChange', handleStorageChange);
-
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('localStorageChange', handleStorageChange);
     };
   }, [loadData]);
 
   const handleDelete = (personId: number) => {
     const updatedData = personnelData.filter(p => p.id !== personId);
-    setPersonnelData(updatedData);
     localStorage.setItem('personnelData', JSON.stringify(updatedData));
-    window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'personnelData' } }));
+    loadData();
   };
 
 

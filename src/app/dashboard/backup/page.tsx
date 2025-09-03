@@ -52,31 +52,26 @@ export default function BackupPage() {
     useEffect(() => {
         loadData();
         
-        const handleStorageChange = (event: StorageEvent | CustomEvent) => {
-            let key;
-            if (event instanceof StorageEvent) {
-                key = event.key;
-            } else if (event instanceof CustomEvent) {
-                key = event.detail.key;
-            }
-
-            if (key === 'backupHistory') {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'backupHistory') {
                 loadData();
             }
         };
 
         window.addEventListener('storage', handleStorageChange);
-        window.addEventListener('localStorageChange', handleStorageChange);
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
-            window.removeEventListener('localStorageChange', handleStorageChange);
         };
     }, []);
 
     const updateLocalStorage = (data: Backup[]) => {
         localStorage.setItem('backupHistory', JSON.stringify(data));
-        window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'backupHistory' } }));
+        // Manually dispatch a storage event to trigger updates in the same tab
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'backupHistory',
+            newValue: JSON.stringify(data),
+        }));
     };
 
     const handleNewBackup = () => {
@@ -89,11 +84,9 @@ export default function BackupPage() {
             status: 'جاري الإنشاء...',
         };
 
-        setBackupHistory(prevHistory => {
-            const updatedHistory = [newBackup, ...prevHistory];
-            updateLocalStorage(updatedHistory);
-            return updatedHistory;
-        });
+        const updatedHistory = [newBackup, ...backupHistory];
+        setBackupHistory(updatedHistory);
+        updateLocalStorage(updatedHistory);
         
         toast({
             title: 'بدء عملية النسخ الاحتياطي',
@@ -101,20 +94,18 @@ export default function BackupPage() {
         });
 
         setTimeout(() => {
-            setBackupHistory(prevHistory => {
-                const finalHistory = prevHistory.map(b => {
-                    if (b.id === newBackupId) {
-                        return { ...b, status: 'مكتمل', size: `${(15 + Math.random() * 2).toFixed(1)} MB` };
-                    }
-                    return b;
-                });
-                updateLocalStorage(finalHistory);
-                setIsCreating(false);
-                toast({
-                    title: 'اكتمل النسخ الاحتياطي',
-                    description: 'تم إنشاء النسخة الاحتياطية بنجاح.',
-                });
-                return finalHistory;
+            const finalHistory = updatedHistory.map(b => {
+                if (b.id === newBackupId) {
+                    return { ...b, status: 'مكتمل', size: `${(15 + Math.random() * 2).toFixed(1)} MB` };
+                }
+                return b;
+            });
+            setBackupHistory(finalHistory);
+            updateLocalStorage(finalHistory);
+            setIsCreating(false);
+            toast({
+                title: 'اكتمل النسخ الاحتياطي',
+                description: 'تم إنشاء النسخة الاحتياطية بنجاح.',
             });
         }, 3000);
     };
@@ -127,12 +118,10 @@ export default function BackupPage() {
     };
     
     const handleDelete = (backupId: string) => {
-        setBackupHistory(prevHistory => {
-            const updatedHistory = prevHistory.filter(b => b.id !== backupId);
-            updateLocalStorage(updatedHistory);
-            handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
-            return updatedHistory;
-        });
+        const updatedHistory = backupHistory.filter(b => b.id !== backupId);
+        setBackupHistory(updatedHistory);
+        updateLocalStorage(updatedHistory);
+        handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
     };
 
     const getStatusVariant = (status: Backup['status']) => {

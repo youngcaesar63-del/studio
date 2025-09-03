@@ -41,16 +41,12 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleAction = (message: string) => {
-    toast({
-      title: 'تم بنجاح',
-      description: message,
-    });
-  };
-
   const confirmDelete = (person: Personnel) => {
     onDelete(person.id);
-    handleAction(`تم حذف الفرد: ${person.name}`);
+    toast({
+      title: 'تم بنجاح',
+      description: `تم حذف الفرد: ${person.name}`,
+    });
   }
 
   return (

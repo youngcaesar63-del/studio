@@ -73,25 +73,16 @@ export function StatsCards() {
   useEffect(() => {
     calculateStats();
     
-    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
-      let key;
-      if (event instanceof StorageEvent) {
-          key = event.key;
-      } else if (event instanceof CustomEvent) {
-          key = event.detail.key;
-      }
-      
-      if (key === 'personnelData') {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'personnelData') {
           calculateStats();
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('localStorageChange', handleStorageChange);
 
     return () => {
         window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('localStorageChange', handleStorageChange);
     };
   }, [calculateStats]);
 

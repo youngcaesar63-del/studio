@@ -155,7 +155,10 @@ notes: personToEdit.notes || '',
       });
 
       localStorage.setItem('personnelData', JSON.stringify(updatedList));
-      window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'personnelData' } }));
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'personnelData',
+        newValue: JSON.stringify(updatedList),
+      }));
 
       toast({
         title: 'تم التحديث بنجاح',

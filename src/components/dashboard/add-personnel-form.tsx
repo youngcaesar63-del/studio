@@ -106,7 +106,10 @@ export function AddPersonnelForm() {
 
       personnelList.push(newPersonnel);
       localStorage.setItem('personnelData', JSON.stringify(personnelList));
-      window.dispatchEvent(new CustomEvent('localStorageChange', { detail: { key: 'personnelData' } }));
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'personnelData',
+        newValue: JSON.stringify(personnelList),
+      }));
 
       toast({
         title: 'تم الحفظ بنجاح',
