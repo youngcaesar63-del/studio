@@ -124,7 +124,7 @@ export default function ReportsPage() {
    const formatArabicNumber = (numStr: number | string) => {
     if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
-    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d, 10)]);
+    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(Number(str.replace(/,/g, ''))).replace(/٬/g, '');
   }
 
   const handlePrint = () => {
@@ -185,11 +185,13 @@ export default function ReportsPage() {
 
       printWindow.document.write('<html><head><title></title>');
       
+      const pageOrientation = includeAdministration ? 'landscape' : 'portrait';
+
       printWindow.document.write('<style>');
       printWindow.document.write(`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
-            size: A4 ${includeAdministration ? 'portrait' : 'landscape'};
+            size: A4 ${pageOrientation};
             margin: 1cm;
         }
         body { 
