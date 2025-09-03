@@ -50,8 +50,9 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
     });
   }
   
-  const formatArabicNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+  const formatArabicNumber = (numStr: number | string) => {
+    const str = String(numStr);
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
 
   return (
@@ -75,7 +76,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                 return (
                   <TableRow key={person.id}>
                     <TableCell className="font-medium">{formatArabicNumber(index + 1)}</TableCell>
-                    <TableCell className="border-r">{person.cardId}</TableCell>
+                    <TableCell className="border-r">{formatArabicNumber(person.cardId)}</TableCell>
                     <TableCell className="border-r">{displayRank}</TableCell>
                     <TableCell className="font-medium border-r">{person.name}</TableCell>
                     <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
@@ -127,3 +128,5 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
     </div>
   );
 }
+
+    

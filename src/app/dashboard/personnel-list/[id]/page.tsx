@@ -96,6 +96,11 @@ export default function ViewPersonnelPage() {
     const [person, setPerson] = useState<Personnel | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const formatArabicNumber = (numStr: number | string) => {
+      const str = String(numStr);
+      return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+    };
+
     useEffect(() => {
         if (!id) return;
         try {
@@ -177,12 +182,12 @@ export default function ViewPersonnelPage() {
                     <div>
                         <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><User className="h-5 w-5" /> المعلومات الشخصية</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
-                            <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId} />
+                            <DetailItem icon={Hash} label="رقم البطاقة" value={formatArabicNumber(person.cardId)} />
+                            <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId ? formatArabicNumber(person.nationalId) : 'غير مسجل'} />
                             <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                             <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
-                            <DetailItem icon={Phone} label="رقم الهاتف" value={person.phoneNumber} />
+                            <DetailItem icon={Phone} label="رقم الهاتف" value={person.phoneNumber ? formatArabicNumber(person.phoneNumber) : 'غير مسجل'} />
                         </div>
                     </div>
 
@@ -315,7 +320,7 @@ export default function ViewPersonnelPage() {
                         <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><ShieldQuestion className="h-5 w-5" /> بيانات أقرب الأقربين</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                              <DetailItem icon={User} label="الاسم" value={person.nextOfKinName} />
-                             <DetailItem icon={Phone} label="رقم الهاتف" value={person.nextOfKinPhone} />
+                             <DetailItem icon={Phone} label="رقم الهاتف" value={person.nextOfKinPhone ? formatArabicNumber(person.nextOfKinPhone) : 'غير مسجل'} />
                              <DetailItem icon={MapPin} label="العنوان" value={person.nextOfKinAddress} fullWidth />
                         </div>
                     </div>

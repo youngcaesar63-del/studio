@@ -118,8 +118,9 @@ export default function ReportsPage() {
     }
   }
   
-   const formatArabicNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+   const formatArabicNumber = (numStr: number | string) => {
+    const str = String(numStr);
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
 
   const handlePrint = () => {
@@ -150,11 +151,11 @@ export default function ReportsPage() {
       if (reportData) {
         reportData.forEach((person, index) => {
             const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
-            const arabicIndex = new Intl.NumberFormat('ar-SA-u-nu-arab').format(index + 1);
+            const arabicIndex = formatArabicNumber(index + 1);
             tableContent += `
               <tr>
                 <td>${arabicIndex}</td>
-                <td>${person.cardId}</td>
+                <td>${formatArabicNumber(person.cardId)}</td>
                 <td>${displayRank}</td>
                 <td>${person.name}</td>
                 <td></td>
@@ -372,7 +373,7 @@ export default function ReportsPage() {
                                         return (
                                         <TableRow key={person.id}>
                                             <TableCell className="text-center">{formatArabicNumber(index + 1)}</TableCell>
-                                            <TableCell className="text-center border-r">{person.cardId}</TableCell>
+                                            <TableCell className="text-center border-r">{formatArabicNumber(person.cardId)}</TableCell>
                                             <TableCell className="text-center border-r">{displayRank}</TableCell>
                                             <TableCell className="text-center border-r">{person.name}</TableCell>
                                             <TableCell className="text-center border-r">{person.administration}</TableCell>
@@ -395,3 +396,5 @@ export default function ReportsPage() {
     </div>
   );
 }
+
+    
