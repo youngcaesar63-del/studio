@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Shield, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
 
 type Permission = {
   id: string;
@@ -62,52 +63,33 @@ export default function PermissionsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const loadData = () => {
-      try {
-        setLoading(true);
-        const storedData = localStorage.getItem('rolesData');
-        if (storedData) {
-          setRoles(JSON.parse(storedData));
-        } else {
-          setRoles(initialRoles);
-          localStorage.setItem('rolesData', JSON.stringify(initialRoles));
-        }
-      } catch (error) {
-          console.error("Failed to load roles from localStorage", error);
-          setRoles(initialRoles);
-      } finally {
-          setLoading(false);
-      }
-  };
+  const loadData = useCallback(() => {
+    setLoading(true);
+    let data = getLocalStorage('rolesData', null);
+    if (data === null) {
+        data = initialRoles;
+        updateLocalStorage('rolesData', initialRoles);
+    }
+    setRoles(data);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     loadData();
     
-    const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === 'rolesData') {
+    const handleStorageChange = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail.key === 'rolesData') {
             loadData();
         }
     };
     
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage-update', handleStorageChange);
 
     return () => {
-        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('storage-update', handleStorageChange);
     };
-  }, []);
-
-  const updateLocalStorage = (data: Role[]) => {
-    try {
-      localStorage.setItem('rolesData', JSON.stringify(data));
-      // Manually dispatch a storage event to trigger updates in the same tab
-      window.dispatchEvent(new StorageEvent('storage', {
-          key: 'rolesData',
-          newValue: JSON.stringify(data),
-      }));
-    } catch (error) {
-      console.error("Failed to save roles to localStorage", error);
-    }
-  };
+  }, [loadData]);
 
   const handlePermissionChange = (roleName: string, permissionId: string, newEnabledState: boolean) => {
     const updatedRoles = roles.map(role => 
@@ -123,8 +105,7 @@ export default function PermissionsPage() {
         : role
     );
     
-    setRoles(updatedRoles);
-    updateLocalStorage(updatedRoles);
+    updateLocalStorage('rolesData', updatedRoles);
 
     const role = roles.find(r => r.name === roleName);
     const permission = role?.permissions.find(p => p.id === permissionId);

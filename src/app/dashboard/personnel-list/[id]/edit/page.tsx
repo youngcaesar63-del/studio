@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
@@ -75,42 +76,34 @@ export default function EditPersonnelPage() {
 
   useEffect(() => {
     if (!id) return;
-    try {
-      const storedData = localStorage.getItem('personnelData');
-      if (storedData) {
-        const personnelList: Personnel[] = JSON.parse(storedData);
-        const personToEdit = personnelList.find(p => p.id === id);
-        if (personToEdit) {
-          form.reset({
-            fullName: personToEdit.name,
-            cardId: personToEdit.cardId,
-            rank: personToEdit.rank,
-            specialization: personToEdit.specialization || 'لا يوجد',
-            administration: personToEdit.administration,
-            status: personToEdit.status,
-            appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
-            lastReturnDate: personToEdit.lastReturnDate ? new Date(personToEdit.lastReturnDate) : undefined,
-            transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
-            reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
-            bloodType: personToEdit.bloodType || '',
-            maritalStatus: personToEdit.maritalStatus || '',
-notes: personToEdit.notes || '',
-            photo: personToEdit.photo || '',
-          });
-          if (personToEdit.photo) {
-            setPhotoPreview(personToEdit.photo);
-          }
-        } else {
-            toast({ title: 'خطأ', description: 'الفرد غير موجود.', variant: 'destructive' });
-            router.push('/dashboard/personnel-list');
-        }
+    setLoading(true);
+    const personnelList: Personnel[] = getLocalStorage('personnelData', []);
+    const personToEdit = personnelList.find(p => p.id === id);
+    if (personToEdit) {
+      form.reset({
+        fullName: personToEdit.name,
+        cardId: personToEdit.cardId,
+        rank: personToEdit.rank,
+        specialization: personToEdit.specialization || 'لا يوجد',
+        administration: personToEdit.administration,
+        status: personToEdit.status,
+        appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
+        lastReturnDate: personToEdit.lastReturnDate ? new Date(personToEdit.lastReturnDate) : undefined,
+        transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
+        reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
+        bloodType: personToEdit.bloodType || '',
+        maritalStatus: personToEdit.maritalStatus || '',
+        notes: personToEdit.notes || '',
+        photo: personToEdit.photo || '',
+      });
+      if (personToEdit.photo) {
+        setPhotoPreview(personToEdit.photo);
       }
-    } catch (error) {
-        console.error("Failed to load data for editing", error);
-        toast({ title: 'خطأ', description: 'فشل تحميل بيانات الفرد.', variant: 'destructive' });
-    } finally {
-        setLoading(false);
+    } else {
+        toast({ title: 'خطأ', description: 'الفرد غير موجود.', variant: 'destructive' });
+        router.push('/dashboard/personnel-list');
     }
+    setLoading(false);
   }, [id, form, router]);
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,53 +120,38 @@ notes: personToEdit.notes || '',
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const storedData = localStorage.getItem('personnelData');
-      let personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
-      
-      const updatedList = personnelList.map(p => {
-        if (p.id === id) {
-          return {
-            ...p,
-            name: values.fullName,
-            cardId: values.cardId,
-            rank: values.rank,
-            specialization: values.specialization,
-            administration: values.administration,
-            status: values.status,
-            appointmentDate: values.appointmentDate.toISOString(),
-            lastReturnDate: values.lastReturnDate?.toISOString(),
-            transferDate: values.transferDate?.toISOString(),
-            reportingDate: values.reportingDate?.toISOString(),
-            bloodType: values.bloodType,
-            maritalStatus: values.maritalStatus,
-            notes: values.notes,
-            photo: values.photo,
-          };
-        }
-        return p;
-      });
+    let personnelList: Personnel[] = getLocalStorage('personnelData', []);
+    
+    const updatedList = personnelList.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          name: values.fullName,
+          cardId: values.cardId,
+          rank: values.rank,
+          specialization: values.specialization,
+          administration: values.administration,
+          status: values.status,
+          appointmentDate: values.appointmentDate.toISOString(),
+          lastReturnDate: values.lastReturnDate?.toISOString(),
+          transferDate: values.transferDate?.toISOString(),
+          reportingDate: values.reportingDate?.toISOString(),
+          bloodType: values.bloodType,
+          maritalStatus: values.maritalStatus,
+          notes: values.notes,
+          photo: values.photo,
+        };
+      }
+      return p;
+    });
 
-      localStorage.setItem('personnelData', JSON.stringify(updatedList));
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'personnelData',
-        newValue: JSON.stringify(updatedList),
-      }));
+    updateLocalStorage('personnelData', updatedList);
 
-      toast({
-        title: 'تم التحديث بنجاح',
-        description: `تم تحديث بيانات الفرد ${values.fullName}.`,
-      });
-      router.push('/dashboard/personnel-list');
-
-    } catch (error) {
-       console.error("Failed to save to localStorage", error);
-       toast({
-        title: 'خطأ في الحفظ',
-        description: `تعذر تحديث بيانات الفرد في السجل المحلي.`,
-        variant: 'destructive',
-      });
-    }
+    toast({
+      title: 'تم التحديث بنجاح',
+      description: `تم تحديث بيانات الفرد ${values.fullName}.`,
+    });
+    router.push('/dashboard/personnel-list');
   }
 
   if (loading) {
@@ -214,9 +192,7 @@ notes: personToEdit.notes || '',
         <CardContent className="pt-6">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* Personal and Military Info */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    {/* Photo */}
                      <FormField control={form.control} name="photo" render={({ field }) => (
                       <FormItem className="flex flex-col items-center gap-2 lg:col-span-1">
                         <FormLabel>الصورة الشخصية</FormLabel>
@@ -235,8 +211,6 @@ notes: personToEdit.notes || '',
                         <FormMessage />
                       </FormItem>
                     )} />
-
-                    {/* Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:col-span-2">
                         <FormField control={form.control} name="fullName" render={({ field }) => (
                             <FormItem className="md:col-span-2"><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -267,8 +241,6 @@ notes: personToEdit.notes || '',
                         )} />
                     </div>
                 </div>
-
-                {/* Status and Personal Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="status" render={({ field }) => (
                         <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
@@ -280,11 +252,9 @@ notes: personToEdit.notes || '',
                         <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                 </div>
-
                 <FormField control={form.control} name="notes" render={({ field }) => (
                     <FormItem><FormLabel>ملاحظات</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
-
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>

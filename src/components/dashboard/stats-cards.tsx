@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, UserPlus, Briefcase, TrendingUp, Minus, ShieldAlert, BookOpen, Plane, UserMinus, UserX, Footprints } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { getLocalStorage } from '@/lib/localStorage-helpers';
 
 type Personnel = {
   id: number;
@@ -34,55 +35,48 @@ export function StatsCards() {
   const [loading, setLoading] = useState(true);
 
   const calculateStats = useCallback(() => {
-    try {
-      setLoading(true);
-      const storedData = localStorage.getItem('personnelData');
-      const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
+    setLoading(true);
+    const personnelList: Personnel[] = getLocalStorage('personnelData', []);
 
-      const total = personnelList.length;
-      const inService = personnelList.filter(p => p.status === 'بالطابور').length;
-      const onLeave = personnelList.filter(p => p.status === 'إجازة').length;
-      const training = personnelList.filter(p => p.status === 'دورة تدريبية').length;
-      const operations = personnelList.filter(p => p.status === 'عمليات').length;
-      const sickLeave = personnelList.filter(p => p.status === 'إرسالية مرضية').length;
-      const attached = personnelList.filter(p => p.status === 'إلحاق').length;
-      const absent = personnelList.filter(p => p.status === 'غياب').length;
-      const escaped = personnelList.filter(p => p.status === 'هروب').length;
+    const total = personnelList.length;
+    const inService = personnelList.filter(p => p.status === 'بالطابور').length;
+    const onLeave = personnelList.filter(p => p.status === 'إجازة').length;
+    const training = personnelList.filter(p => p.status === 'دورة تدريبية').length;
+    const operations = personnelList.filter(p => p.status === 'عمليات').length;
+    const sickLeave = personnelList.filter(p => p.status === 'إرسالية مرضية').length;
+    const attached = personnelList.filter(p => p.status === 'إلحاق').length;
+    const absent = personnelList.filter(p => p.status === 'غياب').length;
+    const escaped = personnelList.filter(p => p.status === 'هروب').length;
 
-      const calculatedStats = [
-        { title: 'إجمالي الأفراد', value: total.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
-        { title: 'بالطابور', value: inService.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
-        { title: 'عمليات', value: operations.toString(), change: '', changeType: 'neutral', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
-        { title: 'إجازة', value: onLeave.toString(), change: '', changeType: 'neutral', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
-        { title: 'دورة تدريبية', value: training.toString(), change: '', changeType: 'neutral', icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
-        { title: 'إرسالية مرضية', value: sickLeave.toString(), change: '', changeType: 'neutral', icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
-        { title: 'إلحاق', value: attached.toString(), change: '', changeType: 'neutral', icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
-        { title: 'غياب', value: absent.toString(), change: '', changeType: 'neutral', icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
-        { title: 'هروب', value: escaped.toString(), change: '', changeType: 'neutral', icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
-      ];
-      setStats(calculatedStats);
-
-    } catch (e) {
-      console.error("Failed to calculate stats", e);
-      setStats([]);
-    } finally {
-      setLoading(false);
-    }
+    const calculatedStats = [
+      { title: 'إجمالي الأفراد', value: total.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
+      { title: 'بالطابور', value: inService.toString(), change: '', changeType: 'neutral', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
+      { title: 'عمليات', value: operations.toString(), change: '', changeType: 'neutral', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
+      { title: 'إجازة', value: onLeave.toString(), change: '', changeType: 'neutral', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
+      { title: 'دورة تدريبية', value: training.toString(), change: '', changeType: 'neutral', icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
+      { title: 'إرسالية مرضية', value: sickLeave.toString(), change: '', changeType: 'neutral', icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
+      { title: 'إلحاق', value: attached.toString(), change: '', changeType: 'neutral', icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
+      { title: 'غياب', value: absent.toString(), change: '', changeType: 'neutral', icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
+      { title: 'هروب', value: escaped.toString(), change: '', changeType: 'neutral', icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
+    ];
+    setStats(calculatedStats);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     calculateStats();
     
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'personnelData') {
-          calculateStats();
-      }
+    const handleStorageChange = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail.key === 'personnelData') {
+            calculateStats();
+        }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage-update', handleStorageChange);
 
     return () => {
-        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('storage-update', handleStorageChange);
     };
   }, [calculateStats]);
 
@@ -93,7 +87,6 @@ export function StatsCards() {
       </div>
     )
   }
-
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">

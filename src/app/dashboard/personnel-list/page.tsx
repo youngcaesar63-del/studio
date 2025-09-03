@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 
 const initialPersonnelData = [
     { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', specialization: 'لا يوجد', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), bloodType: 'A+', maritalStatus: 'أعزب' },
@@ -34,56 +35,45 @@ export default function PersonnelListPage() {
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(() => {
-    try {
-      setLoading(true);
-      const storedData = localStorage.getItem('personnelData');
-      let data;
-      if (storedData) {
-        data = JSON.parse(storedData);
-      } else {
-        data = initialPersonnelData;
-        localStorage.setItem('personnelData', JSON.stringify(initialPersonnelData));
-      }
-      
-      const sortedData = data.sort((a: any, b: any) => {
-        const rankA = rankOrder[a.rank] || 99;
-        const rankB = rankOrder[b.rank] || 99;
-        return rankA - rankB;
-      });
-
-      setPersonnelData(sortedData);
-
-    } catch (error) {
-        console.error("Failed to read from localStorage", error);
-        setPersonnelData(initialPersonnelData);
-    } finally {
-        setLoading(false);
+    setLoading(true);
+    let data = getLocalStorage('personnelData', null);
+    if (data === null) {
+      data = initialPersonnelData;
+      updateLocalStorage('personnelData', initialPersonnelData);
     }
-  }, []);
+    
+    const sortedData = data.sort((a: any, b: any) => {
+      const rankA = rankOrder[a.rank] || 99;
+      const rankB = rankOrder[b.rank] || 99;
+      return rankA - rankB;
+    });
 
+    setPersonnelData(sortedData);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     loadData();
 
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'personnelData') {
-          loadData();
-      }
+    const handleStorageChange = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail.key === 'personnelData') {
+            loadData();
+        }
     };
     
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage-update', handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage-update', handleStorageChange);
     };
   }, [loadData]);
 
   const handleDelete = (personId: number) => {
     const updatedData = personnelData.filter(p => p.id !== personId);
-    localStorage.setItem('personnelData', JSON.stringify(updatedData));
-    loadData();
+    updateLocalStorage('personnelData', updatedData);
+    // The event listener will handle the state update
   };
-
 
   return (
     <div className="animate-in fade-in duration-500">

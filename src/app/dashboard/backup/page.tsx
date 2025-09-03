@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Database, MoreVertical, Download, RefreshCw, Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
 
 type Backup = {
   id: string;
@@ -24,55 +25,39 @@ const initialBackupHistory: Backup[] = [
   { id: `backup-${Date.now() - 345600000}`, date: new Date(Date.now() - 345600000).toLocaleString('ar-SA'), size: '14.8 MB', status: 'فشل' },
 ];
 
-
 export default function BackupPage() {
     const { toast } = useToast();
     const [backupHistory, setBackupHistory] = useState<Backup[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
 
-    const loadData = () => {
-        try {
-            setLoading(true);
-            const storedData = localStorage.getItem('backupHistory');
-            if (storedData) {
-                setBackupHistory(JSON.parse(storedData));
-            } else {
-                localStorage.setItem('backupHistory', JSON.stringify(initialBackupHistory));
-                setBackupHistory(initialBackupHistory);
-            }
-        } catch (error) {
-            console.error("Failed to load backup history from localStorage", error);
-            setBackupHistory(initialBackupHistory);
-        } finally {
-            setLoading(false);
+    const loadData = useCallback(() => {
+        setLoading(true);
+        let data = getLocalStorage('backupHistory', null);
+        if (data === null) {
+            data = initialBackupHistory;
+            updateLocalStorage('backupHistory', initialBackupHistory);
         }
-    };
+        setBackupHistory(data);
+        setLoading(false);
+    }, []);
 
     useEffect(() => {
         loadData();
         
-        const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === 'backupHistory') {
+        const handleStorageChange = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail.key === 'backupHistory') {
                 loadData();
             }
         };
 
-        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('storage-update', handleStorageChange);
 
         return () => {
-            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('storage-update', handleStorageChange);
         };
-    }, []);
-
-    const updateLocalStorage = (data: Backup[]) => {
-        localStorage.setItem('backupHistory', JSON.stringify(data));
-        // Manually dispatch a storage event to trigger updates in the same tab
-        window.dispatchEvent(new StorageEvent('storage', {
-            key: 'backupHistory',
-            newValue: JSON.stringify(data),
-        }));
-    };
+    }, [loadData]);
 
     const handleNewBackup = () => {
         setIsCreating(true);
@@ -85,8 +70,7 @@ export default function BackupPage() {
         };
 
         const updatedHistory = [newBackup, ...backupHistory];
-        setBackupHistory(updatedHistory);
-        updateLocalStorage(updatedHistory);
+        updateLocalStorage('backupHistory', updatedHistory);
         
         toast({
             title: 'بدء عملية النسخ الاحتياطي',
@@ -100,8 +84,7 @@ export default function BackupPage() {
                 }
                 return b;
             });
-            setBackupHistory(finalHistory);
-            updateLocalStorage(finalHistory);
+            updateLocalStorage('backupHistory', finalHistory);
             setIsCreating(false);
             toast({
                 title: 'اكتمل النسخ الاحتياطي',
@@ -119,8 +102,7 @@ export default function BackupPage() {
     
     const handleDelete = (backupId: string) => {
         const updatedHistory = backupHistory.filter(b => b.id !== backupId);
-        setBackupHistory(updatedHistory);
-        updateLocalStorage(updatedHistory);
+        updateLocalStorage('backupHistory', updatedHistory);
         handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
     };
 
@@ -132,7 +114,6 @@ export default function BackupPage() {
             default: return 'bg-muted text-muted-foreground';
         }
     };
-
 
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
