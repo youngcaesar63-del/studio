@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -26,17 +25,51 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
+
+const notifications = [
+  {
+    title: 'بيانات غير مكتملة',
+    description: 'هناك ٥ أفراد ببيانات غير مكتملة تحتاج مراجعة',
+    icon: AlertTriangle,
+    style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+    time: 'الآن',
+  },
+  {
+    title: 'مواعيد تجديد',
+    description: 'هناك ١٢ وثيقة تحتاج تجديد خلال الشهر القادم',
+    icon: Clock,
+    style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+    time: 'منذ ساعة',
+  },
+  {
+    title: 'مراجعة الأداء',
+    description: 'حان وقت مراجعة أداء الأفراد للربع الحالي',
+    icon: UserCheck,
+    style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+    time: 'أمس',
+  },
+];
+
 
 export function DashboardHeader() {
   const { setTheme } = useTheme();
   const router = useRouter();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [activeNotifications, setActiveNotifications] = useState(notifications);
 
   const handleLogout = () => {
     toast({ title: 'تم تسجيل الخروج بنجاح' });
     setLogoutModalOpen(false);
     router.push('/login');
   };
+
+  const clearNotifications = () => {
+    setActiveNotifications([]);
+    toast({
+        title: 'تم مسح الإشعارات',
+    });
+  }
 
   return (
     <header className="bg-card border-b py-2 px-6 shadow-sm sticky top-0 z-40 no-print">
@@ -50,6 +83,7 @@ export function DashboardHeader() {
               className="h-10 w-10"
             />
             <h1 className="text-xl font-bold text-foreground">سجل الافراد</h1>
+             <UserIcon className="h-6 w-6 text-primary" />
         </div>
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <DropdownMenu>
@@ -71,34 +105,34 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full relative">
                 <Bell className="h-5 w-5"/>
-                <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-card animate-pulse"></span>
+                {activeNotifications.length > 0 && 
+                    <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-card animate-pulse"></span>
+                }
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-80" align="end">
               <div className="p-2">
                 <div className="flex justify-between items-center mb-3 px-2">
                   <h4 className="font-bold text-foreground">الإشعارات</h4>
-                  <Button variant="link" className="text-xs h-auto p-0">تعيين الكل كمقروء</Button>
+                  {activeNotifications.length > 0 &&
+                    <Button variant="link" className="text-xs h-auto p-0" onClick={clearNotifications}>تعيين الكل كمقروء</Button>
+                  }
                 </div>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
-                   <DropdownMenuItem className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg focus:bg-blue-100 dark:focus:bg-blue-900/50 cursor-pointer">
-                       <div className="flex flex-col">
-                           <p className="text-sm text-foreground">تمت إضافة فرد جديد: أحمد محمد</p>
-                           <p className="text-xs text-muted-foreground">منذ ٣٠ دقيقة</p>
-                       </div>
-                   </DropdownMenuItem>
-                   <DropdownMenuItem className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg focus:bg-amber-100 dark:focus:bg-amber-900/50 cursor-pointer">
-                       <div className="flex flex-col">
-                           <p className="text-sm text-foreground">هناك ٥ وثائق تحتاج إلى تجديد</p>
-                           <p className="text-xs text-muted-foreground">منذ ساعتين</p>
-                       </div>
-                   </DropdownMenuItem>
-                   <DropdownMenuItem className="p-2 bg-red-50 dark:bg-red-900/30 rounded-lg focus:bg-red-100 dark:focus:bg-red-900/50 cursor-pointer">
-                       <div className="flex flex-col">
-                           <p className="text-sm text-foreground">بيانات غير مكتملة لـ ٣ أفراد</p>
-                           <p className="text-xs text-muted-foreground">منذ ٥ ساعات</p>
-                       </div>
-                   </DropdownMenuItem>
+                    {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
+                       <DropdownMenuItem key={index} className={`p-2 rounded-lg cursor-pointer flex items-start gap-3 ${notification.style.replace('bg-', 'focus:bg-')}`}>
+                            <notification.icon className="h-5 w-5 mt-1" />
+                           <div className="flex flex-col">
+                               <p className="text-sm font-medium">{notification.title}</p>
+                               <p className="text-xs text-muted-foreground">{notification.description}</p>
+                               <p className="text-xs text-muted-foreground/80 mt-1">{notification.time}</p>
+                           </div>
+                       </DropdownMenuItem>
+                    )) : (
+                        <div className="text-center text-sm text-muted-foreground py-8">
+                            لا توجد إشعارات جديدة.
+                        </div>
+                    )}
                 </div>
               </div>
             </DropdownMenuContent>
