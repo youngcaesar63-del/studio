@@ -189,7 +189,7 @@ export default function ReportsPage() {
       printWindow.document.write(`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
-            size: A4;
+            size: A4 ${includeAdministration ? 'portrait' : 'landscape'};
             margin: 1cm;
         }
         body { 
@@ -426,3 +426,5 @@ export default function ReportsPage() {
     </div>
   );
 }
+
+    
