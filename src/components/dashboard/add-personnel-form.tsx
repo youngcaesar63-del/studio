@@ -47,6 +47,9 @@ const formSchema = z.object({
   city: z.string().optional(),
   locality: z.string().optional(),
   address: z.string().optional(),
+  nextOfKinName: z.string().optional(),
+  nextOfKinPhone: z.string().optional(),
+  nextOfKinAddress: z.string().optional(),
 });
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
@@ -102,6 +105,9 @@ export function AddPersonnelForm() {
       city: '',
       locality: '',
       address: '',
+      nextOfKinName: '',
+      nextOfKinPhone: '',
+      nextOfKinAddress: '',
     },
   });
 
@@ -123,30 +129,13 @@ export function AddPersonnelForm() {
     
     const newPersonnel = {
       id: Date.now(), // Use timestamp for unique ID
+      ...values,
       name: values.fullName,
-      cardId: values.cardId,
-      rank: values.rank,
-      specialization: values.specialization,
-      academicQualification: values.academicQualification,
-      batch: values.batch,
-      administration: values.administration,
-      status: values.status,
       appointmentDate: values.appointmentDate.toISOString(),
-      certificateType: values.certificateType,
       lastReturnDate: values.lastReturnDate?.toISOString(),
       transferDate: values.transferDate?.toISOString(),
       reportingDate: values.reportingDate?.toISOString(),
-      bloodType: values.bloodType,
-      maritalStatus: values.maritalStatus,
-      notes: values.notes,
-      photo: values.photo,
       dateOfBirth: values.dateOfBirth?.toISOString(),
-      nationalId: values.nationalId,
-      phoneNumber: values.phoneNumber,
-      state: values.state,
-      city: values.city,
-      locality: values.locality,
-      address: values.address,
     };
 
     const updatedList = [...personnelList, newPersonnel];
@@ -258,6 +247,21 @@ export function AddPersonnelForm() {
             )} />
              <FormField control={form.control} name="address" render={({ field }) => (
                 <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>العنوان بالتفصيل</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+        </div>
+        
+        <Separator className="my-8" />
+        
+        <h3 className="text-xl font-semibold mb-4">بيانات أقرب الأقربين</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <FormField control={form.control} name="nextOfKinName" render={({ field }) => (
+                <FormItem><FormLabel>اسم القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="nextOfKinPhone" render={({ field }) => (
+                <FormItem><FormLabel>رقم هاتف القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField control={form.control} name="nextOfKinAddress" render={({ field }) => (
+                <FormItem className="lg:col-span-3"><FormLabel>عنوان القريب</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
             )} />
         </div>
 

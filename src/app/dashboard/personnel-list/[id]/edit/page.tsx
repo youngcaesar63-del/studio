@@ -49,6 +49,9 @@ const formSchema = z.object({
   city: z.string().optional(),
   locality: z.string().optional(),
   address: z.string().optional(),
+  nextOfKinName: z.string().optional(),
+  nextOfKinPhone: z.string().optional(),
+  nextOfKinAddress: z.string().optional(),
 });
 
 type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; };
@@ -108,6 +111,9 @@ export default function EditPersonnelPage() {
         city: '',
         locality: '',
         address: '',
+        nextOfKinName: '',
+        nextOfKinPhone: '',
+        nextOfKinAddress: '',
       },
   });
 
@@ -118,30 +124,13 @@ export default function EditPersonnelPage() {
     const personToEdit = personnelList.find(p => p.id === id);
     if (personToEdit) {
       form.reset({
+        ...personToEdit,
         fullName: personToEdit.name,
-        cardId: personToEdit.cardId,
-        rank: personToEdit.rank,
-        specialization: personToEdit.specialization || 'لا يوجد',
-        academicQualification: personToEdit.academicQualification || 'لا يوجد',
-        batch: personToEdit.batch || 'لا يوجد',
-        administration: personToEdit.administration,
-        status: personToEdit.status,
         appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
-        certificateType: personToEdit.certificateType || 'مستديمة',
         lastReturnDate: personToEdit.lastReturnDate ? new Date(personToEdit.lastReturnDate) : undefined,
         transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
         reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
-        bloodType: personToEdit.bloodType || '',
-        maritalStatus: personToEdit.maritalStatus || '',
-        notes: personToEdit.notes || '',
-        photo: personToEdit.photo || '',
         dateOfBirth: personToEdit.dateOfBirth ? new Date(personToEdit.dateOfBirth) : undefined,
-        nationalId: personToEdit.nationalId || '',
-        phoneNumber: personToEdit.phoneNumber || '',
-        state: personToEdit.state || '',
-        city: personToEdit.city || '',
-        locality: personToEdit.locality || '',
-        address: personToEdit.address || '',
       });
       if (personToEdit.photo) {
         setPhotoPreview(personToEdit.photo);
@@ -173,30 +162,13 @@ export default function EditPersonnelPage() {
       if (p.id === id) {
         return {
           ...p,
+          ...values,
           name: values.fullName,
-          cardId: values.cardId,
-          rank: values.rank,
-          specialization: values.specialization,
-          academicQualification: values.academicQualification,
-          batch: values.batch,
-          administration: values.administration,
-          status: values.status,
           appointmentDate: values.appointmentDate.toISOString(),
-          certificateType: values.certificateType,
           lastReturnDate: values.lastReturnDate?.toISOString(),
           transferDate: values.transferDate?.toISOString(),
           reportingDate: values.reportingDate?.toISOString(),
-          bloodType: values.bloodType,
-          maritalStatus: values.maritalStatus,
-          notes: values.notes,
-          photo: values.photo,
           dateOfBirth: values.dateOfBirth?.toISOString(),
-          nationalId: values.nationalId,
-          phoneNumber: values.phoneNumber,
-          state: values.state,
-          city: values.city,
-          locality: values.locality,
-          address: values.address,
         };
       }
       return p;
@@ -347,6 +319,21 @@ export default function EditPersonnelPage() {
 
                 <Separator className="my-8" />
 
+                 <h3 className="text-xl font-semibold mb-4">بيانات أقرب الأقربين</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     <FormField control={form.control} name="nextOfKinName" render={({ field }) => (
+                        <FormItem><FormLabel>اسم القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                     <FormField control={form.control} name="nextOfKinPhone" render={({ field }) => (
+                        <FormItem><FormLabel>رقم هاتف القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                     <FormField control={form.control} name="nextOfKinAddress" render={({ field }) => (
+                        <FormItem className="lg:col-span-3"><FormLabel>عنوان القريب</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                </div>
+                
+                <Separator className="my-8" />
+
                 <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="status" render={({ field }) => (
@@ -359,7 +346,7 @@ export default function EditPersonnelPage() {
                         <FormItem className="flex flex-col"><FormLabel>تاريخ النقل</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
                      <FormField control={form.control} name="reportingDate" render={({ field }) => (
-                        <FormItem className="flex flex-col"><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                        <FormItem className="flex flex-col"><FormLabel>تاريخ التبليغ</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "PPP")) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormMessage>
                     )} />
                 </div>
                 <FormField control={form.control} name="notes" render={({ field }) => (

@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -38,6 +38,9 @@ type Personnel = {
     city?: string;
     locality?: string;
     address?: string;
+    nextOfKinName?: string;
+    nextOfKinPhone?: string;
+    nextOfKinAddress?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -183,6 +186,17 @@ export default function ViewPersonnelPage() {
                              <DetailItem icon={Building} label="المدينة" value={person.city} />
                              <DetailItem icon={MapPin} label="المحلية" value={person.locality} />
                              <DetailItem icon={Info} label="العنوان بالتفصيل" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.address}</p>} fullWidth />
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><ShieldQuestion className="h-5 w-5" /> بيانات أقرب الأقربين</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                             <DetailItem icon={User} label="الاسم" value={person.nextOfKinName} />
+                             <DetailItem icon={Phone} label="رقم الهاتف" value={person.nextOfKinPhone} />
+                             <DetailItem icon={MapPin} label="العنوان" value={person.nextOfKinAddress} fullWidth />
                         </div>
                     </div>
 
