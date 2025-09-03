@@ -213,7 +213,7 @@ export default function ReportsPage() {
 
   return (
     <div className="animate-in fade-in duration-500 space-y-6">
-        <Card className="shadow-md no-print">
+        <Card className="shadow-md">
             <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/> الطباعة والتقارير</CardTitle>
                 <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
@@ -258,7 +258,7 @@ export default function ReportsPage() {
 
         {reportData && (
             <Card id="report-card">
-                <CardHeader className="flex flex-row justify-between items-center no-print">
+                <CardHeader className="flex flex-row justify-between items-center">
                     <div>
                         <CardTitle>{reportTitle}</CardTitle>
                         <CardDescription>{filterSubtitle}</CardDescription>
@@ -315,14 +315,6 @@ export default function ReportsPage() {
                 </CardHeader>
                 <CardContent id="print-area">
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
-                        <div className="print-header hidden">
-                            <h1 className="text-center text-lg font-bold">
-                                {reportTitle}
-                            </h1>
-                             <h2 className="text-center text-sm font-normal text-muted-foreground">
-                                {filterSubtitle}
-                            </h2>
-                        </div>
                         <div className="rounded-md border">
                             <Table>
                                 <TableHeader>
@@ -359,7 +351,6 @@ export default function ReportsPage() {
                         </div>
                          <div className="print-footer hidden">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
-                           <p>عدد السجلات: {reportData.length}</p>
                         </div>
                     </div>
                 </CardContent>
@@ -368,3 +359,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+
