@@ -126,19 +126,18 @@ export default function ReportsPage() {
         <table class="report-table">
           <thead>
             <tr class="header-row-titles">
-              <th style="width: 25%;">ملاحظات</th>
-              <th style="width: 20%;">الإدارة</th>
+              <th style="width: 25%;">ملحوظات</th>
               <th style="width: 20%;">الاسم</th>
               <th style="width: 20%;">الرتبة</th>
               <th style="width: 25%;">رقم البطاقة</th>
               <th style="width: 5%;">م</th>
             </tr>
             <tr class="header-row-letters">
-              <th>هـ</th>
-              <th>د</th>
-              <th>ج</th>
-              <th>ب</th>
-              <th>أ</th>
+              <th>(هـ)</th>
+              <th>(د)</th>
+              <th>(جـ)</th>
+              <th>(ب)</th>
+              <th>(أ)</th>
               <th></th>
             </tr>
           </thead>
@@ -152,7 +151,6 @@ export default function ReportsPage() {
             tableContent += `
               <tr>
                 <td></td>
-                <td>${person.administration}</td>
                 <td>${person.name}</td>
                 <td>${displayRank}</td>
                 <td>${person.cardId}</td>
@@ -213,6 +211,9 @@ export default function ReportsPage() {
         }
         .report-table .header-row-titles th {
            border-bottom: 1px solid #000;
+        }
+        .report-table .header-row-letters th {
+          background-color: #f2f2f2;
         }
       `);
       printWindow.document.write('</style>');
@@ -390,5 +391,7 @@ export default function ReportsPage() {
   );
 }
 
+
+    
 
     
