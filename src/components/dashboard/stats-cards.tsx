@@ -35,6 +35,7 @@ export function StatsCards() {
 
   const calculateStats = useCallback(() => {
     try {
+      setLoading(true);
       const storedData = localStorage.getItem('personnelData');
       const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
 
@@ -72,21 +73,23 @@ export function StatsCards() {
   useEffect(() => {
     calculateStats();
     
-    const handleStorageChange = () => {
-        calculateStats();
+    const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === 'personnelData') {
+            calculateStats();
+        }
     };
 
     window.addEventListener('storage', handleStorageChange);
     // Custom event to listen for changes from within the same page
-    window.addEventListener('localStorageChange', handleStorageChange);
+    window.addEventListener('localStorageChange', calculateStats);
 
     return () => {
         window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('localStorageChange', handleStorageChange);
+        window.removeEventListener('localStorageChange', calculateStats);
     };
   }, [calculateStats]);
 
-  if (loading) {
+  if (loading || !stats) {
     return (
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {[...Array(9)].map((_, i) => <Skeleton key={i} className="h-[126px] w-full" />)}
@@ -97,7 +100,7 @@ export function StatsCards() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-      {stats && stats.map((stat, index) => (
+      {stats.map((stat, index) => (
         <Card key={index} className="shadow-md transition-transform duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>

@@ -31,7 +31,7 @@ export default function BackupPage() {
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
 
-    useEffect(() => {
+    const loadData = () => {
         try {
             const storedData = localStorage.getItem('backupHistory');
             if (storedData) {
@@ -46,10 +46,30 @@ export default function BackupPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        loadData();
+        
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'backupHistory') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        // Custom event for same-tab updates
+        window.addEventListener('localStorageChange', loadData);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('localStorageChange', loadData);
+        };
     }, []);
 
     const updateLocalStorage = (data: Backup[]) => {
         localStorage.setItem('backupHistory', JSON.stringify(data));
+        window.dispatchEvent(new Event('localStorageChange'));
     };
 
     const handleNewBackup = () => {
@@ -62,9 +82,11 @@ export default function BackupPage() {
             status: 'جاري الإنشاء...',
         };
 
-        const updatedHistory = [newBackup, ...backupHistory];
-        setBackupHistory(updatedHistory);
-        updateLocalStorage(updatedHistory);
+        setBackupHistory(prevHistory => {
+            const updatedHistory = [newBackup, ...prevHistory];
+            updateLocalStorage(updatedHistory);
+            return updatedHistory;
+        });
         
         toast({
             title: 'بدء عملية النسخ الاحتياطي',
@@ -72,18 +94,20 @@ export default function BackupPage() {
         });
 
         setTimeout(() => {
-            const finalHistory = updatedHistory.map(b => {
-                if (b.id === newBackupId) {
-                    return { ...b, status: 'مكتمل', size: `${(15 + Math.random() * 2).toFixed(1)} MB` };
-                }
-                return b;
-            });
-            setBackupHistory(finalHistory);
-            updateLocalStorage(finalHistory);
-            setIsCreating(false);
-            toast({
-                title: 'اكتمل النسخ الاحتياطي',
-                description: 'تم إنشاء النسخة الاحتياطية بنجاح.',
+            setBackupHistory(prevHistory => {
+                const finalHistory = prevHistory.map(b => {
+                    if (b.id === newBackupId) {
+                        return { ...b, status: 'مكتمل', size: `${(15 + Math.random() * 2).toFixed(1)} MB` };
+                    }
+                    return b;
+                });
+                updateLocalStorage(finalHistory);
+                setIsCreating(false);
+                toast({
+                    title: 'اكتمل النسخ الاحتياطي',
+                    description: 'تم إنشاء النسخة الاحتياطية بنجاح.',
+                });
+                return finalHistory;
             });
         }, 3000);
     };
@@ -96,10 +120,12 @@ export default function BackupPage() {
     };
     
     const handleDelete = (backupId: string) => {
-        const updatedHistory = backupHistory.filter(b => b.id !== backupId);
-        setBackupHistory(updatedHistory);
-        updateLocalStorage(updatedHistory);
-        handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
+        setBackupHistory(prevHistory => {
+            const updatedHistory = prevHistory.filter(b => b.id !== backupId);
+            updateLocalStorage(updatedHistory);
+            handleAction(`تم حذف النسخة الاحتياطية بنجاح.`);
+            return updatedHistory;
+        });
     };
 
     const getStatusVariant = (status: Backup['status']) => {
@@ -178,11 +204,6 @@ export default function BackupPage() {
                         <div className="text-sm text-muted-foreground">
                             عرض {backupHistory.length} من {backupHistory.length} نسخة احتياطية
                         </div>
-                        {/* Pagination can be implemented later */}
-                        {/* <div className="flex space-x-1 rtl:space-x-reverse">
-                            <Button variant="outline" size="sm" disabled>السابق</Button>
-                            <Button variant="outline" size="sm" disabled>التالي</Button>
-                        </div> */}
                     </div>
                 </CardContent>
             </Card>

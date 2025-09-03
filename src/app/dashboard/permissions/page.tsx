@@ -62,26 +62,46 @@ export default function PermissionsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    try {
-      const storedData = localStorage.getItem('rolesData');
-      if (storedData) {
-        setRoles(JSON.parse(storedData));
-      } else {
-        setRoles(initialRoles);
-        localStorage.setItem('rolesData', JSON.stringify(initialRoles));
+  const loadData = () => {
+      try {
+        const storedData = localStorage.getItem('rolesData');
+        if (storedData) {
+          setRoles(JSON.parse(storedData));
+        } else {
+          setRoles(initialRoles);
+          localStorage.setItem('rolesData', JSON.stringify(initialRoles));
+        }
+      } catch (error) {
+          console.error("Failed to load roles from localStorage", error);
+          setRoles(initialRoles);
+      } finally {
+          setLoading(false);
       }
-    } catch (error) {
-        console.error("Failed to load roles from localStorage", error);
-        setRoles(initialRoles);
-    } finally {
-        setLoading(false);
-    }
+  };
+
+  useEffect(() => {
+    loadData();
+    
+    const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === 'rolesData') {
+            loadData();
+        }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Custom event for same-tab updates
+    window.addEventListener('localStorageChange', loadData);
+
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageChange', loadData);
+    };
   }, []);
 
   const updateLocalStorage = (data: Role[]) => {
     try {
       localStorage.setItem('rolesData', JSON.stringify(data));
+       window.dispatchEvent(new Event('localStorageChange'));
     } catch (error) {
       console.error("Failed to save roles to localStorage", error);
     }

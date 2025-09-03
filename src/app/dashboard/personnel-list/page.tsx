@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,14 +33,13 @@ export default function PersonnelListPage() {
   const [personnelData, setPersonnelData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     try {
       const storedData = localStorage.getItem('personnelData');
       let data;
       if (storedData) {
         data = JSON.parse(storedData);
       } else {
-        // If no data in local storage, use initial data and set it
         data = initialPersonnelData;
         localStorage.setItem('personnelData', JSON.stringify(initialPersonnelData));
       }
@@ -61,10 +60,33 @@ export default function PersonnelListPage() {
     }
   }, []);
 
+
+  useEffect(() => {
+    loadData();
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'personnelData') {
+        loadData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Add listener for custom event to handle same-tab updates
+    window.addEventListener('localStorageChange', loadData);
+
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageChange', loadData);
+    };
+  }, [loadData]);
+
   const handleDelete = (personId: number) => {
     const updatedData = personnelData.filter(p => p.id !== personId);
     setPersonnelData(updatedData);
     localStorage.setItem('personnelData', JSON.stringify(updatedData));
+    // Dispatch custom event after delete to notify other components in the same tab
+    window.dispatchEvent(new Event('localStorageChange'));
   };
 
 
