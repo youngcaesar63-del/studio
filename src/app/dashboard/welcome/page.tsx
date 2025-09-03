@@ -16,6 +16,7 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
         height={180} 
         data-ai-hint="military emblem"
         priority
+        className="drop-shadow-lg"
       />
     </div>
 );
