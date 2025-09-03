@@ -26,11 +26,14 @@ const reportTypes = [
   { value: 'full-report', label: 'تقرير شامل' },
 ];
 
+const rankOrder: { [key: string]: number } = {
+  'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10,
+};
+
 const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة', 'الكل'];
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم', 'الكل'].sort((a,b) => {
     if (a === 'الكل') return 1;
     if (b === 'الكل') return -1;
-    const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
     return (rankOrder[a] || 99) - (rankOrder[b] || 99);
 });
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب', 'الكل'].sort((a,b) => a.localeCompare(b, 'ar'));
@@ -77,8 +80,14 @@ export default function ReportsPage() {
       } else if (reportType === 'by-status' && filterValue && filterValue !== 'الكل') {
         filteredData = personnelData.filter(p => p.status === filterValue);
       }
+      
+      const sortedData = filteredData.sort((a: any, b: any) => {
+        const rankA = rankOrder[a.rank] || 99;
+        const rankB = rankOrder[b.rank] || 99;
+        return rankA - rankB;
+      });
 
-      setReportData(filteredData);
+      setReportData(sortedData);
       setLoading(false);
       
       toast({
@@ -171,36 +180,38 @@ export default function ReportsPage() {
                         <h1 className="text-center text-lg font-bold mb-4 print:block hidden">
                             {reportTitle} <br /> <span className="text-sm font-normal">{filterSubtitle}</span>
                         </h1>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[50px]">م</TableHead>
-                                    <TableHead>رقم البطاقة</TableHead>
-                                    <TableHead>الرتبة / التخصص</TableHead>
-                                    <TableHead>الاسم</TableHead>
-                                    <TableHead>الإدارة</TableHead>
-                                    <TableHead>الحالة</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {reportData.length > 0 ? reportData.map((person, index) => (
-                                    <TableRow key={person.id}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{person.cardId}</TableCell>
-                                        <TableCell>{`${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`}</TableCell>
-                                        <TableCell>{person.name}</TableCell>
-                                        <TableCell>{person.administration}</TableCell>
-                                        <TableCell>{person.status}</TableCell>
-                                    </TableRow>
-                                )) : (
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-muted-foreground h-24">
-                                            لا توجد بيانات تطابق هذه الفلاتر.
-                                        </TableCell>
+                                        <TableHead className="w-[50px] text-center">م</TableHead>
+                                        <TableHead className="text-center border-r">رقم البطاقة</TableHead>
+                                        <TableHead className="text-center border-r">الرتبة</TableHead>
+                                        <TableHead className="text-center border-r">الاسم</TableHead>
+                                        <TableHead className="text-center border-r">الإدارة</TableHead>
+                                        <TableHead className="text-center border-r">الحالة</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {reportData.length > 0 ? reportData.map((person, index) => (
+                                        <TableRow key={person.id}>
+                                            <TableCell className="text-center">{index + 1}</TableCell>
+                                            <TableCell className="text-center border-r">{person.cardId}</TableCell>
+                                            <TableCell className="text-center border-r">{person.rank}</TableCell>
+                                            <TableCell className="text-center border-r">{person.name}</TableCell>
+                                            <TableCell className="text-center border-r">{person.administration}</TableCell>
+                                            <TableCell className="text-center border-r">{person.status}</TableCell>
+                                        </TableRow>
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center text-muted-foreground h-24">
+                                                لا توجد بيانات تطابق هذه الفلاتر.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                          <div className="text-xs text-muted-foreground mt-4 print:block hidden">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                            <p>عدد السجلات: {reportData.length}</p>
