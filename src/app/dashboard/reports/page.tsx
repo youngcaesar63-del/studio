@@ -131,9 +131,9 @@ export default function ReportsPage() {
           <thead>
             <tr class="header-row-titles">
               <th style="width: 5%;">م</th>
-              <th style="width: 25%;">رقم البطاقة</th>
+              <th style="width: 20%;">رقم البطاقة</th>
               <th style="width: 20%;">الرتبة</th>
-              <th style="width: 20%;">الاسم</th>
+              <th style="width: 30%;">الاسم</th>
               <th style="width: 25%;">ملحوظات</th>
             </tr>
             <tr class="header-row-letters">
@@ -165,11 +165,15 @@ export default function ReportsPage() {
       
       tableContent += '</tbody></table>';
 
-      printWindow.document.write('<html><head><title>طباعة التقرير</title>');
+      printWindow.document.write('<html><head><title></title>');
       
       printWindow.document.write('<style>');
       printWindow.document.write(`
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        @page {
+            size: A4;
+            margin: 0;
+        }
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
