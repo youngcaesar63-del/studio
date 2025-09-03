@@ -32,12 +32,20 @@ export default function PrintPage() {
       title: 'جاري الطباعة...',
       description: `سيتم طباعة تقرير "${reportTypes.find(r => r.value === selectedReport)?.label}".`,
     });
-    window.print();
+    // This will trigger the browser's print dialog
+    setTimeout(() => window.print(), 300);
   };
+  
+  const handlePageSettings = () => {
+    toast({
+        title: 'قيد التطوير',
+        description: 'سيتم إضافة إعدادات الصفحة المتقدمة قريبًا.',
+    })
+  }
 
   return (
     <div className="animate-in fade-in duration-500 space-y-6">
-      <Card className="shadow-md">
+      <Card className="shadow-md no-print">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/>إعدادات الطباعة</CardTitle>
           <CardDescription>اختر التقرير المطلوب وقم بإعداد خيارات الطباعة.</CardDescription>
@@ -56,7 +64,7 @@ export default function PrintPage() {
               </Select>
             </div>
             <div className="flex items-end">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={handlePageSettings}>
                     <Settings className="ml-2 h-4 w-4" />
                     إعدادات الصفحة
                 </Button>
@@ -71,7 +79,7 @@ export default function PrintPage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-md print:shadow-none print:border-none">
+      <Card className="shadow-md print:shadow-none print:border-none" id="print-area">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <FileText className="h-5 w-5"/>
@@ -79,13 +87,13 @@ export default function PrintPage() {
           </CardTitle>
           <CardDescription>هذه معاينة للتقرير الذي سيتم طباعته.</CardDescription>
         </CardHeader>
-        <CardContent id="print-preview" className="prose prose-sm dark:prose-invert max-w-none">
+        <CardContent className="prose prose-sm dark:prose-invert max-w-none">
             {selectedReport ? (
                 <>
                     <h1 className="text-center text-lg font-bold mb-4">
                         {reportTypes.find(r => r.value === selectedReport)?.label}
                     </h1>
-                    <p>هذا مجرد مثال للمحتوى. المحتوى الفعلي للتقرير سيتم توليده هنا...</p>
+                    <p>هذا مجرد مثال للمحتوى. المحتوى الفعلي للتقرير سيتم توليده هنا بناء على نوع التقرير المختار...</p>
                     <table className="w-full text-sm">
                         <thead>
                             <tr>
@@ -131,17 +139,21 @@ export default function PrintPage() {
             body * {
                 visibility: hidden;
             }
-            #print-preview, #print-preview * {
+            .no-print, .no-print * {
+                display: none !important;
+            }
+            #print-area, #print-area * {
                 visibility: visible;
             }
-            #print-preview {
+            #print-area {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
-            }
-            .no-print {
-                display: none;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
         }
       `}</style>

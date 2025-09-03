@@ -29,13 +29,19 @@ const getStatusVariant = (status: string): "default" | "secondary" => {
     return status === 'نشط' ? 'default' : 'secondary';
 };
 
-export function UsersTable({ data }: { data: User[] }) {
+interface UsersTableProps {
+    data: User[];
+    onDelete: (userId: number) => void;
+    onToggleStatus: (userId: number) => void;
+}
+
+export function UsersTable({ data, onDelete, onToggleStatus }: UsersTableProps) {
   const { toast } = useToast();
 
-  const handleAction = (message: string) => {
+  const handleEdit = (userName: string) => {
     toast({
-      title: 'تم بنجاح',
-      description: message,
+      title: 'قيد التطوير',
+      description: `سيتم إضافة شاشة لتعديل بيانات المستخدم: ${userName} قريبًا.`,
     });
   };
 
@@ -63,10 +69,10 @@ export function UsersTable({ data }: { data: User[] }) {
                   </TableCell>
                   <TableCell className="text-left">
                     <div className="flex items-center justify-start gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700" onClick={() => handleAction(`تم تغيير حالة المستخدم: ${user.name}`)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700" onClick={() => onToggleStatus(user.id)}>
                           {user.status === 'نشط' ? <ToggleLeft className="h-5 w-5" /> : <ToggleRight className="h-5 w-5" />}
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleAction(`جاري تعديل بيانات المستخدم: ${user.name}`)}><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(user.name)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
@@ -82,7 +88,7 @@ export function UsersTable({ data }: { data: User[] }) {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleAction(`تم حذف المستخدم: ${user.name}`)}>حذف</AlertDialogAction>
+                              <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => onDelete(user.id)}>حذف</AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

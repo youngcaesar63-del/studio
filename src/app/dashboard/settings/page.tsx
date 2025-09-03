@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,9 +9,32 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
     const { theme, setTheme } = useTheme();
+    const { toast } = useToast();
+
+    const handleSaveChanges = () => {
+        toast({
+            title: 'تم الحفظ',
+            description: 'تم حفظ تغييرات الملف الشخصي بنجاح.',
+        });
+    };
+
+    const handlePasswordChange = () => {
+        toast({
+            title: 'تم تغيير كلمة المرور',
+            description: 'تم تحديث كلمة المرور الخاصة بك بنجاح.',
+        });
+    };
+
+    const handleNotificationPreferences = () => {
+        toast({
+            title: 'تم الحفظ',
+            description: 'تم حفظ تفضيلات الإشعارات بنجاح.',
+        });
+    };
 
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
@@ -43,7 +67,7 @@ export default function SettingsPage() {
                                 <Label htmlFor="email">البريد الإلكتروني</Label>
                                 <Input id="email" type="email" defaultValue="admin@example.com" disabled />
                             </div>
-                            <Button>حفظ التغييرات</Button>
+                            <Button onClick={handleSaveChanges}>حفظ التغييرات</Button>
                             <hr/>
                              <div className="space-y-4">
                                 <h3 className="text-lg font-medium flex items-center gap-2"><Lock className="h-5 w-5" />تغيير كلمة المرور</h3>
@@ -59,7 +83,7 @@ export default function SettingsPage() {
                                     <Label htmlFor="confirm-password">تأكيد كلمة المرور الجديدة</Label>
                                     <Input id="confirm-password" type="password" />
                                 </div>
-                                <Button variant="secondary">تغيير كلمة المرور</Button>
+                                <Button variant="secondary" onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -93,7 +117,7 @@ export default function SettingsPage() {
                                 </div>
                                 <Switch id="new-personnel-notification" defaultChecked />
                             </div>
-                            <Button>حفظ التفضيلات</Button>
+                            <Button onClick={handleNotificationPreferences}>حفظ التفضيلات</Button>
                         </CardContent>
                     </Card>
                 </TabsContent>
