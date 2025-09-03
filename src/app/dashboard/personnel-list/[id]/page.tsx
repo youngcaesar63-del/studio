@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
+import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -171,7 +172,7 @@ export default function ViewPersonnelPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             <DetailItem icon={Hash} label="رقم البطاقة" value={person.cardId} />
                             <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId} />
-                            <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                             <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
                             <DetailItem icon={Phone} label="رقم الهاتف" value={person.phoneNumber} />
@@ -188,11 +189,11 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
                             <DetailItem icon={Users} label="الدفعة" value={person.batch} />
                             <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
-                            <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
-                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy') : 'غير مسجل'} />
-                            <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy') : 'غير مسجل'} />
-                            <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy') : 'غير مسجل'} />
+                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                            <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                            <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                         </div>
                     </div>
                     
@@ -214,8 +215,8 @@ export default function ViewPersonnelPage() {
                                         {person.serviceOperations.map((op, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className="text-center">{op.areaName}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy')}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy')}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -250,8 +251,8 @@ export default function ViewPersonnelPage() {
                                                 <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
                                                 <TableCell className="text-center border-r">{course.grade || '-'}</TableCell>
                                                 <TableCell className="text-center border-r">{course.institute}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy')}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy')}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -304,3 +305,5 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
+
+    
