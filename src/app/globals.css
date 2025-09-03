@@ -62,3 +62,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print\:prose-base {
+      font-size: 10pt !important;
+  }
+  h1 {
+    font-size: 14pt !important;
+  }
+  th, td {
+    padding: 4px 8px !important;
+    font-size: 10pt !important;
+  }
+  .prose {
+    font-size: 10pt !important;
+  }
+}

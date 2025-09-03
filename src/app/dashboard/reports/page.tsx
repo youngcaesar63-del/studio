@@ -177,7 +177,7 @@ export default function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
-                        <h1 className="text-center text-lg font-bold mb-4 print:block hidden">
+                        <h1 className="text-center text-lg font-bold mb-4 print-only">
                             {reportTitle} <br /> <span className="text-sm font-normal">{filterSubtitle}</span>
                         </h1>
                         <div className="rounded-md border">
@@ -214,7 +214,7 @@ export default function ReportsPage() {
                                 </TableBody>
                             </Table>
                         </div>
-                         <div className="text-xs text-muted-foreground mt-4 print:block hidden">
+                         <div className="text-xs text-muted-foreground mt-4 print-only">
                            <p>تاريخ الطباعة: {new Date().toLocaleString('ar-SA')}</p>
                            <p>عدد السجلات: {reportData.length}</p>
                         </div>
@@ -222,40 +222,6 @@ export default function ReportsPage() {
                 </CardContent>
             </Card>
         )}
-
-      <style jsx global>{`
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .no-print, .no-print * {
-                display: none !important;
-            }
-            #print-area, #print-area * {
-                visibility: visible;
-            }
-            #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                border: none !important;
-                box-shadow: none !important;
-            }
-            .print\\:block {
-                display: block !important;
-            }
-            .print\\:prose-base {
-                 font-size: 10pt !important;
-            }
-             h1 {
-                font-size: 14pt !important;
-            }
-            th, td {
-                padding: 4px 8px !important;
-            }
-        }
-      `}</style>
     </div>
   );
 }
