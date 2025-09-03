@@ -122,20 +122,24 @@ export default function ReportsPage() {
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
-      const reportTitle = reportType === 'full-report' ? 'تقرير شامل' : `تقرير حسب ${reportTypes.find(rt => rt.value === reportType)?.label?.split(' ')[2]}`;
-      const filterSubTitle = filterValue && filterValue !== 'الكل' ? filterValue : 'كافة السجلات';
-
       let tableContent = `
-        <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #000;">
+        <table class="report-table">
           <thead>
-            <tr style="background-color: #e0e0e0; border-bottom: 2px solid black;"><th colspan="6" style="padding: 8px;"></th></tr>
-            <tr>
-              <th style="border: 1px double #000; padding: 8px; width: 5%;">هـ</th>
-              <th style="border: 1px double #000; padding: 8px; width: 25%;">د</th>
-              <th style="border: 1px double #000; padding: 8px; width: 20%;">ج</th>
-              <th style="border: 1px double #000; padding: 8px; width: 20%;">ب</th>
-              <th style="border: 1px double #000; padding: 8px; width: 25%;">أ</th>
-              <th style="border: 1px double #000; padding: 8px; width: 5%;">م</th>
+            <tr class="header-row-titles">
+              <th style="width: 25%;">ملاحظات</th>
+              <th style="width: 20%;">الإدارة</th>
+              <th style="width: 20%;">الاسم</th>
+              <th style="width: 20%;">الرتبة</th>
+              <th style="width: 25%;">رقم البطاقة</th>
+              <th style="width: 5%;">م</th>
+            </tr>
+            <tr class="header-row-letters">
+              <th>هـ</th>
+              <th>د</th>
+              <th>ج</th>
+              <th>ب</th>
+              <th>أ</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -144,14 +148,15 @@ export default function ReportsPage() {
       if (reportData) {
         reportData.forEach((person, index) => {
             const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+            const arabicIndex = new Intl.NumberFormat('ar-SA-u-nu-arab').format(index + 1);
             tableContent += `
               <tr>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;"></td>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.administration}</td>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.name}</td>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;">${displayRank}</td>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;">${person.cardId}</td>
-                <td style="border: 1px double #000; padding: 8px; text-align: center;">${index + 1}</td>
+                <td></td>
+                <td>${person.administration}</td>
+                <td>${person.name}</td>
+                <td>${displayRank}</td>
+                <td>${person.cardId}</td>
+                <td>${arabicIndex}</td>
               </tr>
             `;
         });
@@ -191,6 +196,23 @@ export default function ReportsPage() {
         }
          .print-header .title {
             font-weight: bold;
+        }
+        .report-table {
+          width: 100%; 
+          border-collapse: collapse; 
+          font-size: 12px; 
+          border: 2px double #000;
+        }
+        .report-table th, .report-table td {
+          border: 2px double #000; 
+          padding: 8px;
+          text-align: center;
+        }
+        .report-table thead {
+          background-color: #e0e0e0;
+        }
+        .report-table .header-row-titles th {
+           border-bottom: 1px solid #000;
         }
       `);
       printWindow.document.write('</style>');
@@ -273,9 +295,6 @@ export default function ReportsPage() {
                 <CardHeader className="flex flex-row justify-between items-center no-print">
                     <div>
                         <CardTitle>معاينة التقرير</CardTitle>
-                        <CardDescription>
-                            {reportType === 'full-report' ? 'تقرير شامل' : `تقرير حسب ${reportTypes.find(rt => rt.value === reportType)?.label?.split(' ')[2]}`} - ({filterValue && filterValue !== 'الكل' ? filterValue : 'كافة السجلات'}) - ({reportData.length} سجل/سجلات)
-                        </CardDescription>
                     </div>
                      <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
                         <DialogTrigger asChild>
