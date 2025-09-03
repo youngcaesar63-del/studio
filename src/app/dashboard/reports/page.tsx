@@ -56,7 +56,7 @@ export default function ReportsPage() {
       console.error("Failed to read from localStorage", error);
       toast({ title: 'خطأ', description: 'فشل تحميل بيانات الأفراد.', variant: 'destructive' });
     }
-  }, []);
+  }, [toast]);
 
   const handleGenerateReport = () => {
     if (!reportType) {
@@ -122,8 +122,8 @@ export default function ReportsPage() {
     <div className="animate-in fade-in duration-500 space-y-6">
         <Card className="shadow-md no-print">
             <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-2"><FileText className="h-6 w-6" /> تقارير الأفراد</CardTitle>
-                <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء التقرير.</CardDescription>
+                <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6" /> الطباعة والتقارير</CardTitle>
+                <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -155,7 +155,7 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button onClick={handleGenerateReport} disabled={loading}>
+                    <Button onClick={handleGenerateReport} disabled={loading || !reportType}>
                         {loading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <FileText className="ml-2 h-4 w-4" />}
                         {loading ? 'جاري الإنشاء...' : 'إنشاء التقرير'}
                     </Button>

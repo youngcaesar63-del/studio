@@ -35,9 +35,8 @@ const personnelNav = [
 ];
 
 const reportsNav = [
-  { href: '/dashboard/reports', label: 'تقارير الأفراد', icon: File },
+  { href: '/dashboard/reports', label: 'الطباعة والتقارير', icon: Printer },
   { href: '/dashboard/statistics', label: 'إحصاءات', icon: BarChart2 },
-  { href: '/dashboard/print', label: 'الطباعة', icon: Printer },
 ];
 
 const adminNav = [
