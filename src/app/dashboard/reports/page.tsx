@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 type Personnel = {
@@ -53,6 +54,8 @@ export default function ReportsPage() {
   const [isPrintDialogOpen, setPrintDialogOpen] = useState(false);
   const [confidentiality, setConfidentiality] = useState(confidentialityLevels[0]);
   const [reportTitleInput, setReportTitleInput] = useState('');
+  const [includeAdministration, setIncludeAdministration] = useState(false);
+
 
   useEffect(() => {
     try {
@@ -119,31 +122,37 @@ export default function ReportsPage() {
   }
   
    const formatArabicNumber = (numStr: number | string) => {
+    if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
-    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d, 10)]);
   }
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
+      const headerRow1 = `
+        <th style="width: 5%;">م</th>
+        <th style="width: 20%;">رقم البطاقة</th>
+        <th style="width: 20%;">الرتبة</th>
+        <th style="width: 30%;">الاسم</th>
+        ${includeAdministration ? `<th style="width: 25%;">الإدارة</th>` : ''}
+        <th style="width: 25%;">ملحوظات</th>
+      `;
+
+      const headerRow2 = `
+        <th>(أ)</th>
+        <th>(ب)</th>
+        <th>(جـ)</th>
+        <th>(د)</th>
+        ${includeAdministration ? `<th>(هـ)</th><th>(و)</th>` : `<th>(هـ)</th>`}
+      `;
+      
       let tableContent = `
         <table class="report-table">
           <thead>
-            <tr class="header-row-titles">
-              <th style="width: 5%;">م</th>
-              <th style="width: 20%;">رقم البطاقة</th>
-              <th style="width: 20%;">الرتبة</th>
-              <th style="width: 30%;">الاسم</th>
-              <th style="width: 25%;">ملحوظات</th>
-            </tr>
-            <tr class="header-row-letters">
-              <th>(أ)</th>
-              <th>(ب)</th>
-              <th>(جـ)</th>
-              <th>(د)</th>
-              <th>(هـ)</th>
-            </tr>
+            <tr class="header-row-titles">${headerRow1}</tr>
+            <tr class="header-row-letters">${headerRow2}</tr>
           </thead>
           <tbody>
       `;
@@ -152,12 +161,14 @@ export default function ReportsPage() {
         reportData.forEach((person, index) => {
             const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
             const arabicIndex = formatArabicNumber(index + 1);
+            const adminCell = includeAdministration ? `<td>${person.administration}</td>` : '';
             tableContent += `
               <tr>
                 <td>${arabicIndex}</td>
                 <td>${formatArabicNumber(person.cardId)}</td>
                 <td>${displayRank}</td>
                 <td>${person.name}</td>
+                ${adminCell}
                 <td></td>
               </tr>
             `;
@@ -342,6 +353,10 @@ export default function ReportsPage() {
                                         className="col-span-3"
                                         placeholder="أدخل عنوان التقرير (اختياري)"
                                     />
+                                </div>
+                                <div className="flex items-center space-x-2 space-x-reverse">
+                                    <Checkbox id="include-administration" checked={includeAdministration} onCheckedChange={(checked) => setIncludeAdministration(!!checked)} />
+                                    <Label htmlFor="include-administration">إضافة عمود الإدارة</Label>
                                 </div>
                             </div>
                             <DialogFooter>
