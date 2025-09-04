@@ -236,6 +236,7 @@ export default function ReportsPage() {
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
             font-size: 14px;
+            display: inline-block;
         }
         .title {
             font-family: 'Cairo', sans-serif;
@@ -278,6 +279,7 @@ export default function ReportsPage() {
             bottom: 1cm;
             left: 0;
             right: 0;
+            display: inline-block;
         }
       `);
       printWindow.document.write('</style>');
