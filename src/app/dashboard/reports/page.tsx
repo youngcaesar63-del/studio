@@ -189,7 +189,7 @@ export default function ReportsPage() {
 
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&family=Noto+Kufi+Arabic:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4 ${pageOrientation};
             margin: 1.5cm;
@@ -230,8 +230,8 @@ export default function ReportsPage() {
             text-decoration: underline;
         }
          .print-header .title {
-            font-family: 'Noto Kufi Arabic', sans-serif;
-            font-weight: bold;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 900;
             margin-top: 5px;
             text-decoration: underline;
         }
