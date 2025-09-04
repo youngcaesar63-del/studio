@@ -620,7 +620,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">أهم الوظائف التي شغلها</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: undefined, periodTo: undefined })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة وظيفة
                       </Button>
@@ -652,7 +652,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">الوحدات والإدارات والمعاهد التي عمل بها</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: undefined, periodTo: undefined })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة
                       </Button>
@@ -687,7 +687,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: undefined, periodTo: undefined })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة منطقة خدمة
                       </Button>
@@ -719,7 +719,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: undefined, periodTo: undefined })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة مشاركة
                       </Button>
@@ -751,7 +751,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">الدورات التدريبية</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date(), grade: 'أ' })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: undefined, periodTo: undefined, grade: 'أ' })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة دورة تدريبية
                       </Button>
@@ -772,7 +772,7 @@ export default function EditPersonnelPage() {
                             <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                           )} />
                           <FormField control={form.control} name={`trainingCourses.${index}.grade`} render={({ field }) => (
-                            <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                            <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                           )} />
                            <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
                               <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
@@ -845,7 +845,7 @@ export default function EditPersonnelPage() {
                 <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold">الآليات</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: new Date(), periodTo: new Date() })}>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: undefined, periodTo: undefined })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة آلية
                       </Button>
@@ -895,7 +895,7 @@ export default function EditPersonnelPage() {
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
                     </Button>
                 </div>
             </form>
@@ -905,4 +905,3 @@ export default function EditPersonnelPage() {
     </div>
   );
 }
-

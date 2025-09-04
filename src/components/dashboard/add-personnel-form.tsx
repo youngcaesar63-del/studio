@@ -519,7 +519,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">أهم الوظائف التي شغلها</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: undefined, periodTo: undefined })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة وظيفة
               </Button>
@@ -551,7 +551,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">الوحدات والإدارات والمعاهد التي عمل بها</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: undefined, periodTo: undefined })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة
               </Button>
@@ -586,7 +586,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: undefined, periodTo: undefined })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة منطقة خدمة
               </Button>
@@ -616,7 +616,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: undefined, periodTo: undefined })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة مشاركة
               </Button>
@@ -646,7 +646,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">الدورات التدريبية</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date(), grade: 'أ' })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: undefined, periodTo: undefined, grade: 'أ' })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة دورة تدريبية
               </Button>
@@ -740,7 +740,7 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">الآليات</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: undefined, periodTo: undefined })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة آلية
               </Button>
