@@ -11,7 +11,7 @@ export function DateTimeDisplay() {
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Africa/Cairo' };
+      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Cairo' };
       const timeString = new Intl.DateTimeFormat('ar-SA-u-nu-arab', timeOptions).format(now);
       setTime(timeString);
 
@@ -21,7 +21,7 @@ export function DateTimeDisplay() {
     };
 
     updateDateTime();
-    const timer = setInterval(updateDateTime, 60000); // Update every minute
+    const timer = setInterval(updateDateTime, 1000); // Update every second
 
     return () => clearInterval(timer);
   }, []);
