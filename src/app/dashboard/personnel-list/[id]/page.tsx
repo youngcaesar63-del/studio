@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type ImportantJob = {
     jobTitle: string;
@@ -213,7 +214,7 @@ export default function ViewPersonnelPage() {
 
     return (
         <div className="animate-in fade-in duration-500">
-            <Card className="shadow-lg">
+            <Card className="shadow-lg mb-24">
                 <CardHeader className="bg-muted/30">
                      <div className="flex flex-col sm:flex-row items-center gap-6">
                         <div className="p-1 bg-gradient-to-tr from-primary to-accent rounded-full">
@@ -565,17 +566,31 @@ export default function ViewPersonnelPage() {
                          </>
                     )}
                 </CardContent>
-                <CardFooter className="mt-8 pt-6 border-t flex justify-between items-center">
+                <CardFooter className="mt-8 pt-6 border-t flex justify-start items-center">
                     <Button onClick={() => router.push(`/dashboard/attachments?personnelId=${person.id}`)} variant="outline">
                         <Folder className="ml-2 h-4 w-4" />
                         عرض المرفقات
                     </Button>
-                    <Button onClick={() => router.back()}>
-                       <ArrowRight className="ml-2 h-4 w-4" /> العودة
-                    </Button>
                 </CardFooter>
             </Card>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            onClick={() => router.back()}
+                            className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg flex items-center justify-center z-50"
+                        >
+                           <ArrowRight className="h-6 w-6" />
+                           <span className="sr-only">العودة</span>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                        <p>العودة</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
         </div>
     );
 }
-
