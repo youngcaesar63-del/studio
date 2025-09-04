@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Edit, GraduationCap, User, PlusCircle, Trash2 } from 'lucide-react';
+import { CalendarIcon, Edit, GraduationCap, User, PlusCircle, Trash2, Upload } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
@@ -173,6 +173,7 @@ export default function EditPersonnelPage() {
   const id = Number(params.id);
   const [loading, setLoading] = useState(true);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -442,19 +443,35 @@ export default function EditPersonnelPage() {
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                     <FormField control={form.control} name="photo" render={({ field }) => (
-                      <FormItem className="flex flex-col items-center gap-2 lg:col-span-1">
+                    <FormField control={form.control} name="photo" render={({ field }) => (
+                      <FormItem className="flex flex-col items-center gap-4 lg:col-span-1">
                         <FormLabel>الصورة الشخصية</FormLabel>
                         <FormControl>
-                          <div className='flex flex-col items-center gap-2'>
-                            <div className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50">
-                            {photoPreview ? (
+                          <div className="flex flex-col items-center gap-4">
+                            <div 
+                              className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50 cursor-pointer hover:border-primary transition-colors"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              {photoPreview ? (
                                 <Image src={photoPreview} alt="معاينة الصورة" width={160} height={160} className="rounded-lg object-cover w-full h-full" />
-                            ) : (
-                                <User className="w-20 h-20 text-muted-foreground" />
-                            )}
+                              ) : (
+                                <div className="text-center text-muted-foreground">
+                                  <User className="w-16 h-16 mx-auto" />
+                                  <p className="text-xs mt-1">انقر للرفع</p>
+                                </div>
+                              )}
                             </div>
-                            <Input type="file" accept="image/*" onChange={handlePhotoChange} className="max-w-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
+                            <Input 
+                              type="file" 
+                              accept="image/*" 
+                              ref={fileInputRef} 
+                              onChange={handlePhotoChange} 
+                              className="hidden" 
+                            />
+                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                                <Upload className="ml-2 h-4 w-4" />
+                                اختر صورة
+                            </Button>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -895,7 +912,7 @@ export default function EditPersonnelPage() {
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
+                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                     </Button>
                 </div>
             </form>
@@ -905,5 +922,3 @@ export default function EditPersonnelPage() {
     </div>
   );
 }
-
-    
