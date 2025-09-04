@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +34,12 @@ type TrainingCourse = {
     periodFrom: string;
     periodTo: string;
     grade?: string;
+}
+
+type ServiceHistory = {
+    unitName: string;
+    periodFrom: string;
+    periodTo: string;
 }
 
 type Personnel = {
@@ -68,6 +74,7 @@ type Personnel = {
     importantJobs?: ImportantJob[];
     serviceOperations?: ServiceOperation[];
     trainingCourses?: TrainingCourse[];
+    serviceHistory?: ServiceHistory[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -238,7 +245,35 @@ export default function ViewPersonnelPage() {
                         </div>
                     )}
                     
-                    {(person.importantJobs && person.importantJobs.length > 0) && (person.serviceOperations && person.serviceOperations.length > 0) && <Separator />}
+                    {(person.importantJobs && person.importantJobs.length > 0) && <Separator />}
+                    
+                    {person.serviceHistory && person.serviceHistory.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Home className="h-5 w-5" /> الوحدات والإدارات والمعاهد التي عمل بها</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">الوحدة/الإدارة/المعهد</TableHead>
+                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.serviceHistory.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{item.unitName}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(item.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(item.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+
+                    {(person.serviceHistory && person.serviceHistory.length > 0) && (person.serviceOperations && person.serviceOperations.length > 0) && <Separator />}
 
 
                     {person.serviceOperations && person.serviceOperations.length > 0 && (
