@@ -373,6 +373,15 @@ export default function EditPersonnelPage() {
 
     let personnelList: Personnel[] = getLocalStorage('personnelData', []);
     
+    // Sort date-based arrays
+    formData.importantJobs?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    formData.serviceOperations?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    formData.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    formData.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    formData.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    formData.vehicles?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+
+
     const updatedList = personnelList.map(p => {
       if (p.id === id) {
         return {
@@ -1031,20 +1040,6 @@ export default function EditPersonnelPage() {
             </Form>
         </CardContent>
       </Card>
-      <AlertDialog open={isConfirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
-            <AlertDialogDescription>
-              هل أنت متأكد من أنك تريد حفظ التغييرات التي أجريتها على بيانات هذا الفرد؟
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setFormData(null)}>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmSave}>تأكيد الحفظ</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

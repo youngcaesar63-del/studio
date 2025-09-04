@@ -293,6 +293,14 @@ export function AddPersonnelForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     const personnelList = getLocalStorage('personnelData', []);
     
+    // Sort date-based arrays
+    values.importantJobs?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.serviceOperations?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.vehicles?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+
     const newPersonnel = {
       id: Date.now(), // Use timestamp for unique ID
       ...values,
@@ -857,7 +865,7 @@ export function AddPersonnelForm() {
               <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="reportingDate" render={({ field }) => (
+             <FormField control={form.control} name="reportingDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ التبليغ</FormLabel>
                 <Popover>
                     <PopoverTrigger asChild>
