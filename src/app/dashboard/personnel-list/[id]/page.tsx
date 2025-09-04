@@ -518,12 +518,12 @@ export default function ViewPersonnelPage() {
 
                     {person.mechanisms && person.mechanisms.length > 0 && (
                         <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> الآليات واللجان</h3>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> الآليات</h3>
                             <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-center">اسم الآلية / اللجنة</TableHead>
+                                            <TableHead className="text-center">اسم الآلية</TableHead>
                                             <TableHead className="text-center border-r">من تاريخ</TableHead>
                                             <TableHead className="text-center border-r">إلى تاريخ</TableHead>
                                         </TableRow>
