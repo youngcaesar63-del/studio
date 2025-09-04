@@ -279,7 +279,7 @@ export default function ReportsPage() {
         }
         .page-number-container::before {
             counter-increment: page-counter;
-            content: counter(page-counter) " من " counter(pages);
+            content: "(" counter(page-counter) " من " counter(pages) ")";
             font-family: 'Tajawal', sans-serif;
             font-size: 12px;
             display: block;
