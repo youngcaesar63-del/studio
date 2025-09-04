@@ -279,7 +279,7 @@ export default function ReportsPage() {
         }
         .page-number-container::before {
             counter-increment: page-counter;
-            content: "(" counter(page-counter) " من " counter(pages) ")";
+            content: "( " counter(page-counter) " من " var(--page-count) " )";
             font-family: 'Tajawal', sans-serif;
             font-size: 12px;
             display: block;
@@ -294,9 +294,13 @@ export default function ReportsPage() {
 
       printWindow.document.write('</body></html>');
       
+      
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => {
+          const pageCount = printWindow.document.body.clientHeight / (includeAdministration ? 794 : 1123);
+          const totalPages = Math.max(1, Math.ceil(pageCount));
+          printWindow.document.body.style.setProperty('--page-count', `'${formatArabicNumber(totalPages)}'`);
           printWindow.print();
           printWindow.close();
       }, 500);
