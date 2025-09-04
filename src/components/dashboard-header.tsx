@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, ChevronDown, LogOut, Moon, Settings, Sun, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,41 +27,74 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
+import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+
+
+type Notification = {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  style: string;
+  time: string;
+};
 
 const formatArabicNumber = (num: number) => {
     return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
 }
 
-const notifications = [
-  {
-    title: 'بيانات غير مكتملة',
-    description: `هناك ${formatArabicNumber(5)} أفراد ببيانات غير مكتملة تحتاج مراجعة`,
-    icon: AlertTriangle,
-    style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-    time: 'الآن',
-  },
-  {
-    title: 'مواعيد تجديد',
-    description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج تجديد خلال الشهر القادم`,
-    icon: Clock,
-    style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-    time: 'منذ ساعة',
-  },
-  {
-    title: 'مراجعة الأداء',
-    description: 'حان وقت مراجعة أداء الأفراد للربع الحالي',
-    icon: UserCheck,
-    style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-    time: 'أمس',
-  },
-];
+const generateNotifications = (): Notification[] => {
+    let notifications: Notification[] = [];
+    const personnelData = getLocalStorage('personnelData', []);
+    
+    // Check for incomplete data
+    const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
+    if (incompletePersonnel.length > 0) {
+        notifications.push({
+            id: 'incomplete-data',
+            title: 'بيانات غير مكتملة',
+            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} أفراد ببيانات غير مكتملة تحتاج مراجعة`,
+            icon: AlertTriangle,
+            style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 focus:bg-red-100 dark:focus:bg-red-800/50',
+            time: 'الآن',
+        });
+    }
+
+    // Static notifications
+    notifications.push({
+        id: 'renewal-dates',
+        title: 'مواعيد تجديد',
+        description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج تجديد خلال الشهر القادم`,
+        icon: Clock,
+        style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 focus:bg-amber-100 dark:focus:bg-amber-800/50',
+        time: 'تذكير',
+    });
+
+    notifications.push({
+        id: 'performance-review',
+        title: 'مراجعة الأداء',
+        description: 'حان وقت مراجعة أداء الأفراد للربع الحالي',
+        icon: UserCheck,
+        style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 focus:bg-blue-100 dark:focus:bg-blue-800/50',
+        time: 'تذكير',
+    });
+
+    return notifications;
+};
 
 
 export function DashboardHeader() {
   const { setTheme } = useTheme();
   const router = useRouter();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
-  const [activeNotifications, setActiveNotifications] = useState(notifications);
+  const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    const allNotifications = generateNotifications();
+    const readNotifications = getLocalStorage('readNotifications', []);
+    const unreadNotifications = allNotifications.filter(n => !readNotifications.includes(n.id));
+    setActiveNotifications(unreadNotifications);
+  }, []);
 
   const handleLogout = () => {
     toast({ title: 'تم تسجيل الخروج بنجاح' });
@@ -70,6 +103,8 @@ export function DashboardHeader() {
   };
 
   const clearNotifications = () => {
+    const allNotificationIds = generateNotifications().map(n => n.id);
+    updateLocalStorage('readNotifications', allNotificationIds);
     setActiveNotifications([]);
     toast({
         title: 'تم مسح الإشعارات',
@@ -125,7 +160,7 @@ export function DashboardHeader() {
                 </div>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
-                       <DropdownMenuItem key={index} className={`p-2 rounded-lg cursor-pointer flex items-start gap-3 ${notification.style.replace('bg-', 'focus:bg-')}`}>
+                       <DropdownMenuItem key={notification.id} className={`p-2 rounded-lg cursor-pointer flex items-start gap-3 ${notification.style}`}>
                             <notification.icon className="h-5 w-5 mt-1" />
                            <div className="flex flex-col">
                                <p className="text-sm font-medium">{notification.title}</p>
