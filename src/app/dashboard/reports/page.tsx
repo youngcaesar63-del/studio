@@ -189,7 +189,7 @@ export default function ReportsPage() {
 
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&family=PT+Serif:wght@700&display=swap');
         @page {
             size: A4 ${pageOrientation};
             margin: 1.5cm;
@@ -228,6 +228,7 @@ export default function ReportsPage() {
             text-decoration: underline;
         }
          .print-header .title {
+            font-family: 'PT Serif', serif;
             font-weight: bold;
             margin-top: 5px;
             text-decoration: underline;
