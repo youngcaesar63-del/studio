@@ -567,9 +567,9 @@ export default function ViewPersonnelPage() {
                          <>
                             <Separator />
                             <div>
-                                <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Info className="h-5 w-5" /> ملاحظات</h3>
+                                <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Info className="h-5 w-5" /> اي معلومات اخرى</h3>
                                 <div className="grid grid-cols-1">
-                                    <DetailItem icon={Info} label="ملاحظات" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} fullWidth />
+                                    <DetailItem icon={Info} label="اي معلومات اخرى" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} fullWidth />
                                 </div>
                             </div>
                          </>
