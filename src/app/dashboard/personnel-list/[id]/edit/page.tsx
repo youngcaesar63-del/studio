@@ -24,6 +24,16 @@ import Image from 'next/image';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const importantJobSchema = z.object({
   jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
@@ -176,6 +186,8 @@ export default function EditPersonnelPage() {
   const [loading, setLoading] = useState(true);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
+  const [formData, setFormData] = useState<z.infer<typeof formSchema> | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -349,46 +361,48 @@ export default function EditPersonnelPage() {
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const handleConfirmSave = () => {
+    if (!formData) return;
+
     let personnelList: Personnel[] = getLocalStorage('personnelData', []);
     
     const updatedList = personnelList.map(p => {
       if (p.id === id) {
         return {
           ...p,
-          ...values,
-          name: values.fullName,
-          appointmentDate: values.appointmentDate.toISOString(),
-          lastReturnDate: values.lastReturnDate?.toISOString(),
-          transferDate: values.transferDate?.toISOString(),
-          reportingDate: values.reportingDate?.toISOString(),
-          dateOfBirth: values.dateOfBirth?.toISOString(),
-          importantJobs: values.importantJobs?.map(job => ({
+          ...formData,
+          name: formData.fullName,
+          appointmentDate: formData.appointmentDate.toISOString(),
+          lastReturnDate: formData.lastReturnDate?.toISOString(),
+          transferDate: formData.transferDate?.toISOString(),
+          reportingDate: formData.reportingDate?.toISOString(),
+          dateOfBirth: formData.dateOfBirth?.toISOString(),
+          importantJobs: formData.importantJobs?.map(job => ({
             ...job,
             periodFrom: job.periodFrom.toISOString(),
             periodTo: job.periodTo.toISOString(),
           })),
-          serviceOperations: values.serviceOperations?.map(op => ({
+          serviceOperations: formData.serviceOperations?.map(op => ({
             ...op,
             periodFrom: op.periodFrom.toISOString(),
             periodTo: op.periodTo.toISOString(),
           })),
-          decisiveStorm: values.decisiveStorm?.map(op => ({
+          decisiveStorm: formData.decisiveStorm?.map(op => ({
             ...op,
             periodFrom: op.periodFrom.toISOString(),
             periodTo: op.periodTo.toISOString(),
           })),
-          trainingCourses: values.trainingCourses?.map(course => ({
+          trainingCourses: formData.trainingCourses?.map(course => ({
             ...course,
             periodFrom: course.periodFrom.toISOString(),
             periodTo: course.periodTo.toISOString(),
           })),
-          serviceHistory: values.serviceHistory?.map(history => ({
+          serviceHistory: formData.serviceHistory?.map(history => ({
             ...history,
             periodFrom: history.periodFrom.toISOString(),
             periodTo: history.periodTo.toISOString(),
           })),
-           vehicles: values.vehicles?.map(v => ({
+           vehicles: formData.vehicles?.map(v => ({
             ...v,
             periodFrom: v.periodFrom.toISOString(),
             periodTo: v.periodTo.toISOString(),
@@ -402,9 +416,16 @@ export default function EditPersonnelPage() {
 
     toast({
       title: 'تم التحديث بنجاح',
-      description: `تم تحديث بيانات الفرد ${values.fullName}.`,
+      description: `تم تحديث بيانات الفرد ${formData.fullName}.`,
     });
+    setConfirmOpen(false);
+    setFormData(null);
     router.push('/dashboard/personnel-list');
+  }
+
+  function onSave(values: z.infer<typeof formSchema>) {
+    setFormData(values);
+    setConfirmOpen(true);
   }
 
   if (loading) {
@@ -444,7 +465,7 @@ export default function EditPersonnelPage() {
         </CardHeader>
         <CardContent className="pt-6">
             <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSave)} className="space-y-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                     <FormField control={form.control} name="photo" render={({ field }) => (
                       <FormItem className="flex flex-col items-center gap-4 lg:col-span-1">
@@ -929,6 +950,20 @@ export default function EditPersonnelPage() {
             </Form>
         </CardContent>
       </Card>
+      <AlertDialog open={isConfirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من أنك تريد حفظ التغييرات التي أجريتها على بيانات هذا الفرد؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFormData(null)}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSave}>تأكيد الحفظ</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
