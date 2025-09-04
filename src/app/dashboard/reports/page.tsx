@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -228,7 +227,7 @@ export default function ReportsPage() {
             text-decoration: underline;
         }
          .print-header .title {
-            font-family: 'Helvetica', sans-serif;
+            font-family: 'Tajawal', sans-serif;
             font-weight: bold;
             margin-top: 5px;
             text-decoration: underline;
@@ -449,6 +448,3 @@ export default function ReportsPage() {
         )}
     </div>
   );
-}
-
-    
