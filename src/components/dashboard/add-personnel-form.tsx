@@ -93,8 +93,8 @@ const sisterSchema = z.object({
     address: z.string().optional(),
 });
 
-const vehicleSchema = z.object({
-  type: z.string().min(1, 'اسم الآلية مطلوب'),
+const mechanismSchema = z.object({
+  name: z.string().min(1, 'اسم الآلية / اللجنة مطلوب'),
   periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
@@ -147,7 +147,7 @@ const formSchema = z.object({
   children: z.array(childSchema).optional(),
   brothers: z.array(brotherSchema).optional(),
   sisters: z.array(sisterSchema).optional(),
-  vehicles: z.array(vehicleSchema).optional(),
+  mechanisms: z.array(mechanismSchema).optional(),
 });
 
 
@@ -158,13 +158,7 @@ export function AddPersonnelForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [dateFieldOpen, setDateFieldOpen] = useState({
-    appointmentDate: false,
-    lastReturnDate: false,
-    transferDate: false,
-    reportingDate: false,
-    dateOfBirth: false,
-  });
+  const [dateFieldOpen, setDateFieldOpen] = useState<{ [key: string]: boolean }>({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -206,7 +200,7 @@ export function AddPersonnelForm() {
       children: [],
       brothers: [],
       sisters: [],
-      vehicles: [],
+      mechanisms: [],
     },
   });
 
@@ -260,9 +254,9 @@ export function AddPersonnelForm() {
     name: "sisters",
   });
 
-  const { fields: vehicleFields, append: appendVehicle, remove: removeVehicle } = useFieldArray({
+  const { fields: mechanismFields, append: appendMechanism, remove: removeMechanism } = useFieldArray({
     control: form.control,
-    name: "vehicles",
+    name: "mechanisms",
   });
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -287,7 +281,7 @@ export function AddPersonnelForm() {
     values.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
     values.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
     values.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.vehicles?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    values.mechanisms?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
 
     const newPersonnel = {
       id: Date.now(), // Use timestamp for unique ID
@@ -323,7 +317,7 @@ export function AddPersonnelForm() {
         periodFrom: history.periodFrom.toISOString(),
         periodTo: history.periodTo.toISOString(),
       })),
-      vehicles: values.vehicles?.map(v => ({
+      mechanisms: values.mechanisms?.map(v => ({
         ...v,
         periodFrom: v.periodFrom.toISOString(),
         periodTo: v.periodTo.toISOString(),
@@ -412,7 +406,7 @@ export function AddPersonnelForm() {
                 )} />
                  <FormField control={form.control} name="appointmentDate" render={({ field }) => (
                     <FormItem><FormLabel>تاريخ التعيين</FormLabel>
-                    <Popover>
+                    <Popover open={dateFieldOpen['appointmentDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, appointmentDate: open}))}>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -441,7 +435,7 @@ export function AddPersonnelForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
                     <FormItem><FormLabel>تاريخ الميلاد</FormLabel>
-                    <Popover>
+                    <Popover open={dateFieldOpen['dateOfBirth']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, dateOfBirth: open}))}>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -800,26 +794,26 @@ export function AddPersonnelForm() {
 
         <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">الآليات</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <h3 className="text-xl font-semibold">الآليات واللجان</h3>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendMechanism({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
-                  إضافة آلية
+                  إضافة آلية / لجنة
               </Button>
             </div>
             <div className="space-y-4">
-              {vehicleFields.map((field, index) => (
+              {mechanismFields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                   <FormField control={form.control} name={`vehicles.${index}.type`} render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                   <FormField control={form.control} name={`mechanisms.${index}.name`} render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>اسم الآلية / اللجنة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
-                   <FormField control={form.control} name={`vehicles.${index}.periodFrom`} render={({ field }) => (
+                   <FormField control={form.control} name={`mechanisms.${index}.periodFrom`} render={({ field }) => (
                       <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                   )} />
-                   <FormField control={form.control} name={`vehicles.${index}.periodTo`} render={({ field }) => (
+                   <FormField control={form.control} name={`mechanisms.${index}.periodTo`} render={({ field }) => (
                       <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                   )} />
                   <div className="flex items-end">
-                    <Button type="button" variant="destructive" size="icon" onClick={() => removeVehicle(index)}>
+                    <Button type="button" variant="destructive" size="icon" onClick={() => removeMechanism(index)}>
                         <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -837,7 +831,7 @@ export function AddPersonnelForm() {
             )} />
             <FormField control={form.control} name="transferDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ النقل</FormLabel>
-                <Popover>
+                <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
                     <PopoverTrigger asChild>
                         <FormControl>
                             <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -855,7 +849,7 @@ export function AddPersonnelForm() {
             )} />
              <FormField control={form.control} name="reportingDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ التبليغ</FormLabel>
-                <Popover>
+                <Popover open={dateFieldOpen['reportingDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, reportingDate: open}))}>
                     <PopoverTrigger asChild>
                         <FormControl>
                             <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -873,7 +867,7 @@ export function AddPersonnelForm() {
             )} />
             <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
                 <FormItem><FormLabel>تاريخ آخر عودة</FormLabel>
-                <Popover>
+                <Popover open={dateFieldOpen['lastReturnDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, lastReturnDate: open}))}>
                     <PopoverTrigger asChild>
                         <FormControl>
                             <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
