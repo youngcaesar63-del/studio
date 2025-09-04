@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -107,7 +106,11 @@ const formSchema = z.object({
   photo: z.string().optional(),
   dateOfBirth: z.date().optional(),
   nationalId: z.string().optional(),
-  phoneNumber: z.string().optional(),
+  phoneNumbers: z.object({
+    sudani: z.string().optional(),
+    zain: z.string().optional(),
+    mtn: z.string().optional(),
+  }).optional(),
   state: z.string().optional(),
   city: z.string().optional(),
   locality: z.string().optional(),
@@ -181,7 +184,7 @@ export function AddPersonnelForm() {
       notes: '',
       photo: '',
       nationalId: '',
-      phoneNumber: '',
+      phoneNumbers: { sudani: '', zain: '', mtn: '' },
       state: '',
       city: '',
       locality: '',
@@ -402,8 +405,14 @@ export function AddPersonnelForm() {
             <FormField control={form.control} name="nationalId" render={({ field }) => (
                 <FormItem><FormLabel>الرقم الوطني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="phoneNumber" render={({ field }) => (
-                <FormItem><FormLabel>رقم الهاتف</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField control={form.control} name="phoneNumbers.sudani" render={({ field }) => (
+                <FormItem><FormLabel>رقم سوداني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="phoneNumbers.zain" render={({ field }) => (
+                <FormItem><FormLabel>رقم زين</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="phoneNumbers.mtn" render={({ field }) => (
+                <FormItem><FormLabel>رقم MTN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
             )} />
              <FormField control={form.control} name="bloodType" render={({ field }) => (
                 <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
@@ -788,4 +797,3 @@ export function AddPersonnelForm() {
     </Form>
   );
 }
-

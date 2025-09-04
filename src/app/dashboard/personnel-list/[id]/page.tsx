@@ -99,7 +99,11 @@ type Personnel = {
     photo?: string;
     dateOfBirth?: string;
     nationalId?: string;
-    phoneNumber?: string;
+    phoneNumbers?: {
+        sudani?: string;
+        zain?: string;
+        mtn?: string;
+    };
     state?: string;
     city?: string;
     locality?: string;
@@ -133,15 +137,18 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     }
 };
 
-const DetailItem = ({ icon: Icon, label, value, fullWidth = false }: { icon: React.ElementType, label: string, value: React.ReactNode, fullWidth?: boolean }) => (
-    <div className={`flex items-start gap-4 ${fullWidth ? 'md:col-span-2 lg:col-span-3' : ''}`}>
-        <Icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
-        <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <div className="font-semibold text-lg">{value || 'غير مسجل'}</div>
+const DetailItem = ({ icon: Icon, label, value, fullWidth = false }: { icon: React.ElementType, label: string, value: React.ReactNode, fullWidth?: boolean }) => {
+    if (!value) return null;
+    return (
+        <div className={`flex items-start gap-4 ${fullWidth ? 'md:col-span-2 lg:col-span-3' : ''}`}>
+            <Icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+            <div>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <div className="font-semibold text-lg">{value}</div>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default function ViewPersonnelPage() {
     const params = useParams();
@@ -242,7 +249,9 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                             <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
-                            <DetailItem icon={Phone} label="رقم الهاتف" value={person.phoneNumber ? formatArabicNumber(person.phoneNumber) : 'غير مسجل'} />
+                            <DetailItem icon={Phone} label="رقم سوداني" value={person.phoneNumbers?.sudani ? formatArabicNumber(person.phoneNumbers.sudani) : 'غير مسجل'} />
+                            <DetailItem icon={Phone} label="رقم زين" value={person.phoneNumbers?.zain ? formatArabicNumber(person.phoneNumbers.zain) : 'غير مسجل'} />
+                            <DetailItem icon={Phone} label="رقم MTN" value={person.phoneNumbers?.mtn ? formatArabicNumber(person.phoneNumbers.mtn) : 'غير مسجل'} />
                         </div>
                     </div>
 
