@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +51,20 @@ type Language = {
     name: string;
 }
 
+type Child = {
+    name: string;
+}
+
+type Brother = {
+    name: string;
+    address?: string;
+}
+
+type Sister = {
+    name: string;
+    address?: string;
+}
+
 type Personnel = {
     id: number;
     name: string;
@@ -86,6 +100,13 @@ type Personnel = {
     serviceHistory?: ServiceHistory[];
     medals?: Medal[];
     languages?: Language[];
+    fatherName?: string;
+    fatherAddress?: string;
+    motherName?: string;
+    wifeName?: string;
+    children?: Child[];
+    brothers?: Brother[];
+    sisters?: Sister[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -226,6 +247,42 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                         </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> المعلومات العائلية</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
+                             <DetailItem icon={User} label="اسم الأب" value={person.fatherName} />
+                             <DetailItem icon={MapPin} label="عنوان الأب" value={person.fatherAddress} />
+                             <DetailItem icon={User} label="اسم الأم" value={person.motherName} />
+                             <DetailItem icon={User} label="اسم الزوجة" value={person.wifeName} />
+                        </div>
+                        {person.children && person.children.length > 0 && (
+                            <div className="mt-6">
+                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأبناء</h4>
+                                <ul className="list-disc list-inside space-y-1">
+                                    {person.children.map((child, index) => <li key={index}>{child.name}</li>)}
+                                </ul>
+                            </div>
+                        )}
+                        {person.brothers && person.brothers.length > 0 && (
+                             <div className="mt-6">
+                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأشقاء</h4>
+                                <ul className="list-disc list-inside space-y-1">
+                                    {person.brothers.map((b, index) => <li key={index}>{b.name} {b.address && ` - ${b.address}`}</li>)}
+                                </ul>
+                            </div>
+                        )}
+                         {person.sisters && person.sisters.length > 0 && (
+                             <div className="mt-6">
+                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الشقيقات</h4>
+                                <ul className="list-disc list-inside space-y-1">
+                                    {person.sisters.map((s, index) => <li key={index}>{s.name} {s.address && ` - ${s.address}`}</li>)}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                     
                     <Separator />
@@ -451,3 +508,5 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
+
+    

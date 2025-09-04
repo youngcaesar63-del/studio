@@ -62,6 +62,21 @@ const languageSchema = z.object({
     name: z.string().min(1, "اسم اللغة مطلوب"),
 });
 
+const childSchema = z.object({
+    name: z.string().min(1, "اسم الإبن مطلوب"),
+});
+
+const brotherSchema = z.object({
+    name: z.string().min(1, "اسم الشقيق مطلوب"),
+    address: z.string().optional(),
+});
+
+const sisterSchema = z.object({
+    name: z.string().min(1, "اسم الشقيقة مطلوب"),
+    address: z.string().optional(),
+});
+
+
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
@@ -96,9 +111,16 @@ const formSchema = z.object({
   serviceHistory: z.array(serviceHistorySchema).optional(),
   medals: z.array(medalSchema).optional(),
   languages: z.array(languageSchema).optional(),
+  fatherName: z.string().optional(),
+  fatherAddress: z.string().optional(),
+  motherName: z.string().optional(),
+  wifeName: z.string().optional(),
+  children: z.array(childSchema).optional(),
+  brothers: z.array(brotherSchema).optional(),
+  sisters: z.array(sisterSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; medals?: { name: string }[]; languages?: { name: string }[]; };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; medals?: { name: string }[]; languages?: { name: string }[]; children?: { name: string }[]; brothers?: { name: string, address?: string }[]; sisters?: { name: string, address?: string }[]; };
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -165,6 +187,13 @@ export default function EditPersonnelPage() {
         serviceHistory: [],
         medals: [],
         languages: [],
+        fatherName: '',
+        fatherAddress: '',
+        motherName: '',
+        wifeName: '',
+        children: [],
+        brothers: [],
+        sisters: [],
       },
   });
 
@@ -196,6 +225,21 @@ export default function EditPersonnelPage() {
   const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({
     control: form.control,
     name: "languages",
+  });
+
+  const { fields: childrenFields, append: appendChild, remove: removeChild } = useFieldArray({
+    control: form.control,
+    name: "children",
+  });
+  
+  const { fields: brothersFields, append: appendBrother, remove: removeBrother } = useFieldArray({
+    control: form.control,
+    name: "brothers",
+  });
+
+  const { fields: sistersFields, append: appendSister, remove: removeSister } = useFieldArray({
+    control: form.control,
+    name: "sisters",
   });
 
   useEffect(() => {
@@ -234,6 +278,9 @@ export default function EditPersonnelPage() {
         })) || [],
         medals: personToEdit.medals || [],
         languages: personToEdit.languages || [],
+        children: personToEdit.children || [],
+        brothers: personToEdit.brothers || [],
+        sisters: personToEdit.sisters || [],
       });
       if (personToEdit.photo) {
         setPhotoPreview(personToEdit.photo);
@@ -441,6 +488,63 @@ export default function EditPersonnelPage() {
                 </div>
 
                 <Separator className="my-8" />
+
+                <h3 className="text-xl font-semibold mb-4">المعلومات العائلية</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField control={form.control} name="fatherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={form.control} name="fatherAddress" render={({ field }) => ( <FormItem><FormLabel>عنوان الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={form.control} name="motherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأم</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={form.control} name="wifeName" render={({ field }) => ( <FormItem><FormLabel>اسم الزوجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                </div>
+
+                <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold">الأبناء</h4>
+                        <Button type="button" variant="outline" size="sm" onClick={() => appendChild({ name: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة إبن </Button>
+                    </div>
+                    <div className="space-y-4">
+                    {childrenFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                            <FormField control={form.control} name={`children.${index}.name`} render={({ field }) => ( <FormItem className="md:col-span-3"><FormLabel>اسم الإبن</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <Button type="button" variant="destructive" size="icon" onClick={() => removeChild(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                        </div>
+                    ))}
+                    </div>
+                </div>
+
+                <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold">الأشقاء</h4>
+                        <Button type="button" variant="outline" size="sm" onClick={() => appendBrother({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيق </Button>
+                    </div>
+                    <div className="space-y-4">
+                    {brothersFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                            <FormField control={form.control} name={`brothers.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <FormField control={form.control} name={`brothers.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <Button type="button" variant="destructive" size="icon" onClick={() => removeBrother(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                        </div>
+                    ))}
+                    </div>
+                </div>
+                
+                <div className="mt-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold">الشقيقات</h4>
+                        <Button type="button" variant="outline" size="sm" onClick={() => appendSister({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيقة </Button>
+                    </div>
+                    <div className="space-y-4">
+                    {sistersFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                            <FormField control={form.control} name={`sisters.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <FormField control={form.control} name={`sisters.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <Button type="button" variant="destructive" size="icon" onClick={() => removeSister(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                        </div>
+                    ))}
+                    </div>
+                </div>
+
+                 <Separator className="my-8" />
 
                  <h3 className="text-xl font-semibold mb-4">بيانات أقرب الأقربين</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -681,3 +785,5 @@ export default function EditPersonnelPage() {
     </div>
   );
 }
+
+    
