@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -116,7 +115,7 @@ const formSchema = z.object({
   state: z.string().optional(),
   city: z.string().optional(),
   locality: z.string().optional(),
-  address: zstring().optional(),
+  address: z.string().optional(),
   nextOfKinName: z.string().optional(),
   nextOfKinPhone: z.string().optional(),
   nextOfKinAddress: z.string().optional(),
