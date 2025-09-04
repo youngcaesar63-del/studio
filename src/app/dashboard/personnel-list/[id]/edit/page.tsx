@@ -37,6 +37,12 @@ const serviceOperationSchema = z.object({
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
 
+const decisiveStormSchema = z.object({
+  name: z.string().min(1, 'اسم الخلية/اللواء/الكتيبة مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
+
 const trainingCourseSchema = z.object({
   courseName: z.string().min(1, 'اسم الدورة مطلوب'),
   courseType: z.string().min(1, 'نوع الدورة مطلوب'),
@@ -107,6 +113,7 @@ const formSchema = z.object({
   nextOfKinAddress: z.string().optional(),
   importantJobs: z.array(importantJobSchema).optional(),
   serviceOperations: z.array(serviceOperationSchema).optional(),
+  decisiveStorm: z.array(decisiveStormSchema).optional(),
   trainingCourses: z.array(trainingCourseSchema).optional(),
   serviceHistory: z.array(serviceHistorySchema).optional(),
   medals: z.array(medalSchema).optional(),
@@ -120,7 +127,7 @@ const formSchema = z.object({
   sisters: z.array(sisterSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; medals?: { name: string }[]; languages?: { name: string }[]; children?: { name: string }[]; brothers?: { name: string, address?: string }[]; sisters?: { name: string, address?: string }[]; };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; decisiveStorm?: { name: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; medals?: { name: string }[]; languages?: { name: string }[]; children?: { name: string }[]; brothers?: { name: string, address?: string }[]; sisters?: { name: string, address?: string }[]; };
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -183,6 +190,7 @@ export default function EditPersonnelPage() {
         nextOfKinAddress: '',
         importantJobs: [],
         serviceOperations: [],
+        decisiveStorm: [],
         trainingCourses: [],
         serviceHistory: [],
         medals: [],
@@ -205,6 +213,11 @@ export default function EditPersonnelPage() {
   const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
     control: form.control,
     name: "serviceOperations",
+  });
+  
+  const { fields: decisiveStormFields, append: appendDecisiveStorm, remove: removeDecisiveStorm } = useFieldArray({
+    control: form.control,
+    name: "decisiveStorm",
   });
 
   const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({
@@ -262,6 +275,11 @@ export default function EditPersonnelPage() {
           periodTo: new Date(job.periodTo),
         })) || [],
         serviceOperations: personToEdit.serviceOperations?.map(op => ({
+          ...op,
+          periodFrom: new Date(op.periodFrom),
+          periodTo: new Date(op.periodTo),
+        })) || [],
+        decisiveStorm: personToEdit.decisiveStorm?.map(op => ({
           ...op,
           periodFrom: new Date(op.periodFrom),
           periodTo: new Date(op.periodTo),
@@ -325,6 +343,11 @@ export default function EditPersonnelPage() {
             periodTo: job.periodTo.toISOString(),
           })),
           serviceOperations: values.serviceOperations?.map(op => ({
+            ...op,
+            periodFrom: op.periodFrom.toISOString(),
+            periodTo: op.periodTo.toISOString(),
+          })),
+          decisiveStorm: values.decisiveStorm?.map(op => ({
             ...op,
             periodFrom: op.periodFrom.toISOString(),
             periodTo: op.periodTo.toISOString(),
@@ -650,6 +673,38 @@ export default function EditPersonnelPage() {
                           )} />
                           <div className="flex items-end">
                               <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+
+                <Separator className="my-8" />
+
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h3>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+                          <PlusCircle className="ml-2 h-4 w-4" />
+                          إضافة مشاركة
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {decisiveStormFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                           <FormField control={form.control} name={`decisiveStorm.${index}.name`} render={({ field }) => (
+                              <FormItem className="md:col-span-2"><FormLabel>اسم الخلية/اللواء/الكتيبة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`decisiveStorm.${index}.periodFrom`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                           <FormField control={form.control} name={`decisiveStorm.${index}.periodTo`} render={({ field }) => (
+                              <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                          )} />
+                          <div className="flex items-end">
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeDecisiveStorm(index)}>
                                   <Trash2 className="h-4 w-4" />
                               </Button>
                           </div>

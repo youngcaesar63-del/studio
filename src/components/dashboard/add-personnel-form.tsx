@@ -35,6 +35,12 @@ const serviceOperationSchema = z.object({
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
 
+const decisiveStormSchema = z.object({
+  name: z.string().min(1, 'اسم الخلية/اللواء/الكتيبة مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
+
 const trainingCourseSchema = z.object({
   courseName: z.string().min(1, 'اسم الدورة مطلوب'),
   courseType: z.string().min(1, 'نوع الدورة مطلوب'),
@@ -105,6 +111,7 @@ const formSchema = z.object({
   nextOfKinAddress: z.string().optional(),
   importantJobs: z.array(importantJobSchema).optional(),
   serviceOperations: z.array(serviceOperationSchema).optional(),
+  decisiveStorm: z.array(decisiveStormSchema).optional(),
   trainingCourses: z.array(trainingCourseSchema).optional(),
   serviceHistory: z.array(serviceHistorySchema).optional(),
   medals: z.array(medalSchema).optional(),
@@ -177,6 +184,7 @@ export function AddPersonnelForm() {
       nextOfKinAddress: '',
       importantJobs: [],
       serviceOperations: [],
+      decisiveStorm: [],
       trainingCourses: [],
       serviceHistory: [],
       medals: [],
@@ -199,6 +207,11 @@ export function AddPersonnelForm() {
   const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
     control: form.control,
     name: "serviceOperations",
+  });
+  
+  const { fields: decisiveStormFields, append: appendDecisiveStorm, remove: removeDecisiveStorm } = useFieldArray({
+    control: form.control,
+    name: "decisiveStorm",
   });
 
   const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({
@@ -267,6 +280,11 @@ export function AddPersonnelForm() {
         periodTo: job.periodTo.toISOString(),
       })),
       serviceOperations: values.serviceOperations?.map(op => ({
+        ...op,
+        periodFrom: op.periodFrom.toISOString(),
+        periodTo: op.periodTo.toISOString(),
+      })),
+      decisiveStorm: values.decisiveStorm?.map(op => ({
         ...op,
         periodFrom: op.periodFrom.toISOString(),
         periodTo: op.periodTo.toISOString(),
@@ -535,7 +553,7 @@ export function AddPersonnelForm() {
               ))}
             </div>
         </div>
-
+        
         <Separator className="my-8" />
         
         <div>
@@ -559,6 +577,36 @@ export function AddPersonnelForm() {
                       <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                   )} />
                   <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
+                      <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+        </div>
+        
+        <Separator className="my-8" />
+        
+        <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h3>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+                  <PlusCircle className="ml-2 h-4 w-4" />
+                  إضافة مشاركة
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {decisiveStormFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                   <FormField control={form.control} name={`decisiveStorm.${index}.name`} render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>اسم الخلية/اللواء/الكتيبة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`decisiveStorm.${index}.periodFrom`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`decisiveStorm.${index}.periodTo`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                  <Button type="button" variant="destructive" size="icon" onClick={() => removeDecisiveStorm(index)}>
                       <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

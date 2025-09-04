@@ -26,6 +26,12 @@ type ServiceOperation = {
     periodTo: string;
 }
 
+type DecisiveStorm = {
+    name: string;
+    periodFrom: string;
+    periodTo: string;
+}
+
 type TrainingCourse = {
     courseName: string;
     courseType: string;
@@ -96,6 +102,7 @@ type Personnel = {
     nextOfKinAddress?: string;
     importantJobs?: ImportantJob[];
     serviceOperations?: ServiceOperation[];
+    decisiveStorm?: DecisiveStorm[];
     trainingCourses?: TrainingCourse[];
     serviceHistory?: ServiceHistory[];
     medals?: Medal[];
@@ -343,7 +350,7 @@ export default function ViewPersonnelPage() {
                         </div>
                     )}
 
-                    {(person.serviceHistory && person.serviceHistory.length > 0) && (person.serviceOperations && person.serviceOperations.length > 0) && <Separator />}
+                    {(person.serviceHistory && person.serviceHistory.length > 0) && ((person.serviceOperations && person.serviceOperations.length > 0) || (person.decisiveStorm && person.decisiveStorm.length > 0)) && <Separator />}
 
 
                     {person.serviceOperations && person.serviceOperations.length > 0 && (
@@ -371,7 +378,35 @@ export default function ViewPersonnelPage() {
                             </div>
                         </div>
                     )}
-                     {(person.serviceOperations && person.serviceOperations.length > 0) && (person.trainingCourses && person.trainingCourses.length > 0) && <Separator />}
+                    
+                    {(person.serviceOperations && person.serviceOperations.length > 0) && (person.decisiveStorm && person.decisiveStorm.length > 0) && <Separator />}
+                    
+                    {person.decisiveStorm && person.decisiveStorm.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><LandPlot className="h-5 w-5" /> خلايا وألوية وكتائب عاصفة الحزم</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">الخلية/اللواء/الكتيبة</TableHead>
+                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.decisiveStorm.map((op, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{op.name}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+                     {((person.serviceOperations && person.serviceOperations.length > 0) || (person.decisiveStorm && person.decisiveStorm.length > 0)) && (person.trainingCourses && person.trainingCourses.length > 0) && <Separator />}
 
 
                     {person.trainingCourses && person.trainingCourses.length > 0 && (
