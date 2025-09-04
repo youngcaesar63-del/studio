@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -284,7 +285,7 @@ export default function EditPersonnelPage() {
       form.reset({
         ...personToEdit,
         fullName: personToEdit.name,
-        appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : new Date(),
+        appointmentDate: personToEdit.appointmentDate ? new Date(personToEdit.appointmentDate) : undefined,
         lastReturnDate: personToEdit.lastReturnDate ? new Date(personToEdit.lastReturnDate) : undefined,
         transferDate: personToEdit.transferDate ? new Date(personToEdit.transferDate) : undefined,
         reportingDate: personToEdit.reportingDate ? new Date(personToEdit.reportingDate) : undefined,
@@ -431,7 +432,7 @@ export default function EditPersonnelPage() {
                 </div>
             </CardContent>
         </Card>
-    )
+    );
   }
 
   return (
@@ -619,7 +620,7 @@ export default function EditPersonnelPage() {
                     {sistersFields.map((field, index) => (
                         <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
                             <FormField control={form.control} name={`sisters.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <FormField control={form.control} name={`sisters.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <FormField control={form.control} name={`sisters.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormMessage> )}/>
                             <Button type="button" variant="destructive" size="icon" onClick={() => removeSister(index)}> <Trash2 className="h-4 w-4" /> </Button>
                         </div>
                     ))}
