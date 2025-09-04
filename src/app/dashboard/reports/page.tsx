@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Printer, FileText, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -154,8 +154,17 @@ export default function ReportsPage() {
         ${notesHeaderLetter}
       `;
       
+      const captionContent = `
+        <div class="print-header">
+            <div class="bismillah">بسم الله الرحمن الرحيم</div>
+            <div class="confidentiality">${confidentiality}</div>
+            ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
+        </div>
+      `;
+
       let tableContent = `
         <table class="report-table">
+            <caption class="report-caption">${captionContent}</caption>
           <thead>
             <tr class="header-row-titles">${headerRow1}</tr>
             <tr class="header-row-letters">${headerRow2}</tr>
@@ -183,6 +192,12 @@ export default function ReportsPage() {
       
       tableContent += '</tbody></table>';
 
+      const footerContent = `
+        <div class="print-footer">
+            ${confidentiality}
+        </div>
+      `;
+
       printWindow.document.write('<html><head><title></title>');
       
       const pageOrientation = includeAdministration ? 'landscape' : 'portrait';
@@ -194,65 +209,44 @@ export default function ReportsPage() {
             size: A4 ${pageOrientation};
             margin: 1cm;
         }
-        html, body {
-            height: auto;
-            overflow: hidden;
-        }
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
-            position: relative;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        .print-header, .print-footer {
-            position: fixed;
-            width: calc(100% - 2cm);
-            left: 1cm;
-            right: 1cm;
-        }
-        .print-header {
-            top: 1cm;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 90px;
-        }
-        .print-footer {
-            bottom: 1cm;
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1px;
-        }
-        .bismillah {
-            font-family: 'Amiri', serif;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 0;
-            order: -1; /* Ensures it's always on top */
-        }
-        .confidentiality {
-            font-weight: bold;
-            font-family: 'Arial', sans-serif;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1px;
-        }
-         .title {
-            font-family: 'Cairo', sans-serif;
-            font-weight: 900;
-            font-size: 16px;
-            margin-top: 5px;
-            text-decoration: underline;
         }
         .report-table {
           width: 100%; 
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
-          margin-top: calc(90px + 1cm); /* Consistent margin */
-          margin-bottom: 50px;
+        }
+        .report-caption {
+            caption-side: top;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+        .print-header {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .confidentiality {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
+        }
+        .title {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 900;
+            font-size: 16px;
+            margin-top: 5px;
         }
         .report-table th, .report-table td {
           border: 1px solid #000; 
@@ -277,27 +271,21 @@ export default function ReportsPage() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
+        .print-footer {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
+            width: 100%;
+            margin-top: 1rem;
+        }
       `);
       printWindow.document.write('</style>');
       printWindow.document.write('</head><body>');
       
-      const headerContent = `
-        <div class="print-header">
-            <div class="bismillah">بسم الله الرحمن الرحيم</div>
-            <div class="confidentiality">${confidentiality}</div>
-            ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
-        </div>
-      `;
-
-      const footerContent = `
-        <div class="print-footer">
-            ${confidentiality}
-        </div>
-      `;
-
-      printWindow.document.write(headerContent);
       printWindow.document.write(tableContent);
       printWindow.document.write(footerContent);
+
       printWindow.document.write('</body></html>');
       
       printWindow.document.close();
@@ -462,5 +450,7 @@ export default function ReportsPage() {
         )}
     </div>
   );
+
+    
 
     
