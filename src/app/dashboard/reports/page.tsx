@@ -192,7 +192,7 @@ export default function ReportsPage() {
 
       const footerContent = `
         <div class="print-footer">
-            ${confidentiality}
+            <div class="confidentiality">${confidentiality}</div>
         </div>
       `;
 
@@ -268,18 +268,12 @@ export default function ReportsPage() {
             print-color-adjust: exact;
         }
         .print-footer {
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
-            font-size: 14px;
             text-align: center;
-            border-bottom: 1px solid #000;
-            padding-bottom: 1px;
             width: 100%;
             position: fixed;
             bottom: 1cm;
             left: 0;
             right: 0;
-            display: inline-block;
         }
       `);
       printWindow.document.write('</style>');
@@ -454,3 +448,4 @@ export default function ReportsPage() {
   );
 
     
+
