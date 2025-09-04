@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -97,6 +97,7 @@ export default function ViewPersonnelPage() {
     const [loading, setLoading] = useState(true);
 
     const formatArabicNumber = (numStr: number | string) => {
+      if (numStr === undefined || numStr === null) return '';
       const str = String(numStr);
       return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
     };
@@ -337,7 +338,11 @@ export default function ViewPersonnelPage() {
                          </>
                     )}
                 </CardContent>
-                <CardFooter className="mt-8 pt-6 border-t flex justify-end">
+                <CardFooter className="mt-8 pt-6 border-t flex justify-between items-center">
+                    <Button onClick={() => router.push(`/dashboard/attachments?personnelId=${person.id}`)} variant="outline">
+                        <Folder className="ml-2 h-4 w-4" />
+                        عرض المرفقات
+                    </Button>
                     <Button onClick={() => router.back()}>
                        <ArrowRight className="ml-2 h-4 w-4" /> العودة
                     </Button>
@@ -346,5 +351,3 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
-
-    
