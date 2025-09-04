@@ -11,11 +11,11 @@ export function DateTimeDisplay() {
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Riyadh' };
+      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Cairo' };
       const timeString = new Intl.DateTimeFormat('ar-SA-u-nu-arab', timeOptions).format(now);
       setTime(timeString);
 
-      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Riyadh' };
+      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Cairo' };
       const hijriDateString = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now);
       setHijriDate(hijriDateString);
     };
