@@ -11,7 +11,7 @@ export function DateTimeDisplay() {
   useEffect(() => {
     const updateDateTime = () => {
       const now = new Date();
-      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Cairo' };
+      const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Africa/Cairo' };
       const timeString = new Intl.DateTimeFormat('ar-SA-u-nu-arab', timeOptions).format(now);
       setTime(timeString);
 

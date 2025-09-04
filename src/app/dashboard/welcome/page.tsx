@@ -106,7 +106,7 @@ export default function WelcomePage() {
                     </div>
                     <div className="flex items-center justify-center gap-2 mt-2 text-lg">
                         <Clock className="h-5 w-5" />
-                        <span>{time}</span>
+                        <span suppressHydrationWarning>{time}</span>
                     </div>
                 </div>
                 </>
