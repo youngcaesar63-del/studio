@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp, Eye, Edit } from "lucide-react";
+import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp, Eye, Edit, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
@@ -187,6 +187,17 @@ export default function AttachmentsPage() {
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2"><FolderIcon className="h-6 w-6"/>إدارة المرفقات</CardTitle>
           <CardDescription>ابحث عن فرد لرفع وعرض مرفقاته.</CardDescription>
+           <div className="pt-2">
+                <div className="flex items-start rounded-md border border-l-4 border-l-blue-500 bg-muted/30 p-4">
+                    <AlertCircle className="h-6 w-6 mr-3 text-blue-500 flex-shrink-0" />
+                    <div>
+                        <h4 className="font-semibold text-foreground">المرفقات المطلوبة</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            صورة شخصية للرتبة الحالية بحجم البوستال ، صورة للبطاقـة العسكريــة ، صورة من الرقــم الوطـني ، صورة من الشهادات العسكرية ، صورة من الشهادات الأكاديمية .
+                        </p>
+                    </div>
+                </div>
+            </div>
         </CardHeader>
         <CardContent>
           <div className="relative mb-4 w-full max-w-lg">
@@ -326,5 +337,7 @@ export default function AttachmentsPage() {
       )}
     </div>
   );
+
+    
 
     
