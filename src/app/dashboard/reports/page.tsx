@@ -203,6 +203,7 @@ export default function ReportsPage() {
         .print-header, .print-footer {
             position: fixed;
             width: 100%;
+            text-align: center;
         }
         .print-header {
             top: 0;
@@ -212,7 +213,6 @@ export default function ReportsPage() {
         }
         .print-footer {
             bottom: 0;
-            text-align: center;
             font-weight: bold;
         }
         .print-header h1 {
@@ -224,6 +224,7 @@ export default function ReportsPage() {
         .print-header .confidentiality {
             margin-top: 10px;
             font-weight: bold;
+            text-decoration: underline;
         }
          .print-header .title {
             font-weight: bold;
