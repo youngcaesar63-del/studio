@@ -245,8 +245,8 @@ export default function ReportsPage() {
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
-          margin-top: calc(90px + 1cm); /* Header Height + 1cm margin */
-          margin-bottom: 50px; /* Footer Height */
+          margin-top: calc(90px + 2cm);
+          margin-bottom: 50px;
         }
         .report-table th, .report-table td {
           border: 1px solid #000; 
