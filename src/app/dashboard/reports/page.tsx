@@ -176,7 +176,7 @@ export default function ReportsPage() {
             const arabicIndex = formatArabicNumber(index + 1);
             const adminCell = includeAdministration ? `<td>${person.administration}</td>` : '';
             tableContent += `
-              <tr>
+              <tr class="report-row">
                 <td>${arabicIndex}</td>
                 <td>${formatArabicNumber(person.cardId)}</td>
                 <td>${displayRank}</td>
@@ -220,6 +220,11 @@ export default function ReportsPage() {
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
+          page-break-inside: auto;
+        }
+        .report-row {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
         .report-caption {
             caption-side: top;
@@ -263,6 +268,7 @@ export default function ReportsPage() {
           background-color: #e0e0e0 !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
+          page-break-inside: avoid;
         }
         .report-table tbody tr td:first-child {
             background-color: #e0e0e0 !important;
@@ -276,12 +282,13 @@ export default function ReportsPage() {
             bottom: 1cm;
             left: 0;
             right: 0;
+            counter-increment: page-counter;
         }
         .page-number-container::before {
-            counter-increment: page-counter;
             content: "( " counter(page-counter) " من " var(--page-count) " )";
-            font-family: 'Tajawal', sans-serif;
-            font-size: 12px;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
             display: block;
             margin-bottom: 4px;
         }
@@ -298,9 +305,13 @@ export default function ReportsPage() {
       printWindow.document.close();
       printWindow.focus();
       setTimeout(() => {
-          const pageCount = printWindow.document.body.clientHeight / (includeAdministration ? 794 : 1123);
-          const totalPages = Math.max(1, Math.ceil(pageCount));
-          printWindow.document.body.style.setProperty('--page-count', `'${formatArabicNumber(totalPages)}'`);
+          const totalPages = printWindow.document.body.style.getPropertyValue('--page-count');
+          if (!totalPages) {
+             const rows = printWindow.document.getElementsByClassName('report-row');
+             const rowsPerPage = includeAdministration ? 20 : 25;
+             const numPages = Math.max(1, Math.ceil(rows.length / rowsPerPage));
+             printWindow.document.body.style.setProperty('--page-count', `'${formatArabicNumber(numPages)}'`);
+          }
           printWindow.print();
           printWindow.close();
       }, 500);
@@ -460,5 +471,3 @@ export default function ReportsPage() {
         )}
     </div>
   );
-
-    
