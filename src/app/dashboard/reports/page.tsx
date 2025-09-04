@@ -189,7 +189,7 @@ export default function ReportsPage() {
 
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Noto+Kufi+Arabic:wght@700&family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4 ${pageOrientation};
             margin: 1cm;
@@ -207,7 +207,6 @@ export default function ReportsPage() {
             width: calc(100% - 2cm);
             left: 1cm;
             right: 1cm;
-            text-align: center;
         }
         .print-header {
             top: 1cm;
@@ -218,23 +217,23 @@ export default function ReportsPage() {
         }
         .print-footer {
             bottom: 1cm;
-            font-weight: bold;
             font-family: 'Arial', sans-serif;
             text-decoration: underline;
+            text-align: center;
         }
-        .print-header .bismillah {
+        .bismillah {
             font-family: 'Amiri', serif;
             font-size: 16px;
             font-weight: bold;
             margin: 0;
+            order: -1; /* Ensures it's always on top */
         }
-        .print-header .confidentiality {
-            margin-top: 10px;
+        .confidentiality {
             font-weight: bold;
             font-family: 'Arial', sans-serif;
             text-decoration: underline;
         }
-         .print-header .title {
+         .title {
             font-family: 'Cairo', sans-serif;
             font-weight: 900;
             margin-top: 5px;
@@ -245,7 +244,7 @@ export default function ReportsPage() {
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
-          margin-top: calc(90px + 2cm);
+          margin-top: calc(90px + 1cm); /* Consistent margin */
           margin-bottom: 50px;
         }
         .report-table th, .report-table td {
