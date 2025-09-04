@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, Tractor, BookHeart } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -72,10 +72,10 @@ type Sister = {
     address?: string;
 }
 
-type Vehicle = {
-    type: string;
-    periodFrom: string;
-    periodTo: string;
+type Mechanism = {
+  name: string;
+  periodFrom: string;
+  periodTo: string;
 }
 
 type Personnel = {
@@ -126,7 +126,7 @@ type Personnel = {
     children?: Child[];
     brothers?: Brother[];
     sisters?: Sister[];
-    vehicles?: Vehicle[];
+    mechanisms?: Mechanism[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -139,7 +139,7 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 };
 
 const DetailItem = ({ icon: Icon, label, value, fullWidth = false }: { icon: React.ElementType, label: string, value: React.ReactNode, fullWidth?: boolean }) => {
-    if (!value) return null;
+    if (!value && typeof value !== 'number') return null;
     return (
         <div className={`flex items-start gap-4 ${fullWidth ? 'md:col-span-2 lg:col-span-3' : ''}`}>
             <Icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
@@ -250,7 +250,7 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                             <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
-                             <DetailItem icon={BookHeart} label="الديانة" value={person.religion} />
+                             <DetailItem icon={BookOpen} label="الديانة" value={person.religion} />
                             <DetailItem icon={Phone} label="رقم سوداني" value={person.phoneNumbers?.sudani ? formatArabicNumber(person.phoneNumbers.sudani) : 'غير مسجل'} />
                             <DetailItem icon={Phone} label="رقم زين" value={person.phoneNumbers?.zain ? formatArabicNumber(person.phoneNumbers.zain) : 'غير مسجل'} />
                             <DetailItem icon={Phone} label="رقم MTN" value={person.phoneNumbers?.mtn ? formatArabicNumber(person.phoneNumbers.mtn) : 'غير مسجل'} />
@@ -269,9 +269,9 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
                             <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
-                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                         </div>
                     </div>
 
@@ -514,24 +514,24 @@ export default function ViewPersonnelPage() {
                         </div>
                     )}
                     
-                     {(person.languages && person.languages.length > 0) && (person.vehicles && person.vehicles.length > 0) && <Separator />}
+                     {(person.languages && person.languages.length > 0) && (person.mechanisms && person.mechanisms.length > 0) && <Separator />}
 
-                    {person.vehicles && person.vehicles.length > 0 && (
+                    {person.mechanisms && person.mechanisms.length > 0 && (
                         <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Tractor className="h-5 w-5" /> الآليات</h3>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> الآليات واللجان</h3>
                             <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="text-center">اسم الآلية</TableHead>
+                                            <TableHead className="text-center">اسم الآلية / اللجنة</TableHead>
                                             <TableHead className="text-center border-r">من تاريخ</TableHead>
                                             <TableHead className="text-center border-r">إلى تاريخ</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {person.vehicles.map((v, index) => (
+                                        {person.mechanisms.map((v, index) => (
                                             <TableRow key={index}>
-                                                <TableCell className="text-center">{v.type}</TableCell>
+                                                <TableCell className="text-center">{v.name}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(v.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(v.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                             </TableRow>
