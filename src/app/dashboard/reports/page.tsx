@@ -183,7 +183,7 @@ export default function ReportsPage() {
       
       tableContent += '</tbody></table>';
 
-      printWindow.document.write('<html><head><title>&nbsp;</title>');
+      printWindow.document.write('<html><head><title></title>');
       
       const pageOrientation = includeAdministration ? 'landscape' : 'portrait';
 
@@ -462,3 +462,5 @@ export default function ReportsPage() {
         )}
     </div>
   );
+
+    
