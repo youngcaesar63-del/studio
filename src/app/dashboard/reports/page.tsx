@@ -155,11 +155,9 @@ export default function ReportsPage() {
       `;
       
       const captionContent = `
-        <div class="print-header">
-            <div class="bismillah">بسم الله الرحمن الرحيم</div>
-            <div class="confidentiality">${confidentiality}</div>
-            ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
-        </div>
+        <div class="bismillah">بسم الله الرحمن الرحيم</div>
+        <div class="confidentiality">${confidentiality}</div>
+        ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
       `;
 
       let tableContent = `
@@ -212,6 +210,8 @@ export default function ReportsPage() {
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
+            height: auto;
+            overflow: hidden;
         }
         .report-table {
           width: 100%; 
@@ -223,13 +223,7 @@ export default function ReportsPage() {
             caption-side: top;
             text-align: center;
             padding: 0;
-            margin: 0;
-        }
-        .print-header {
             margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
         .bismillah {
             font-family: 'Amiri', serif;
@@ -241,6 +235,7 @@ export default function ReportsPage() {
             font-weight: bold;
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
+            font-size: 14px;
         }
         .title {
             font-family: 'Cairo', sans-serif;
@@ -277,7 +272,11 @@ export default function ReportsPage() {
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
             width: 100%;
-            margin-top: 1rem;
+            position: fixed;
+            bottom: 1cm;
+            left: 0;
+            right: 0;
+            font-size: 14px;
         }
       `);
       printWindow.document.write('</style>');
