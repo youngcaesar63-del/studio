@@ -192,17 +192,28 @@ export default function ReportsPage() {
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4 ${pageOrientation};
-            margin: 1cm;
+            margin: 1.5cm;
         }
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
+            position: relative;
+            min-height: 100%;
+        }
+        .print-header, .print-footer {
+            position: fixed;
+            width: 100%;
         }
         .print-header {
+            top: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
+        }
+        .print-footer {
+            bottom: 0;
+            text-align: center;
+            font-weight: bold;
         }
         .print-header h1 {
             font-family: 'Amiri', serif;
@@ -210,21 +221,22 @@ export default function ReportsPage() {
             font-weight: bold;
             margin: 0;
         }
-        .print-header .confidentiality, .print-header .title {
-            display: inline-block;
-            text-align: center;
-            border-bottom: 1px solid black;
-            padding-bottom: 2px;
+        .print-header .confidentiality {
             margin-top: 10px;
+            font-weight: bold;
         }
          .print-header .title {
             font-weight: bold;
+            text-decoration: underline;
+            margin-top: 5px;
         }
         .report-table {
           width: 100%; 
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
+          margin-top: 90px; /* Header Height */
+          margin-bottom: 50px; /* Footer Height */
         }
         .report-table th, .report-table td {
           border: 1px solid #000; 
@@ -261,8 +273,15 @@ export default function ReportsPage() {
         </div>
       `;
 
+      const footerContent = `
+        <div class="print-footer">
+            ${confidentiality}
+        </div>
+      `;
+
       printWindow.document.write(headerContent);
       printWindow.document.write(tableContent);
+      printWindow.document.write(footerContent);
       printWindow.document.write('</body></html>');
       
       printWindow.document.close();
