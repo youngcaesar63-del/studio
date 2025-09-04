@@ -189,30 +189,35 @@ export default function ReportsPage() {
 
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Noto+Kufi+Arabic:wght@700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4 ${pageOrientation};
-            margin: 1.5cm;
+            margin: 1cm;
         }
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
             position: relative;
-            min-height: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
         .print-header, .print-footer {
             position: fixed;
-            width: 100%;
+            width: calc(100% - 2cm);
+            left: 1cm;
+            right: 1cm;
             text-align: center;
         }
         .print-header {
-            top: 0;
+            top: 1cm;
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 90px;
         }
         .print-footer {
-            bottom: 0;
+            bottom: 1cm;
             font-weight: bold;
             font-family: 'Arial', sans-serif;
             text-decoration: underline;
