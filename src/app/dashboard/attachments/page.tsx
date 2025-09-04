@@ -205,26 +205,26 @@ export default function AttachmentsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>الاسم</TableHead>
-                    <TableHead className="hidden md:table-cell">تاريخ الرفع</TableHead>
-                    <TableHead className="hidden sm:table-cell">الحجم</TableHead>
-                    <TableHead className="text-left w-24">الإجراءات</TableHead>
+                    <TableHead className="text-center">الاسم</TableHead>
+                    <TableHead className="text-center border-r hidden md:table-cell">تاريخ الرفع</TableHead>
+                    <TableHead className="text-center border-r hidden sm:table-cell">الحجم</TableHead>
+                    <TableHead className="text-center border-r w-24">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {attachments.length > 0 ? (
                     attachments.map((file) => (
                       <TableRow key={file.id} className="hover:bg-muted/30">
-                        <TableCell className="font-medium flex items-center gap-2">
+                        <TableCell className="font-medium flex items-center justify-center gap-2 text-center">
                           {getFileIcon(file.type)}
-                          {file.name}
+                          <span>{file.name}</span>
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">{new Date(file.uploadDate).toLocaleDateString('ar-SA')}</TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">{file.size}</TableCell>
-                        <TableCell className="text-left">
+                        <TableCell className="hidden md:table-cell text-muted-foreground text-center border-r">{new Date(file.uploadDate).toLocaleDateString('ar-SA')}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-muted-foreground text-center border-r">{file.size}</TableCell>
+                        <TableCell className="text-center border-r">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 mx-auto">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -256,4 +256,3 @@ export default function AttachmentsPage() {
     </div>
   );
 }
-
