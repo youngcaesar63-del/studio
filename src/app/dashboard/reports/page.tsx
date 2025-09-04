@@ -268,6 +268,8 @@ export default function ReportsPage() {
         }
         .print-footer {
             font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
             text-align: center;
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
@@ -276,7 +278,6 @@ export default function ReportsPage() {
             bottom: 1cm;
             left: 0;
             right: 0;
-            font-size: 14px;
         }
       `);
       printWindow.document.write('</style>');
@@ -449,7 +450,5 @@ export default function ReportsPage() {
         )}
     </div>
   );
-
-    
 
     
