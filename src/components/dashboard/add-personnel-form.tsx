@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -47,6 +46,7 @@ const trainingCourseSchema = z.object({
 
 const serviceHistorySchema = z.object({
   unitName: z.string().min(1, 'اسم الوحدة مطلوب'),
+  jobTitle: z.string().min(1, 'الوظيفة مطلوبة'),
   periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
@@ -381,16 +381,19 @@ export function AddPersonnelForm() {
         <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold">الوحدات والإدارات والمعاهد التي عمل بها</h3>
-              <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', periodFrom: new Date(), periodTo: new Date() })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
                   <PlusCircle className="ml-2 h-4 w-4" />
                   إضافة
               </Button>
             </div>
             <div className="space-y-4">
               {serviceHistoryFields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
                    <FormField control={form.control} name={`serviceHistory.${index}.unitName`} render={({ field }) => (
                       <FormItem className="md:col-span-2"><FormLabel>اسم الوحدة/الإدارة/المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name={`serviceHistory.${index}.jobTitle`} render={({ field }) => (
+                      <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                    <FormField control={form.control} name={`serviceHistory.${index}.periodFrom`} render={({ field }) => (
                       <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
@@ -510,4 +513,5 @@ export function AddPersonnelForm() {
     </Form>
   );
 }
+
 

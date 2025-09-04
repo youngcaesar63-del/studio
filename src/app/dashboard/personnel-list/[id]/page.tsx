@@ -38,6 +38,7 @@ type TrainingCourse = {
 
 type ServiceHistory = {
     unitName: string;
+    jobTitle: string;
     periodFrom: string;
     periodTo: string;
 }
@@ -255,6 +256,7 @@ export default function ViewPersonnelPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead className="text-center">الوحدة/الإدارة/المعهد</TableHead>
+                                            <TableHead className="text-center border-r">الوظيفة</TableHead>
                                             <TableHead className="text-center border-r">من تاريخ</TableHead>
                                             <TableHead className="text-center border-r">إلى تاريخ</TableHead>
                                         </TableRow>
@@ -263,6 +265,7 @@ export default function ViewPersonnelPage() {
                                         {person.serviceHistory.map((item, index) => (
                                             <TableRow key={index}>
                                                 <TableCell className="text-center">{item.unitName}</TableCell>
+                                                <TableCell className="text-center border-r">{item.jobTitle}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(item.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(item.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                             </TableRow>
