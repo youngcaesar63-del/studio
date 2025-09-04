@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -214,6 +215,7 @@ export default function ReportsPage() {
             bottom: 0;
             font-weight: bold;
             text-decoration: underline;
+            font-family: 'Arial', sans-serif;
         }
         .print-header .bismillah {
             font-family: 'Amiri', serif;
@@ -225,6 +227,7 @@ export default function ReportsPage() {
             margin-top: 10px;
             font-weight: bold;
             text-decoration: underline;
+            font-family: 'Arial', sans-serif;
         }
          .print-header .title {
             font-family: 'Tajawal', sans-serif;
