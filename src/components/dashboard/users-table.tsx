@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
 
 type User = {
   id: number;
@@ -33,18 +32,11 @@ interface UsersTableProps {
     data: User[];
     onDelete: (userId: number) => void;
     onToggleStatus: (userId: number) => void;
+    onEdit: (user: User) => void;
 }
 
-export function UsersTable({ data, onDelete, onToggleStatus }: UsersTableProps) {
-  const { toast } = useToast();
-
-  const handleEdit = (userName: string) => {
-    toast({
-      title: 'قيد التطوير',
-      description: `سيتم إضافة شاشة لتعديل بيانات المستخدم: ${userName} قريبًا.`,
-    });
-  };
-
+export function UsersTable({ data, onDelete, onToggleStatus, onEdit }: UsersTableProps) {
+  
   return (
     <div className="w-full">
         <div className="rounded-md border">
@@ -72,7 +64,7 @@ export function UsersTable({ data, onDelete, onToggleStatus }: UsersTableProps) 
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleStatus(user.id)}>
                           {user.status === 'نشط' ? <ToggleLeft className="h-5 w-5 text-green-500" /> : <ToggleRight className="h-5 w-5 text-muted-foreground" />}
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(user.name)}><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(user)}><Edit className="h-4 w-4" /></Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
