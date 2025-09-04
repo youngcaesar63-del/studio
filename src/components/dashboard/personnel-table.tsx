@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 type Personnel = {
   id: number;
@@ -47,6 +48,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
     toast({
       title: 'تم الحذف بنجاح',
       description: `تم حذف بيانات الفرد: ${person.name}`,
+      variant: 'destructive'
     });
   }
   
@@ -74,39 +76,56 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
               {data.map((person, index) => {
                 const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                 return (
-                  <TableRow key={person.id}>
+                  <TableRow key={person.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium">{formatArabicNumber(index + 1)}</TableCell>
-                    <TableCell className="border-r">{formatArabicNumber(person.cardId)}</TableCell>
-                    <TableCell className="border-r">{displayRank}</TableCell>
-                    <TableCell className="font-medium border-r">{person.name}</TableCell>
-                    <TableCell className="hidden sm:table-cell border-r">{person.administration}</TableCell>
-                    <TableCell className="border-r">
+                    <TableCell className="text-center border-r">{formatArabicNumber(person.cardId)}</TableCell>
+                    <TableCell className="text-center border-r">{displayRank}</TableCell>
+                    <TableCell className="font-medium text-center border-r">{person.name}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-center border-r">{person.administration}</TableCell>
+                    <TableCell className="text-center border-r">
                       <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-left border-r">
-                      <div className="flex items-center justify-start gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => confirmDelete(person)}>حذف</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                      </div>
+                    <TableCell className="text-center border-r">
+                      <TooltipProvider>
+                        <div className="flex items-center justify-center gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}`)}><Eye className="h-4 w-4" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>عرض</p></TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.push(`/dashboard/personnel-list/${person.id}/edit`)}><Edit className="h-4 w-4" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>تعديل</p></TooltipContent>
+                            </Tooltip>
+                            <AlertDialog>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent><p>حذف</p></TooltipContent>
+                              </Tooltip>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => confirmDelete(person)}>حذف</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 )
@@ -118,16 +137,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
             <div className="text-sm text-muted-foreground">
                 عرض {formatArabicNumber(data.length)} من {formatArabicNumber(data.length)} فرد
             </div>
-            {/* Pagination can be re-enabled later if needed */}
-            {/* <div className="flex space-x-1 rtl:space-x-reverse">
-                <Button variant="outline" size="sm">السابق</Button>
-                <Button variant="secondary" size="sm">١</Button>
-                <Button variant="outline" size="sm">التالي</Button>
-            </div> */}
         </div>
     </div>
   );
 }
-
-    
-    
