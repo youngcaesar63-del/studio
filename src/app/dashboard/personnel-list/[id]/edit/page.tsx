@@ -83,7 +83,7 @@ const sisterSchema = z.object({
 });
 
 const vehicleSchema = z.object({
-  type: z.string().min(1, 'نوع الآلية مطلوب'),
+  type: z.string().min(1, 'اسم الآلية مطلوب'),
   periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
@@ -834,7 +834,7 @@ export default function EditPersonnelPage() {
                 
                 <div>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-semibold">الآليات المسلمة</h3>
+                      <h3 className="text-xl font-semibold">الآليات</h3>
                       <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: new Date(), periodTo: new Date() })}>
                           <PlusCircle className="ml-2 h-4 w-4" />
                           إضافة آلية
@@ -844,7 +844,7 @@ export default function EditPersonnelPage() {
                       {vehicleFields.map((field, index) => (
                         <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
                            <FormField control={form.control} name={`vehicles.${index}.type`} render={({ field }) => (
-                              <FormItem className="md:col-span-2"><FormLabel>نوع الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                              <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                           )} />
                            <FormField control={form.control} name={`vehicles.${index}.periodFrom`} render={({ field }) => (
                               <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
