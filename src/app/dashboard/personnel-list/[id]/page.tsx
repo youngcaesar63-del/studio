@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, Tractor } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, Tractor, BookHeart } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -95,6 +95,7 @@ type Personnel = {
     reportingDate?: string;
     bloodType?: string;
     maritalStatus?: string;
+    religion?: string;
     notes?: string;
     photo?: string;
     dateOfBirth?: string;
@@ -243,12 +244,13 @@ export default function ViewPersonnelPage() {
                     
                     <div>
                         <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><User className="h-5 w-5" /> المعلومات الشخصية</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <DetailItem icon={Hash} label="رقم البطاقة" value={formatArabicNumber(person.cardId)} />
                             <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId ? formatArabicNumber(person.nationalId) : 'غير مسجل'} />
                             <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                             <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
+                             <DetailItem icon={BookHeart} label="الديانة" value={person.religion} />
                             <DetailItem icon={Phone} label="رقم سوداني" value={person.phoneNumbers?.sudani ? formatArabicNumber(person.phoneNumbers.sudani) : 'غير مسجل'} />
                             <DetailItem icon={Phone} label="رقم زين" value={person.phoneNumbers?.zain ? formatArabicNumber(person.phoneNumbers.zain) : 'غير مسجل'} />
                             <DetailItem icon={Phone} label="رقم MTN" value={person.phoneNumbers?.mtn ? formatArabicNumber(person.phoneNumbers.mtn) : 'غير مسجل'} />
@@ -603,5 +605,3 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
-
-    

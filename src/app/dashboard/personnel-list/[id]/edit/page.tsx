@@ -105,6 +105,7 @@ const formSchema = z.object({
   status: z.string().min(1, 'الحالة مطلوبة'),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
+  religion: z.string().optional(),
   notes: z.string().optional(),
   photo: z.string().optional(),
   dateOfBirth: z.date().optional(),
@@ -150,6 +151,7 @@ const administrations = ['إدارة الشئون الإدارية', 'الإدا
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];
+const religions = ['مسلم', 'مسيحي', 'أخرى'];
 const certificateTypes = ['مستديمة', 'موقتة'];
 const states = ["الخرطوم", "الجزيرة", "البحر الأحمر", "كسلا", "القضارف", "سنار", "النيل الأبيض", "النيل الأزرق", "الشمالية", "نهر النيل", "غرب كردفان", "جنوب كردفان", "شمال دارفور", "غرب دارفور", "جنوب دارفور", "شرق دارفور", "وسط دارفور"].sort((a,b) => a.localeCompare(b, 'ar'));
 const courseGrades = ['أ', 'ب', 'جـ', 'د'];
@@ -189,6 +191,7 @@ export default function EditPersonnelPage() {
         status: '',
         bloodType: '',
         maritalStatus: '',
+        religion: 'مسلم',
         notes: '',
         photo: '',
         nationalId: '',
@@ -519,7 +522,7 @@ export default function EditPersonnelPage() {
                  <Separator className="my-8" />
 
                 <h3 className="text-xl font-semibold mb-4">المعلومات الشخصية</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
                         <FormItem><FormLabel>تاريخ الميلاد</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                     )} />
@@ -540,6 +543,9 @@ export default function EditPersonnelPage() {
                     )} />
                     <FormField control={form.control} name="maritalStatus" render={({ field }) => (
                         <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="religion" render={({ field }) => (
+                        <FormItem><FormLabel>الديانة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الديانة" /></SelectTrigger></FormControl><SelectContent>{religions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                 </div>
                  <Separator className="my-8" />
