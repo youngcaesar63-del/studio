@@ -53,7 +53,7 @@ const generateNotifications = (): Notification[] => {
         notifications.push({
             id: 'incomplete-data',
             title: 'بيانات غير مكتملة',
-            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} أفراد ببيانات غير مكتملة تحتاج مراجعة`,
+            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} أفراد ببيانات غير مكتملة تحتاج إلى مراجعة.`,
             icon: AlertTriangle,
             style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 focus:bg-red-100 dark:focus:bg-red-800/50',
             time: 'الآن',
@@ -64,7 +64,7 @@ const generateNotifications = (): Notification[] => {
     notifications.push({
         id: 'renewal-dates',
         title: 'مواعيد تجديد',
-        description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج تجديد خلال الشهر القادم`,
+        description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج إلى تجديد خلال الشهر القادم.`,
         icon: Clock,
         style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 focus:bg-amber-100 dark:focus:bg-amber-800/50',
         time: 'تذكير',
@@ -73,7 +73,7 @@ const generateNotifications = (): Notification[] => {
     notifications.push({
         id: 'performance-review',
         title: 'مراجعة الأداء',
-        description: 'حان وقت مراجعة أداء الأفراد للربع الحالي',
+        description: 'حان وقت مراجعة أداء الأفراد للربع الحالي.',
         icon: UserCheck,
         style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 focus:bg-blue-100 dark:focus:bg-blue-800/50',
         time: 'تذكير',
@@ -122,8 +122,7 @@ export function DashboardHeader() {
               height={40}
               className="h-10 w-10"
             />
-            <h1 className="text-xl font-bold text-foreground">سجل الافراد</h1>
-             <UserIcon className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-bold text-foreground">نظام الأفراد</h1>
         </div>
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <DropdownMenu>
@@ -220,3 +219,5 @@ export function DashboardHeader() {
     </header>
   );
 }
+
+    

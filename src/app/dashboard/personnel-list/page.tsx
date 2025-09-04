@@ -80,7 +80,7 @@ export default function PersonnelListPage() {
       <Card className="shadow-md">
         <CardHeader>
           <CardTitle className="text-2xl">كشف الأفراد</CardTitle>
-          <CardDescription>عرض وإدارة جميع الأفراد المسجلين في النظام.</CardDescription>
+          <CardDescription>عرض وإدارة بيانات جميع الأفراد المسجلين في النظام.</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -98,3 +98,5 @@ export default function PersonnelListPage() {
     </div>
   );
 }
+
+    

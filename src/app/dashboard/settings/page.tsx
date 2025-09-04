@@ -95,7 +95,7 @@ export default function SettingsPage() {
                                     <Label htmlFor="confirm-password">تأكيد كلمة المرور الجديدة</Label>
                                     <Input id="confirm-password" type="password" />
                                 </div>
-                                <Button variant="secondary" onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
+                                <Button onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
                             </div>
                         </CardContent>
                     </Card>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
                             </div>
                              <div className="flex items-center justify-between p-4 rounded-lg border">
                                 <div>
-                                    <Label htmlFor="new-personnel-notification" className="font-medium">إضافة فرد جديد</Label>
+                                    <Label htmlFor="new-personnel-notification" className="font-medium">عند إضافة فرد جديد</Label>
                                     <p className="text-sm text-muted-foreground">إشعار عند إضافة فرد جديد للنظام.</p>
                                 </div>
                                 <Switch id="new-personnel-notification" checked={notificationPreferences.newPersonnel} onCheckedChange={() => handleNotificationToggle('newPersonnel')} />
@@ -155,3 +155,5 @@ export default function SettingsPage() {
         </div>
     )
 }
+
+    

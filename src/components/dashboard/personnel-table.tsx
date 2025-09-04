@@ -45,8 +45,8 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   const confirmDelete = (person: Personnel) => {
     onDelete(person.id);
     toast({
-      title: 'تم بنجاح',
-      description: `تم حذف الفرد: ${person.name}`,
+      title: 'تم الحذف بنجاح',
+      description: `تم حذف بيانات الفرد: ${person.name}`,
     });
   }
   
@@ -95,7 +95,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                                <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                                 </AlertDialogDescription>
@@ -116,7 +116,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
         </div>
         <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
             <div className="text-sm text-muted-foreground">
-                عرض {formatArabicNumber(data.length)} من {formatArabicNumber(data.length)}
+                عرض {formatArabicNumber(data.length)} من {formatArabicNumber(data.length)} فرد
             </div>
             {/* Pagination can be re-enabled later if needed */}
             {/* <div className="flex space-x-1 rtl:space-x-reverse">
@@ -129,4 +129,5 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   );
 }
 
+    
     

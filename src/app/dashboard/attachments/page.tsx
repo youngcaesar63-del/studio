@@ -193,7 +193,7 @@ export default function AttachmentsPage() {
                     <div>
                         <h4 className="font-semibold text-foreground">المرفقات المطلوبة</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                            صورة شخصية للرتبة الحالية بحجم البوستال ، صورة للبطاقـة العسكريــة ، صورة من الرقــم الوطـني ، صورة من الشهادات العسكرية ، صورة من الشهادات الأكاديمية .
+                            صورة شخصية للرتبة الحالية بحجم البوستال، صورة للبطاقة العسكرية، صورة من الرقم الوطني، صورة من الشهادات العسكرية، صورة من الشهادات الأكاديمية.
                         </p>
                     </div>
                 </div>
@@ -280,7 +280,7 @@ export default function AttachmentsPage() {
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                                        <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                         <AlertDialogDescription>
                                         سيتم حذف المرفق '{file.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                                         </AlertDialogDescription>
@@ -337,6 +337,8 @@ export default function AttachmentsPage() {
       )}
     </div>
   );
+
+    
 
     
 

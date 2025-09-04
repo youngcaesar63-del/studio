@@ -79,7 +79,7 @@ export default function BackupPage() {
         
         toast({
             title: 'بدء عملية النسخ الاحتياطي',
-            description: 'جاري إنشاء نسخة احتياطية جديدة للنظام...',
+            description: 'جاري إنشاء نسخة احتياطية جديدة للنظام.',
         });
 
         setTimeout(() => {
@@ -131,7 +131,7 @@ export default function BackupPage() {
                     </div>
                     <Button onClick={handleNewBackup} disabled={isCreating}>
                         {isCreating ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <PlusCircle className="ml-2 h-4 w-4" />}
-                        {isCreating ? 'جاري الإنشاء...' : 'إنشاء نسخة احتياطية جديدة'}
+                        {isCreating ? 'جاري الإنشاء...' : 'إنشاء نسخة احتياطية'}
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -193,3 +193,5 @@ export default function BackupPage() {
         </div>
     )
 }
+
+    
