@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2 } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, Tractor } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -71,6 +71,12 @@ type Sister = {
     address?: string;
 }
 
+type Vehicle = {
+    type: string;
+    periodFrom: string;
+    periodTo: string;
+}
+
 type Personnel = {
     id: number;
     name: string;
@@ -114,6 +120,7 @@ type Personnel = {
     children?: Child[];
     brothers?: Brother[];
     sisters?: Sister[];
+    vehicles?: Vehicle[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -494,6 +501,34 @@ export default function ViewPersonnelPage() {
                             </div>
                         </div>
                     )}
+                    
+                     {(person.languages && person.languages.length > 0) && (person.vehicles && person.vehicles.length > 0) && <Separator />}
+
+                    {person.vehicles && person.vehicles.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Tractor className="h-5 w-5" /> الآليات المسلمة</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">نوع الآلية</TableHead>
+                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.vehicles.map((v, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center">{v.type}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(v.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                <TableCell className="text-center border-r">{format(new Date(v.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
 
                     <Separator />
                     
@@ -544,4 +579,3 @@ export default function ViewPersonnelPage() {
     );
 }
 
-    

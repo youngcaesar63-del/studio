@@ -80,6 +80,12 @@ const sisterSchema = z.object({
     address: z.string().optional(),
 });
 
+const vehicleSchema = z.object({
+  type: z.string().min(1, 'نوع الآلية مطلوب'),
+  periodFrom: z.date({ required_error: 'تاريخ البداية مطلوب' }),
+  periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
+});
+
 
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
@@ -123,6 +129,7 @@ const formSchema = z.object({
   children: z.array(childSchema).optional(),
   brothers: z.array(brotherSchema).optional(),
   sisters: z.array(sisterSchema).optional(),
+  vehicles: z.array(vehicleSchema).optional(),
 });
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
@@ -196,6 +203,7 @@ export function AddPersonnelForm() {
       children: [],
       brothers: [],
       sisters: [],
+      vehicles: [],
     },
   });
 
@@ -249,6 +257,11 @@ export function AddPersonnelForm() {
     name: "sisters",
   });
 
+  const { fields: vehicleFields, append: appendVehicle, remove: removeVehicle } = useFieldArray({
+    control: form.control,
+    name: "vehicles",
+  });
+
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -298,6 +311,11 @@ export function AddPersonnelForm() {
         ...history,
         periodFrom: history.periodFrom.toISOString(),
         periodTo: history.periodTo.toISOString(),
+      })),
+      vehicles: values.vehicles?.map(v => ({
+        ...v,
+        periodFrom: v.periodFrom.toISOString(),
+        periodTo: v.periodTo.toISOString(),
       })),
     };
 
@@ -707,7 +725,38 @@ export function AddPersonnelForm() {
               ))}
             </div>
         </div>
+        
+        <Separator className="my-8" />
 
+        <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">الآليات المسلمة</h3>
+              <Button type="button" variant="outline" size="sm" onClick={() => appendVehicle({ type: '', periodFrom: new Date(), periodTo: new Date() })}>
+                  <PlusCircle className="ml-2 h-4 w-4" />
+                  إضافة آلية
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {vehicleFields.map((field, index) => (
+                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                   <FormField control={form.control} name={`vehicles.${index}.type`} render={({ field }) => (
+                      <FormItem className="md:col-span-2"><FormLabel>نوع الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`vehicles.${index}.periodFrom`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                   <FormField control={form.control} name={`vehicles.${index}.periodTo`} render={({ field }) => (
+                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                  )} />
+                  <div className="flex items-end">
+                    <Button type="button" variant="destructive" size="icon" onClick={() => removeVehicle(index)}>
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+        </div>
 
         <Separator className="my-8" />
 
@@ -740,4 +789,3 @@ export function AddPersonnelForm() {
   );
 }
 
-    
