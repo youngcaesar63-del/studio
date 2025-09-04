@@ -416,7 +416,7 @@ export function AddPersonnelForm() {
                 )} />
                  <FormField control={form.control} name="appointmentDate" render={({ field }) => (
                     <FormItem><FormLabel>تاريخ التعيين</FormLabel>
-                    <Popover open={dateFieldOpen.appointmentDate} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, appointmentDate: open}))}>
+                    <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -426,7 +426,7 @@ export function AddPersonnelForm() {
                             </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, appointmentDate: false})); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                         </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -445,7 +445,7 @@ export function AddPersonnelForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
                     <FormItem><FormLabel>تاريخ الميلاد</FormLabel>
-                    <Popover open={dateFieldOpen.dateOfBirth} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, dateOfBirth: open}))}>
+                    <Popover>
                         <PopoverTrigger asChild>
                             <FormControl>
                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -455,7 +455,7 @@ export function AddPersonnelForm() {
                             </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, dateOfBirth: false})); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                         </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -839,27 +839,9 @@ export function AddPersonnelForm() {
             <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
-                <FormItem><FormLabel>تاريخ آخر عودة</FormLabel>
-                <Popover open={dateFieldOpen.lastReturnDate} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, lastReturnDate: open}))}>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, lastReturnDate: false})); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                    </PopoverContent>
-                </Popover>
-                <FormMessage />
-                </FormItem>
-            )} />
             <FormField control={form.control} name="transferDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ النقل</FormLabel>
-                <Popover open={dateFieldOpen.transferDate} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
+                <Popover>
                     <PopoverTrigger asChild>
                         <FormControl>
                             <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -869,7 +851,7 @@ export function AddPersonnelForm() {
                         </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, transferDate: false})); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                     </PopoverContent>
                 </Popover>
               <FormMessage />
@@ -877,7 +859,7 @@ export function AddPersonnelForm() {
             )} />
             <FormField control={form.control} name="reportingDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ التبليغ</FormLabel>
-                <Popover open={dateFieldOpen.reportingDate} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, reportingDate: open}))}>
+                <Popover>
                     <PopoverTrigger asChild>
                         <FormControl>
                             <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
@@ -887,11 +869,29 @@ export function AddPersonnelForm() {
                         </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, reportingDate: false})); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                     </PopoverContent>
                 </Popover>
               <FormMessage />
               </FormItem>
+            )} />
+            <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
+                <FormItem><FormLabel>تاريخ آخر عودة</FormLabel>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <FormControl>
+                            <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                        </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                    </PopoverContent>
+                </Popover>
+                <FormMessage />
+                </FormItem>
             )} />
             <FormField control={form.control} name="notes" render={({ field }) => (
                 <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>معلومات إضافية</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
