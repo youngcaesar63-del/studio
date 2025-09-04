@@ -6,12 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp } from "lucide-react";
+import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp, Eye, Edit } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+
 
 type Personnel = {
   id: number;
@@ -48,6 +51,9 @@ export default function AttachmentsPage() {
   const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingAttachment, setEditingAttachment] = useState<Attachment | null>(null);
+  const [newAttachmentName, setNewAttachmentName] = useState("");
 
   // Load all personnel for searching
   useEffect(() => {
@@ -133,6 +139,35 @@ export default function AttachmentsPage() {
       reader.readAsDataURL(file);
     });
   };
+  
+  const openEditDialog = (attachment: Attachment) => {
+    setEditingAttachment(attachment);
+    setNewAttachmentName(attachment.name);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateName = () => {
+    if (!editingAttachment || !newAttachmentName.trim()) return;
+
+    const allAttachments = getLocalStorage('attachmentsData', []);
+    const updatedAttachments = allAttachments.map((att: Attachment) => 
+      att.id === editingAttachment.id ? { ...att, name: newAttachmentName.trim() } : att
+    );
+    
+    updateLocalStorage('attachmentsData', updatedAttachments);
+    setAttachments(prev => prev.map(att => 
+      att.id === editingAttachment.id ? { ...att, name: newAttachmentName.trim() } : att
+    ));
+    
+    toast({
+      title: 'تم التحديث',
+      description: 'تم تحديث اسم المرفق بنجاح.',
+    });
+
+    setEditDialogOpen(false);
+    setEditingAttachment(null);
+    setNewAttachmentName("");
+  };
 
   const handleDelete = (attachmentId: string) => {
     const allAttachments = getLocalStorage('attachmentsData', []);
@@ -142,6 +177,7 @@ export default function AttachmentsPage() {
     toast({
       title: 'تم الحذف',
       description: 'تم حذف المرفق بنجاح.',
+      variant: 'destructive'
     });
   };
     
@@ -208,35 +244,43 @@ export default function AttachmentsPage() {
                     <TableHead className="text-center">الاسم</TableHead>
                     <TableHead className="text-center border-r hidden md:table-cell">تاريخ الرفع</TableHead>
                     <TableHead className="text-center border-r hidden sm:table-cell">الحجم</TableHead>
-                    <TableHead className="text-center border-r w-24">الإجراءات</TableHead>
+                    <TableHead className="text-center border-r w-32">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {attachments.length > 0 ? (
                     attachments.map((file) => (
                       <TableRow key={file.id} className="hover:bg-muted/30">
-                        <TableCell className="font-medium flex items-center justify-center gap-2 text-center">
+                        <TableCell className="font-medium flex items-center justify-start gap-2 text-right">
                           {getFileIcon(file.type)}
-                          <span>{file.name}</span>
+                          <span className="truncate" title={file.name}>{file.name}</span>
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-muted-foreground text-center border-r">{new Date(file.uploadDate).toLocaleDateString('ar-SA')}</TableCell>
                         <TableCell className="hidden sm:table-cell text-muted-foreground text-center border-r">{file.size}</TableCell>
                         <TableCell className="text-center border-r">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 mx-auto">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onSelect={() => window.open(file.dataUrl, '_blank')}>
-                                <FileText className="ml-2 h-4 w-4" />عرض
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => handleDelete(file.id)} className="text-destructive focus:text-destructive">
-                                <Trash2 className="ml-2 h-4 w-4" />حذف
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                           <div className="flex items-center justify-center gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => window.open(file.dataUrl, '_blank')}><Eye className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDialog(file)}><Edit className="h-4 w-4" /></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                        سيتم حذف المرفق '{file.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                        <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => handleDelete(file.id)}>حذف</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -250,9 +294,37 @@ export default function AttachmentsPage() {
                 </TableBody>
               </Table>
             </div>
+             <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>تعديل اسم المرفق</DialogTitle>
+                        <DialogDescription>
+                            أدخل الاسم الجديد للمرفق ثم اضغط على حفظ.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">
+                                الاسم
+                            </Label>
+                            <Input
+                                id="name"
+                                value={newAttachmentName}
+                                onChange={(e) => setNewAttachmentName(e.target.value)}
+                                className="col-span-3"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="secondary" onClick={() => setEditDialogOpen(false)}>إلغاء</Button>
+                        <Button type="submit" onClick={handleUpdateName}>حفظ التغييرات</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
       )}
     </div>
   );
-}
+
+    
