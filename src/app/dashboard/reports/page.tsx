@@ -214,9 +214,8 @@ export default function ReportsPage() {
         .print-footer {
             bottom: 0;
             font-weight: bold;
-            text-decoration: underline;
         }
-        .print-header h1 {
+        .print-header .bismillah {
             font-family: 'Amiri', serif;
             font-size: 16px;
             font-weight: bold;
@@ -225,11 +224,9 @@ export default function ReportsPage() {
         .print-header .confidentiality {
             margin-top: 10px;
             font-weight: bold;
-            text-decoration: underline;
         }
          .print-header .title {
             font-weight: bold;
-            text-decoration: underline;
             margin-top: 5px;
         }
         .report-table {
@@ -269,14 +266,14 @@ export default function ReportsPage() {
       
       const headerContent = `
         <div class="print-header">
-            <h1>بسم الله الرحمن الرحيم</h1>
-            <div class="confidentiality">${confidentiality}</div>
-            ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
+            <div class="bismillah">بسم الله الرحمن الرحيم</div>
+            <div class="confidentiality" style="text-decoration: underline;">${confidentiality}</div>
+            ${reportTitleInput ? `<div class="title" style="text-decoration: underline;">${reportTitleInput}</div>` : ''}
         </div>
       `;
 
       const footerContent = `
-        <div class="print-footer">
+        <div class="print-footer" style="text-decoration: underline;">
             ${confidentiality}
         </div>
       `;
