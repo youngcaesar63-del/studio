@@ -183,16 +183,20 @@ export default function ReportsPage() {
       
       tableContent += '</tbody></table>';
 
-      printWindow.document.write('<html><head><title></title>');
+      printWindow.document.write('<html><head><title>&nbsp;</title>');
       
       const pageOrientation = includeAdministration ? 'landscape' : 'portrait';
 
       printWindow.document.write('<style>');
       printWindow.document.write(`
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Tajawal:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&family=Noto+Kufi+Arabic:wght@700&family=Tajawal:wght@400;500;700&display=swap');
         @page {
             size: A4 ${pageOrientation};
             margin: 1cm;
+        }
+        html, body {
+            height: auto;
+            overflow: hidden;
         }
         body { 
             font-family: 'Tajawal', sans-serif; 
@@ -218,8 +222,9 @@ export default function ReportsPage() {
         .print-footer {
             bottom: 1cm;
             font-family: 'Arial', sans-serif;
-            text-decoration: underline;
             text-align: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
         }
         .bismillah {
             font-family: 'Amiri', serif;
@@ -231,11 +236,13 @@ export default function ReportsPage() {
         .confidentiality {
             font-weight: bold;
             font-family: 'Arial', sans-serif;
-            text-decoration: underline;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
         }
          .title {
             font-family: 'Cairo', sans-serif;
             font-weight: 900;
+            font-size: 16px;
             margin-top: 5px;
             text-decoration: underline;
         }
