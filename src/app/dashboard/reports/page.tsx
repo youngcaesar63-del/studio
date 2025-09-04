@@ -214,6 +214,7 @@ export default function ReportsPage() {
         .print-footer {
             bottom: 0;
             font-weight: bold;
+            text-decoration: underline;
         }
         .print-header h1 {
             font-family: 'Amiri', serif;
@@ -236,7 +237,7 @@ export default function ReportsPage() {
           border-collapse: collapse; 
           font-size: 12px; 
           border: 2px solid #000;
-          margin-top: 90px; /* Header Height */
+          margin-top: calc(90px + 1cm); /* Header Height + 1cm margin */
           margin-bottom: 50px; /* Footer Height */
         }
         .report-table th, .report-table td {
