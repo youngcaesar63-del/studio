@@ -192,6 +192,7 @@ export default function ReportsPage() {
 
       const footerContent = `
         <div class="print-footer">
+            <div class="page-number-container"></div>
             <div class="confidentiality">${confidentiality}</div>
         </div>
       `;
@@ -212,6 +213,7 @@ export default function ReportsPage() {
             direction: rtl;
             height: auto;
             overflow: hidden;
+            counter-reset: page-counter;
         }
         .report-table {
           width: 100%; 
@@ -233,9 +235,9 @@ export default function ReportsPage() {
         .confidentiality {
             font-family: 'Arial', sans-serif;
             font-weight: bold;
+            font-size: 14px;
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
-            font-size: 14px;
             display: inline-block;
         }
         .title {
@@ -274,6 +276,14 @@ export default function ReportsPage() {
             bottom: 1cm;
             left: 0;
             right: 0;
+        }
+        .page-number-container::before {
+            counter-increment: page-counter;
+            content: counter(page-counter) " من " counter(pages);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 4px;
         }
       `);
       printWindow.document.write('</style>');
@@ -448,4 +458,3 @@ export default function ReportsPage() {
   );
 
     
-
