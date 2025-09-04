@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,14 @@ type ServiceHistory = {
     periodTo: string;
 }
 
+type Medal = {
+    name: string;
+}
+
+type Language = {
+    name: string;
+}
+
 type Personnel = {
     id: number;
     name: string;
@@ -76,6 +84,8 @@ type Personnel = {
     serviceOperations?: ServiceOperation[];
     trainingCourses?: TrainingCourse[];
     serviceHistory?: ServiceHistory[];
+    medals?: Medal[];
+    languages?: Language[];
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -333,6 +343,58 @@ export default function ViewPersonnelPage() {
                                                 <TableCell className="text-center border-r">{course.institute}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
                                                 <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+
+                    {(person.trainingCourses && person.trainingCourses.length > 0) && (person.medals && person.medals.length > 0) && <Separator />}
+                    
+                    {person.medals && person.medals.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Award className="h-5 w-5" /> الأوسمة والأنواط</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">م</TableHead>
+                                            <TableHead className="text-center border-r">اسم الوسام / النوط</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.medals.map((medal, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
+                                                <TableCell className="text-center border-r">{medal.name}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
+
+                    {(person.medals && person.medals.length > 0) && (person.languages && person.languages.length > 0) && <Separator />}
+
+                    {person.languages && person.languages.length > 0 && (
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Languages className="h-5 w-5" /> اللغات واللهجات</h3>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-center">م</TableHead>
+                                            <TableHead className="text-center border-r">اللغة / اللهجة</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {person.languages.map((lang, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
+                                                <TableCell className="text-center border-r">{lang.name}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

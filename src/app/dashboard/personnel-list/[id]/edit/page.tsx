@@ -54,6 +54,14 @@ const serviceHistorySchema = z.object({
   periodTo: z.date({ required_error: 'تاريخ النهاية مطلوب' }),
 });
 
+const medalSchema = z.object({
+    name: z.string().min(1, "اسم الوسام مطلوب"),
+});
+
+const languageSchema = z.object({
+    name: z.string().min(1, "اسم اللغة مطلوب"),
+});
+
 const formSchema = z.object({
   cardId: z.string().min(1, 'رقم البطاقة مطلوب').regex(/^\d*$/, 'رقم البطاقة يجب أن يحتوي على أرقام فقط'),
   rank: z.string().min(1, 'الرتبة مطلوبة'),
@@ -86,15 +94,17 @@ const formSchema = z.object({
   serviceOperations: z.array(serviceOperationSchema).optional(),
   trainingCourses: z.array(trainingCourseSchema).optional(),
   serviceHistory: z.array(serviceHistorySchema).optional(),
+  medals: z.array(medalSchema).optional(),
+  languages: z.array(languageSchema).optional(),
 });
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; };
+type Personnel = z.infer<typeof formSchema> & { id: number; name: string; appointmentDate: string; certificateType: string; lastReturnDate?: string; transferDate?: string; reportingDate?: string; photo?: string; dateOfBirth?: string; importantJobs?: { jobTitle: string; periodFrom: string; periodTo: string }[]; serviceOperations?: { areaName: string; periodFrom: string; periodTo: string }[]; trainingCourses?: { courseName: string; courseType: string; imperativeness: string; institute: string; periodFrom: string; periodTo: string; grade?: string; }[]; serviceHistory?: { unitName: string; jobTitle: string; periodFrom: string; periodTo: string }[]; medals?: { name: string }[]; languages?: { name: string }[]; };
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
     return (rankOrder[a] || 99) - (rankOrder[b] || 99);
 });
-const specializations = ['ركن', 'مهندس', 'بحري', 'طيار', 'مهندس ركن', 'ركن بحري', 'ركن طيار', 'د.ركن', 'مهندس د.ركن', 'تقني', 'خريج', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
+const specializations = ['ركن', 'مهندس', 'بحري', 'طيار', 'مهندس ركن', 'ركن بحري', 'ركن طيار', 'د.ركن', 'مهندس د.рكن', 'تقني', 'خريج', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
 const academicQualifications = ['شهادة إبتدائية', 'شهادة متوسطة', 'شهادة ثانوية', 'دبلوم', 'بكالوريوس', 'ماجستير', 'دكتوراه', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
 const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة'].sort((a,b) => a.localeCompare(b, 'ar'));
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
@@ -153,6 +163,8 @@ export default function EditPersonnelPage() {
         serviceOperations: [],
         trainingCourses: [],
         serviceHistory: [],
+        medals: [],
+        languages: [],
       },
   });
 
@@ -174,6 +186,16 @@ export default function EditPersonnelPage() {
   const { fields: serviceHistoryFields, append: appendServiceHistory, remove: removeServiceHistory } = useFieldArray({
     control: form.control,
     name: "serviceHistory",
+  });
+  
+  const { fields: medalFields, append: appendMedal, remove: removeMedal } = useFieldArray({
+    control: form.control,
+    name: "medals",
+  });
+
+  const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({
+    control: form.control,
+    name: "languages",
   });
 
   useEffect(() => {
@@ -210,6 +232,8 @@ export default function EditPersonnelPage() {
           periodFrom: new Date(history.periodFrom),
           periodTo: new Date(history.periodTo),
         })) || [],
+        medals: personToEdit.medals || [],
+        languages: personToEdit.languages || [],
       });
       if (personToEdit.photo) {
         setPhotoPreview(personToEdit.photo);
@@ -573,6 +597,58 @@ export default function EditPersonnelPage() {
                 </div>
 
                 <Separator className="my-8" />
+                
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold">الأوسمة والأنواط</h3>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendMedal({ name: '' })}>
+                          <PlusCircle className="ml-2 h-4 w-4" />
+                          إضافة وسام
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {medalFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                           <FormField control={form.control} name={`medals.${index}.name`} render={({ field }) => (
+                              <FormItem className="md:col-span-3"><FormLabel>اسم الوسام / النوط</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                          <div className="flex items-end">
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeMedal(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+
+                <Separator className="my-8" />
+
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-semibold">اللغات واللهجات</h3>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendLanguage({ name: '' })}>
+                          <PlusCircle className="ml-2 h-4 w-4" />
+                          إضافة لغة
+                      </Button>
+                    </div>
+                    <div className="space-y-4">
+                      {languageFields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                           <FormField control={form.control} name={`languages.${index}.name`} render={({ field }) => (
+                              <FormItem className="md:col-span-3"><FormLabel>اسم اللغة / اللهجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                          )} />
+                          <div className="flex items-end">
+                              <Button type="button" variant="destructive" size="icon" onClick={() => removeLanguage(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+                
+                <Separator className="my-8" />
 
                 <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -595,7 +671,7 @@ export default function EditPersonnelPage() {
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
                     </Button>
                 </div>
             </form>
@@ -605,5 +681,3 @@ export default function EditPersonnelPage() {
     </div>
   );
 }
-
-
