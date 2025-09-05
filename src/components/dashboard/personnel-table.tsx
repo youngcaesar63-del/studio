@@ -15,12 +15,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
-import { logActivity } from '@/lib/activity-log';
 
 type Personnel = {
   id: number;
@@ -44,18 +42,11 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     }
 };
 
-export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete: (id: number) => void }) {
-  const { toast } = useToast();
+export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete: (person: Personnel) => void }) {
   const router = useRouter();
 
   const confirmDelete = (person: Personnel) => {
-    onDelete(person.id);
-    logActivity('delete_personnel', `تم حذف الضابط: ${person.name}`, `رقم البطاقة: ${person.cardId}`);
-    toast({
-      title: 'تم الحذف بنجاح',
-      description: `تم حذف بيانات الضابط: ${person.name}`,
-      variant: 'destructive'
-    });
+    onDelete(person);
   }
   
   const formatArabicNumber = (numStr: number | string) => {

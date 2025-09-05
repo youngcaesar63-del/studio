@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,7 +21,6 @@ import { arSA } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -53,6 +52,7 @@ import {
 } from '@/lib/constants';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { logActivity } from '@/lib/activity-log';
+import { getPersonnelById, updatePersonnel, Personnel as PersonnelData } from '@/services/personnel.service';
 
 
 const importantJobSchema = z.object({
@@ -173,21 +173,22 @@ const formSchema = z.object({
 });
 
 
-type Personnel = z.infer<typeof formSchema> & { id: number; name: string };
+type PersonnelFormValues = z.infer<typeof formSchema>;
 const batches = generateBatches();
+const parseDate = (dateString: string | undefined) => dateString ? new Date(dateString) : undefined;
 
 export default function EditPersonnelPage() {
   const router = useRouter();
   const params = useParams();
   const id = Number(params.id);
   const [loading, setLoading] = useState(true);
-  const [person, setPerson] = useState<Personnel | null>(null);
+  const [person, setPerson] = useState<PersonnelData | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isConfirmOpen, setConfirmOpen] = useState(false);
   const [dateFieldOpen, setDateFieldOpen] = useState<{ [key: string]: boolean }>({});
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<PersonnelFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
@@ -208,16 +209,14 @@ export default function EditPersonnelPage() {
   const { fields: mechanismFields, append: appendMechanism, remove: removeMechanism } = useFieldArray({ control: form.control, name: "mechanisms" });
 
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
-        const personnelList: any[] = getLocalStorage('personnelData', []);
-        const personToEdit = personnelList.find(p => p.id === id);
+        const personToEdit = await getPersonnelById(id);
 
         if (personToEdit) {
           setPerson(personToEdit);
-          const parseDate = (dateString: string | undefined) => dateString ? new Date(dateString) : undefined;
           
           form.reset({
             ...personToEdit,
@@ -248,7 +247,12 @@ export default function EditPersonnelPage() {
         toast({ title: 'خطأ', description: 'فشل تحميل البيانات.', variant: 'destructive' });
     }
     setLoading(false);
-  }, [id, form, router]);
+  }, [id, form, router, toast]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -263,54 +267,46 @@ export default function EditPersonnelPage() {
     }
   };
 
-  const handleConfirmSave = () => {
+  const handleConfirmSave = async () => {
     const values = form.getValues();
-    let personnelList: Personnel[] = getLocalStorage('personnelData', []);
     
-    const sortTimeBasedArrays = (arr: any[] | undefined) => {
-        if (!arr) return [];
-        return arr.sort((a,b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    const toISO = (date: Date | undefined) => date?.toISOString();
+    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
+
+    const dataToSave = {
+        ...values,
+        name: values.fullName,
+        appointmentDate: toISO(values.appointmentDate),
+        lastReturnDate: toISO(values.lastReturnDate),
+        transferDate: toISO(values.transferDate),
+        reportingDate: toISO(values.reportingDate),
+        dateOfBirth: toISO(values.dateOfBirth),
+        statusDate: toISO(values.statusDate),
+        importantJobs: mapTimeBasedArray(values.importantJobs),
+        serviceOperations: mapTimeBasedArray(values.serviceOperations),
+        decisiveStorm: mapTimeBasedArray(values.decisiveStorm),
+        trainingCourses: mapTimeBasedArray(values.trainingCourses),
+        serviceHistory: mapTimeBasedArray(values.serviceHistory),
+        mechanisms: mapTimeBasedArray(values.mechanisms),
     };
+    
+    try {
+        await updatePersonnel(id, dataToSave);
+        logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
 
-    const updatedList = personnelList.map(p => {
-      if (p.id === id) {
-        const toISO = (date: Date | undefined) => date?.toISOString();
-        const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
-
-        return {
-          ...p,
-          ...values,
-          id, // Ensure ID is not lost
-          name: values.fullName,
-          appointmentDate: toISO(values.appointmentDate),
-          lastReturnDate: toISO(values.lastReturnDate),
-          transferDate: toISO(values.transferDate),
-          reportingDate: toISO(values.reportingDate),
-          dateOfBirth: toISO(values.dateOfBirth),
-          statusDate: toISO(values.statusDate),
-          importantJobs: mapTimeBasedArray(sortTimeBasedArrays(values.importantJobs)),
-          serviceOperations: mapTimeBasedArray(sortTimeBasedArrays(values.serviceOperations)),
-          decisiveStorm: mapTimeBasedArray(sortTimeBasedArrays(values.decisiveStorm)),
-          trainingCourses: mapTimeBasedArray(sortTimeBasedArrays(values.trainingCourses)),
-          serviceHistory: mapTimeBasedArray(sortTimeBasedArrays(values.serviceHistory)),
-          mechanisms: mapTimeBasedArray(sortTimeBasedArrays(values.mechanisms)),
-        };
-      }
-      return p;
-    });
-
-    updateLocalStorage('personnelData', updatedList);
-    logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
-
-    toast({
-      title: 'تم التحديث بنجاح',
-      description: `تم تحديث بيانات الضابط ${values.fullName}.`,
-    });
-    setConfirmOpen(false);
-    router.push('/dashboard/personnel-list');
+        toast({
+          title: 'تم التحديث بنجاح',
+          description: `تم تحديث بيانات الضابط ${values.fullName}.`,
+        });
+        router.push('/dashboard/personnel-list');
+    } catch (error) {
+         toast({ title: 'خطأ', description: 'فشل تحديث بيانات الضابط.', variant: 'destructive' });
+    } finally {
+        setConfirmOpen(false);
+    }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: PersonnelFormValues) {
     setConfirmOpen(true);
   }
 
@@ -868,13 +864,13 @@ export default function EditPersonnelPage() {
                                         <PopoverTrigger asChild>
                                             <FormControl>
                                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                                    {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                    {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus />
+                                            <Calendar mode="single" selected={field.value} onSelect={(date) => field.onChange(date)} disabled={(date) => date > new Date()} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                     <FormMessage />
@@ -892,7 +888,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
@@ -910,7 +906,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
@@ -928,7 +924,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
