@@ -1,3 +1,4 @@
+import { Recharts } from "recharts"
 
 
 export const rankOrder: { [key: string]: number } = {

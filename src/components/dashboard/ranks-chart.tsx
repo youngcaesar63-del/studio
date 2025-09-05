@@ -2,12 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell } from 'recharts';
+import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
+import { rankOrder } from '@/lib/constants';
+
 
 type Personnel = {
   rank: string;
@@ -45,12 +47,15 @@ export function RanksChart() {
             rankCounts[p.rank] = (rankCounts[p.rank] || 0) + 1;
         });
 
-        const data = Object.entries(rankCounts).map(([rank, count]) => ({
+        let data = Object.entries(rankCounts).map(([rank, count]) => ({
             rank,
             personnel: count,
             fill: rankColors[rank] || '#ccc',
         }));
         
+        // Sort data based on rank order
+        data.sort((a,b) => (rankOrder[a.rank] || 99) - (rankOrder[b.rank] || 99));
+
         setChartData(data);
     } catch (e) {
         console.error("Failed to load chart data", e);
@@ -119,14 +124,28 @@ export function RanksChart() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ right: 40 }}>
-                 <XAxis type="number" hide />
-                 <YAxis dataKey="rank" type="category" tickLine={false} axisLine={false} tickMargin={10} width={60} tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} orientation="right" />
-                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                 <Bar dataKey="personnel" layout="vertical" radius={5}>
-                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
-                 </Bar>
+             <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis 
+                  dataKey="rank" 
+                  tickLine={false} 
+                  axisLine={false}
+                  tickMargin={8}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                  interval={0}
+                  tick={{fill: 'hsl(var(--foreground))', fontSize: 12}}
+                 />
+                <YAxis tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Bar dataKey="personnel" radius={8}>
+                   {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
