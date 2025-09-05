@@ -88,6 +88,7 @@ type Personnel = {
     batch?: string;
     administration: string;
     status: string;
+    attachedTo?: string;
     appointmentDate?: string;
     certificateType?: string;
     lastReturnDate?: string;
@@ -163,6 +164,16 @@ export default function ViewPersonnelPage() {
       const str = String(numStr);
       return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
     };
+    
+    const getStatusDisplay = (person: Personnel) => {
+        const variant = getStatusVariant(person.status);
+        let text = person.status;
+        if (person.status === 'إلحاق' && person.attachedTo) {
+            text = `${person.status} (${person.attachedTo})`;
+        }
+        return <Badge variant={variant} className="text-md px-3 py-1">{text}</Badge>;
+    }
+
 
     useEffect(() => {
         if (!id) return;
@@ -263,7 +274,7 @@ export default function ViewPersonnelPage() {
                         <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Briefcase className="h-5 w-5" /> المعلومات الوظيفية</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
-                             <DetailItem icon={Badge} label="الحالة" value={<Badge variant={getStatusVariant(person.status)} className="text-md px-3 py-1">{person.status}</Badge>} />
+                             <DetailItem icon={Badge} label="الحالة" value={getStatusDisplay(person)} />
                             <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
                             <DetailItem icon={Users} label="الدفعة" value={person.batch} />
                             <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />

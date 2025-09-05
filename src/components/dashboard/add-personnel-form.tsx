@@ -114,6 +114,7 @@ const formSchema = z.object({
   transferDate: z.date().optional(),
   reportingDate: z.date().optional(),
   status: z.string().min(1, 'الحالة مطلوبة'),
+  attachedTo: z.string().optional(),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   religion: z.string().optional(),
@@ -172,6 +173,7 @@ export function AddPersonnelForm() {
       administration: '',
       certificateType: '',
       status: 'بالطابور',
+      attachedTo: '',
       bloodType: '',
       maritalStatus: '',
       religion: 'مسلم',
@@ -271,6 +273,8 @@ export function AddPersonnelForm() {
       reader.readAsDataURL(file);
     }
   };
+  
+  const statusValue = form.watch("status");
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const personnelList = getLocalStorage('personnelData', []);
@@ -823,12 +827,17 @@ export function AddPersonnelForm() {
         </div>
 
         <Separator className="my-8" />
-
+        
         <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormField control={form.control} name="status" render={({ field }) => (
                 <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
             )} />
+            {statusValue === 'إلحاق' && (
+              <FormField control={form.control} name="attachedTo" render={({ field }) => (
+                  <FormItem><FormLabel>الجهة الملحق عليها</FormLabel><FormControl><Input {...field} placeholder="ادخل اسم الجهة" /></FormControl><FormMessage /></FormItem>
+              )} />
+            )}
             <FormField control={form.control} name="transferDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ النقل</FormLabel>
                 <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>

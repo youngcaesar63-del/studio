@@ -128,6 +128,7 @@ const formSchema = z.object({
   transferDate: z.date().optional(),
   reportingDate: z.date().optional(),
   status: z.string().min(1, 'الحالة مطلوبة'),
+  attachedTo: z.string().optional(),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   religion: z.string().optional(),
@@ -183,6 +184,8 @@ export default function EditPersonnelPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {},
   });
+  
+  const statusValue = form.watch("status");
 
   const { fields: jobFields, append: appendJob, remove: removeJob } = useFieldArray({ control: form.control, name: "importantJobs" });
   const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "serviceOperations" });
@@ -822,6 +825,11 @@ export default function EditPersonnelPage() {
                     <FormField control={form.control} name="status" render={({ field }) => (
                         <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
+                     {statusValue === 'إلحاق' && (
+                        <FormField control={form.control} name="attachedTo" render={({ field }) => (
+                            <FormItem><FormLabel>الجهة الملحق عليها</FormLabel><FormControl><Input {...field} placeholder="ادخل اسم الجهة" /></FormControl><FormMessage /></FormItem>
+                        )} />
+                    )}
                      <FormField control={form.control} name="transferDate" render={({ field }) => (
                         <FormItem><FormLabel>تاريخ النقل</FormLabel>
                         <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
@@ -883,7 +891,7 @@ export default function EditPersonnelPage() {
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
+                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                     </Button>
                 </div>
             </form>
@@ -909,5 +917,3 @@ export default function EditPersonnelPage() {
     </div>
   );
 }
-
-    

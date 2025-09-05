@@ -28,6 +28,7 @@ type Personnel = {
   batch?: string;
   administration: string;
   status: string;
+  attachedTo?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -57,6 +58,13 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
     const str = String(numStr);
     return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
+  
+  const getStatusDisplay = (person: Personnel) => {
+      if (person.status === 'إلحاق' && person.attachedTo) {
+          return `${person.status} (${person.attachedTo})`;
+      }
+      return person.status;
+  }
 
   return (
     <div className="w-full">
@@ -84,7 +92,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                     <TableCell className="font-medium text-center border-r">{person.name}</TableCell>
                     <TableCell className="hidden sm:table-cell text-center border-r">{person.administration}</TableCell>
                     <TableCell className="text-center border-r">
-                      <Badge variant={getStatusVariant(person.status)} className="text-xs">{person.status}</Badge>
+                      <Badge variant={getStatusVariant(person.status)} className="text-xs">{getStatusDisplay(person)}</Badge>
                     </TableCell>
                     <TableCell className="text-center border-r">
                       <TooltipProvider>
