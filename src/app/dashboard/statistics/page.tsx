@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState }from 'react';
+import { useEffect, useState, useCallback }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
 import { getLocalStorage } from '@/lib/localStorage-helpers';
@@ -85,11 +85,29 @@ export default function StatisticsPage() {
     const [dialogData, setDialogData] = useState<Personnel[]>([]);
 
 
-    useEffect(() => {
+    const loadData = useCallback(() => {
+        setLoading(true);
         const data = getLocalStorage('personnelData', []);
         setPersonnelData(data);
         setLoading(false);
     }, []);
+
+    useEffect(() => {
+        loadData();
+
+        const handleStorageChange = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage-update', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage-update', handleStorageChange);
+        };
+    }, [loadData]);
 
     const processChartData = (key: keyof Personnel) => {
         if (loading || personnelData.length === 0) return { total: 0, data: [] };

@@ -91,7 +91,7 @@ export default function PermissionsPage() {
     
     const handleStorageChange = (event: Event) => {
         const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'rolesData') {
+        if (customEvent.detail.key === 'rolesData' || customEvent.detail.key === 'all') {
             loadData();
         }
     };

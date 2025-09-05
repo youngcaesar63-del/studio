@@ -77,7 +77,7 @@ export function StatsCards() {
     
     const handleStorageChange = (event: Event) => {
         const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'personnelData') {
+        if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
             calculateStats();
         }
     };

@@ -6,7 +6,7 @@ import { UsersTable } from '@/components/dashboard/users-table';
 import { UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 import {
   Dialog,
@@ -41,10 +41,27 @@ export default function UsersPage() {
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     const storedUsers = getLocalStorage('usersData', initialUsersData);
     setUsers(storedUsers);
   }, []);
+
+  useEffect(() => {
+    loadData();
+
+    const handleStorageChange = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail.key === 'usersData' || customEvent.detail.key === 'all') {
+            loadData();
+        }
+    };
+
+    window.addEventListener('storage-update', handleStorageChange);
+
+    return () => {
+        window.removeEventListener('storage-update', handleStorageChange);
+    };
+  }, [loadData]);
 
   const handleAddUser = () => {
     setEditingUser(null);
@@ -67,9 +84,11 @@ export default function UsersPage() {
     }
 
     let updatedUsers;
+    const currentUsers = getLocalStorage('usersData', initialUsersData);
+
     if (editingUser) {
         // Edit existing user
-        updatedUsers = users.map(u => u.id === editingUser.id ? { ...u, name: userName, role: userRole } : u);
+        updatedUsers = currentUsers.map(u => u.id === editingUser.id ? { ...u, name: userName, role: userRole } : u);
         toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
     } else {
         // Add new user
@@ -80,20 +99,19 @@ export default function UsersPage() {
             lastLogin: 'لم يسجل دخول بعد',
             status: 'نشط',
         };
-        updatedUsers = [...users, newUser];
+        updatedUsers = [...currentUsers, newUser];
         toast({ title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
     }
     
-    setUsers(updatedUsers);
     updateLocalStorage('usersData', updatedUsers);
     setDialogOpen(false);
   };
 
 
   const handleDeleteUser = (userId: number) => {
-    const user = users.find(u => u.id === userId);
-    const updatedUsers = users.filter(u => u.id !== userId);
-    setUsers(updatedUsers);
+    const currentUsers = getLocalStorage('usersData', initialUsersData);
+    const user = currentUsers.find(u => u.id === userId);
+    const updatedUsers = currentUsers.filter(u => u.id !== userId);
     updateLocalStorage('usersData', updatedUsers);
      toast({
         title: 'تم الحذف',
@@ -103,9 +121,9 @@ export default function UsersPage() {
   }
 
   const handleToggleStatus = (userId: number) => {
-      const user = users.find(u => u.id === userId);
-      const updatedUsers = users.map(u => u.id === userId ? {...u, status: u.status === 'نشط' ? 'غير نشط' : 'نشط'} : u)
-      setUsers(updatedUsers);
+      const currentUsers = getLocalStorage('usersData', initialUsersData);
+      const user = currentUsers.find(u => u.id === userId);
+      const updatedUsers = currentUsers.map(u => u.id === userId ? {...u, status: u.status === 'نشط' ? 'غير نشط' : 'نشط'} : u)
       updateLocalStorage('usersData', updatedUsers);
       toast({
           title: 'تم تغيير الحالة',

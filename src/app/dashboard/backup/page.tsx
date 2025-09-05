@@ -53,7 +53,7 @@ export default function BackupPage() {
         
         const handleStorageChange = (event: Event) => {
             const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'backupHistory') {
+            if (customEvent.detail.key === 'backupHistory' || customEvent.detail.key === 'all') {
                 loadData();
             }
         };
