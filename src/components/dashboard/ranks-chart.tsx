@@ -125,24 +125,26 @@ export function RanksChart() {
           ) : (
              <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData} layout="vertical" margin={{ right: 40 }}>
-                <CartesianGrid vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" hide />
-                <YAxis 
-                  dataKey="rank" 
+                <YAxis
+                  dataKey="rank"
                   type="category"
-                  tickLine={false} 
+                  tickLine={false}
                   axisLine={false}
                   tickMargin={5}
                   width={60}
-                  tick={{fill: 'hsl(var(--foreground))', fontSize: 12}}
+                  tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                   orientation="right"
-                 />
+                />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="personnel" radius={8} layout="vertical">
-                   {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+                <Bar dataKey="personnel" radius={[0, 8, 8, 0]} layout="vertical">
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
