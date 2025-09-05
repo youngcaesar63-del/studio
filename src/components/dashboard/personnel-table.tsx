@@ -94,7 +94,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                 const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                 return (
                   <TableRow key={person.id} className="hover:bg-muted/30">
-                    <TableCell className="font-medium">{formatArabicNumber(index + 1)}</TableCell>
+                    <TableCell className="font-medium text-center">{formatArabicNumber(index + 1)}</TableCell>
                     <TableCell className="text-center border-r">{formatArabicNumber(person.cardId)}</TableCell>
                     <TableCell className="text-center border-r">{displayRank}</TableCell>
                     <TableCell className="font-medium text-center border-r">{person.name}</TableCell>

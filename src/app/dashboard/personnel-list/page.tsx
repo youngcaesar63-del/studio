@@ -16,7 +16,26 @@ const initialPersonnelData = [
     { id: 5, cardId: '30208150201238', name: 'يوسف إبراهيم أحمد', rank: 'لواء', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', major: 'علوم عسكرية', batch: 'الدفعة 45', administration: 'رئاسة الهيئة', status: 'إلحاق', statusDetail: 'قيادة الأركان المشتركة', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'A-', maritalStatus: 'متزوج', religion: 'مسلم' },
     { id: 6, cardId: '30309150201239', name: 'سالم فهد', rank: 'فريق', specialization: 'لا يوجد', academicQualification: 'ماجستير', major: 'إدارة أعمال', batch: 'الدفعة 40', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'O-', maritalStatus: 'متزوج', religion: 'مسلم' },
     { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', academicQualification: 'دكتوراه', major: 'استراتيجية وأمن قومي', batch: 'الدفعة 38', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'B-', maritalStatus: 'متزوج', religion: 'مسلم' },
-].map(p => ({ ...p, major: p.major || '', importantJobs: [], serviceOperations: [], decisiveStorm: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], children: [], brothers: [], sisters: [], mechanisms: [], phoneNumbers: p.phoneNumbers || {}, fatherName: '', fatherAddress: '', motherName: '', wifeName: '' }));
+].map(p => ({ 
+    ...p, 
+    major: p.major || '', 
+    importantJobs: [], 
+    serviceOperations: [], 
+    decisiveStorm: [], 
+    trainingCourses: [], 
+    serviceHistory: [], 
+    medals: [], 
+    languages: [], 
+    children: [], 
+    brothers: [], 
+    sisters: [], 
+    mechanisms: [], 
+    phoneNumbers: p.phoneNumbers || {}, 
+    fatherName: '', 
+    fatherAddress: '', 
+    motherName: '', 
+    wifeName: '' 
+}));
 
 
 export default function PersonnelListPage() {
