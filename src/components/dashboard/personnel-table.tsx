@@ -19,19 +19,7 @@ import { useRouter } from 'next/navigation';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
-
-type Personnel = {
-  id: number;
-  cardId: string;
-  name: string;
-  rank: string;
-  specialization?: string;
-  batch?: string;
-  administration: string;
-  status: string;
-  statusDetail?: string;
-  statusDate?: string;
-};
+import type { Personnel } from '@/services/personnel.service';
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {

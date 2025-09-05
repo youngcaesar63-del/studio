@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 
 const initialUsersData = [
-  { id: 1, name: 'مدير النظام', role: 'مدير', lastLogin: '2024-05-20 10:30 ص', status: 'نشط' as const },
+  { id: 1, name: 'مدير النظام', role: 'مسؤول', lastLogin: '2024-05-20 10:30 ص', status: 'نشط' as const },
 ];
 
 type User = {
@@ -99,7 +99,7 @@ export default function UsersPage() {
 
     if (editingUser) {
         // Edit existing user
-        updatedUsers = currentUsers.map(u => u.id === editingUser.id ? { ...u, name: userName, role: userRole } : u);
+        updatedUsers = currentUsers.map((u: User) => u.id === editingUser.id ? { ...u, name: userName, role: userRole } : u);
         toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
     } else {
         // Add new user
@@ -124,7 +124,7 @@ export default function UsersPage() {
         toast({ title: "غير مسموح", description: "لا يمكن حذف حساب مدير النظام الافتراضي.", variant: "destructive" });
         return;
     }
-    const currentUsers = getLocalStorage('usersData', []);
+    const currentUsers = getLocalStorage('usersData', []) as User[];
     const user = currentUsers.find(u => u.id === userId);
     const updatedUsers = currentUsers.filter(u => u.id !== userId);
     updateLocalStorage('usersData', updatedUsers);
@@ -140,7 +140,7 @@ export default function UsersPage() {
           toast({ title: "غير مسموح", description: "لا يمكن تغيير حالة مدير النظام الافتراضي.", variant: "destructive" });
           return;
       }
-      const currentUsers = getLocalStorage('usersData', []);
+      const currentUsers = getLocalStorage('usersData', []) as User[];
       const user = currentUsers.find(u => u.id === userId);
       const updatedUsers = currentUsers.map(u => u.id === userId ? {...u, status: u.status === 'نشط' ? 'غير نشط' : 'نشط'} : u)
       updateLocalStorage('usersData', updatedUsers);
@@ -199,7 +199,7 @@ export default function UsersPage() {
                 <SelectContent>
                   {roles.length > 0 ? roles.map(role => (
                     <SelectItem key={role} value={role}>{role}</SelectItem>
-                  )) : <div className='p-4 text-sm text-muted-foreground'>لا توجد أدوار، يرجى إضافتها من صفحة الصلاحيات.</div>}
+                  )) : <div className='p-4 text-sm text-muted-foreground text-center'>لا توجد أدوار، يرجى إضافتها من صفحة الصلاحيات.</div>}
                 </SelectContent>
               </Select>
             </div>

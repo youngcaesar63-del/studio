@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -144,7 +145,7 @@ export default function PermissionsPage() {
         return;
     }
 
-    const currentRoles = getLocalStorage('rolesData', []);
+    const currentRoles = getLocalStorage('rolesData', []) as Role[];
     let updatedRoles;
 
     const newPermissions = allAvailablePermissions.map(p => ({

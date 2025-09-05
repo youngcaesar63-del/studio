@@ -6,21 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllPersonnel, deletePersonnel } from '@/services/personnel.service';
+import type { Personnel } from '@/services/personnel.service';
 import { toast } from '@/hooks/use-toast';
 import { logActivity } from '@/lib/activity-log';
-
-type Personnel = {
-  id: number;
-  cardId: string;
-  name: string;
-  rank: string;
-  specialization?: string;
-  batch?: string;
-  administration: string;
-  status: string;
-  statusDetail?: string;
-  statusDate?: string;
-};
 
 
 export default function PersonnelListPage() {
@@ -36,7 +24,7 @@ export default function PersonnelListPage() {
         toast({ title: 'خطأ', description: 'فشل تحميل بيانات الضباط.', variant: 'destructive' });
     }
     setLoading(false);
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     loadData();

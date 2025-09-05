@@ -9,20 +9,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp, Eye, Edit, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { getLocalStorage } from "@/lib/localStorage-helpers";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { getAttachmentsForPersonnel, addAttachments, updateAttachment, deleteAttachment, Attachment } from '@/services/attachments';
+import { getAllPersonnel } from "@/services/personnel.service";
+import type { Personnel } from "@/services/personnel.service";
 
-
-type Personnel = {
-  id: number;
-  name: string;
-  cardId: string;
-  rank: string;
-};
 
 const getFileIcon = (fileType: string) => {
   if (fileType.startsWith('image/')) return <FileText className="h-5 w-5 text-green-500" />;
@@ -47,11 +41,19 @@ export default function AttachmentsPage() {
   const [editingAttachment, setEditingAttachment] = useState<Attachment | null>(null);
   const [newAttachmentName, setNewAttachmentName] = useState("");
 
+  const loadAllPersonnel = useCallback(async () => {
+    try {
+        const personnelData = await getAllPersonnel();
+        setAllPersonnel(personnelData);
+    } catch (error) {
+        toast({ title: "خطأ", description: "فشل تحميل قائمة الضباط للبحث.", variant: "destructive" });
+    }
+  }, [toast]);
+
   // Load all personnel for searching
   useEffect(() => {
-    const personnelData = getLocalStorage('personnelData', []);
-    setAllPersonnel(personnelData);
-  }, []);
+    loadAllPersonnel();
+  }, [loadAllPersonnel]);
 
   // Effect to select a person if an ID is passed in the URL
   useEffect(() => {
