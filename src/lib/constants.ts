@@ -5,7 +5,7 @@ export const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'ع
     return (rankOrder[a] || 99) - (rankOrder[b] || 99);
 });
 
-export const specializations = ['ركن', 'مهندس', 'بحري', 'طيار', 'مهندس ركن', 'ركن بحري', 'ركن طيار', 'د.ركن', 'مهندس د.рكن', 'تقني', 'خريج', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
+export const specializations = ['ركن', 'مهندس', 'بحري', 'طيار', 'مهندس ركن', 'ركن بحري', 'ركن طيار', 'د.ركن', 'مهندس د.ركن', 'تقني', 'خريج', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
 
 export const academicQualifications = ['شهادة إبتدائية', 'شهادة متوسطة', 'شهادة ثانوية', 'دبلوم', 'بكالوريوس', 'ماجستير', 'دكتوراه', 'لا يوجد'].sort((a,b) => a.localeCompare(b, 'ar'));
 
