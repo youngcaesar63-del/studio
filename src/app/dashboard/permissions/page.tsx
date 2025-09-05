@@ -34,35 +34,7 @@ const allAvailablePermissions: Omit<Permission, 'enabled'>[] = [
     { id: 'p5', name: 'الوصول للإعدادات المتقدمة' },
 ];
 
-const initialRoles: Role[] = [
-  {
-    name: 'مدير',
-    description: 'وصول كامل لجميع ميزات النظام.',
-    permissions: allAvailablePermissions.map(p => ({...p, enabled: true}))
-  },
-  {
-    name: 'محرر',
-    description: 'يمكنه إضافة وتعديل بيانات الضباط.',
-    permissions: [
-        { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id: 'p2', name: 'إدارة الضباط', enabled: true },
-        { id: 'p3', name: 'إنشاء التقارير', enabled: true },
-        { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: false },
-        { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: false },
-    ]
-  },
-  {
-    name: 'مشاهد',
-    description: 'يمكنه عرض البيانات فقط دون تعديل.',
-    permissions: [
-        { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id: 'p2', name: 'إدارة الضباط', enabled: false },
-        { id: 'p3', name: 'إنشاء التقارير', enabled: true },
-        { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: false },
-        { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: false },
-    ]
-  }
-];
+const initialRoles: Role[] = [];
 
 export default function PermissionsPage() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -78,7 +50,7 @@ export default function PermissionsPage() {
   const loadData = useCallback(() => {
     setLoading(true);
     let data = getLocalStorage('rolesData', null);
-    if (data === null || data.length === 0) {
+    if (data === null) {
         data = initialRoles;
         updateLocalStorage('rolesData', initialRoles);
     }
