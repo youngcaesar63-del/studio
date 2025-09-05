@@ -24,26 +24,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const initialUsersData = [
   { id: 1, name: 'مدير النظام', role: 'مدير', lastLogin: '2024-05-20 10:30 ص', status: 'نشط' as const },
-  { id: 2, name: 'علي محمد', role: 'محرر', lastLogin: '2024-05-20 09:15 ص', status: 'نشط' as const },
-  { id: 3, name: 'فاطمة أحمد', role: 'مشاهد', lastLogin: '2024-05-19 03:00 م', status: 'غير نشط' as const },
-  { id: 4, name: 'خالد سعيد', role: 'محرر', lastLogin: '2024-05-20 11:00 ص', status: 'نشط' as const },
 ];
 
-type User = typeof initialUsersData[0];
+type User = {
+    id: number;
+    name: string;
+    role: string;
+    lastLogin: string;
+    status: 'نشط' | 'غير نشط';
+};
 
-const roles = ['مدير', 'محرر', 'مشاهد'];
 
 export default function UsersPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
 
   const loadData = useCallback(() => {
-    const storedUsers = getLocalStorage('usersData', initialUsersData);
-    setUsers(storedUsers);
+    const storedUsers = getLocalStorage('usersData', null);
+    if(storedUsers === null) {
+        updateLocalStorage('usersData', initialUsersData);
+        setUsers(initialUsersData);
+    } else {
+        setUsers(storedUsers);
+    }
+
+    const storedRoles = getLocalStorage('rolesData', []);
+    setRoles(storedRoles.map((r: any) => r.name));
   }, []);
 
   useEffect(() => {
@@ -51,7 +62,7 @@ export default function UsersPage() {
 
     const handleStorageChange = (event: Event) => {
         const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'usersData' || customEvent.detail.key === 'all') {
+        if (customEvent.detail.key === 'usersData' || customEvent.detail.key === 'rolesData' || customEvent.detail.key === 'all') {
             loadData();
         }
     };
@@ -84,7 +95,7 @@ export default function UsersPage() {
     }
 
     let updatedUsers;
-    const currentUsers = getLocalStorage('usersData', initialUsersData);
+    const currentUsers = getLocalStorage('usersData', []);
 
     if (editingUser) {
         // Edit existing user
@@ -109,7 +120,11 @@ export default function UsersPage() {
 
 
   const handleDeleteUser = (userId: number) => {
-    const currentUsers = getLocalStorage('usersData', initialUsersData);
+    if (userId === 1) {
+        toast({ title: "غير مسموح", description: "لا يمكن حذف حساب مدير النظام الافتراضي.", variant: "destructive" });
+        return;
+    }
+    const currentUsers = getLocalStorage('usersData', []);
     const user = currentUsers.find(u => u.id === userId);
     const updatedUsers = currentUsers.filter(u => u.id !== userId);
     updateLocalStorage('usersData', updatedUsers);
@@ -121,7 +136,11 @@ export default function UsersPage() {
   }
 
   const handleToggleStatus = (userId: number) => {
-      const currentUsers = getLocalStorage('usersData', initialUsersData);
+      if (userId === 1) {
+          toast({ title: "غير مسموح", description: "لا يمكن تغيير حالة مدير النظام الافتراضي.", variant: "destructive" });
+          return;
+      }
+      const currentUsers = getLocalStorage('usersData', []);
       const user = currentUsers.find(u => u.id === userId);
       const updatedUsers = currentUsers.map(u => u.id === userId ? {...u, status: u.status === 'نشط' ? 'غير نشط' : 'نشط'} : u)
       updateLocalStorage('usersData', updatedUsers);
@@ -178,9 +197,9 @@ export default function UsersPage() {
                   <SelectValue placeholder="اختر الدور" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map(role => (
+                  {roles.length > 0 ? roles.map(role => (
                     <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
+                  )) : <div className='p-4 text-sm text-muted-foreground'>لا توجد أدوار، يرجى إضافتها من صفحة الصلاحيات.</div>}
                 </SelectContent>
               </Select>
             </div>

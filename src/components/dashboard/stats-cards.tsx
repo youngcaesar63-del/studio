@@ -1,44 +1,24 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserPlus, Briefcase, TrendingUp, Minus, ShieldAlert, BookOpen, Plane, UserMinus, UserX, Footprints, LandPlot } from 'lucide-react';
+import { Users, UserPlus, Briefcase, Minus, ShieldAlert, BookOpen, Plane, UserMinus, Footprints, LandPlot } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 
 type Personnel = {
   id: number;
   status: string;
+  decisiveStorm?: any[];
 };
-
-const ChangeIndicator = ({ type }: { type: 'increase' | 'decrease' | 'increase_bad' | 'decrease_good' | 'neutral' }) => {
-    if (type === 'increase' || type === 'increase_bad') {
-        return <TrendingUp className="inline h-4 w-4 ml-1" />;
-    }
-    if (type === 'decrease' || type === 'decrease_good') {
-        return <TrendingUp className="inline h-4 w-4 ml-1 rotate-180" />;
-    }
-    if (type === 'neutral') {
-        return <Minus className="inline h-4 w-4 ml-1" />;
-    }
-    return null;
-};
-
-const getChangeColor = (type: string) => {
-  switch (type) {
-    case 'increase': return 'text-green-600 dark:text-green-400';
-    case 'decrease_good': return 'text-green-600 dark:text-green-400';
-    case 'increase_bad': return 'text-red-600 dark:text-red-400';
-    case 'decrease': return 'text-red-600 dark:text-red-400';
-    default: return 'text-muted-foreground';
-  }
-}
 
 export function StatsCards() {
   const [stats, setStats] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   const formatArabicNumber = (num: number) => {
+    if (isNaN(num)) return '٠';
     return new Intl.NumberFormat('ar-SA').format(num);
   }
 
@@ -55,19 +35,19 @@ export function StatsCards() {
     const attached = personnelList.filter(p => p.status === 'إلحاق').length;
     const absent = personnelList.filter(p => p.status === 'غياب').length;
     const escaped = personnelList.filter(p => p.status === 'هروب').length;
-    const decisiveStorm = personnelList.filter(p => p.status === 'عاصفة الحزم').length;
+    const decisiveStorm = personnelList.filter(p => (p.decisiveStorm && p.decisiveStorm.length > 0) || p.status === 'عاصفة الحزم').length;
 
     const calculatedStats = [
-      { title: 'إجمالي قوة الضباط', value: total, change: `+${Math.floor(Math.random() * 5)} هذا الشهر`, changeType: 'increase', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
-      { title: 'بالطابور', value: inService, change: `+${Math.floor(Math.random() * 10)}`, changeType: 'increase', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
-      { title: 'عمليات', value: operations, change: `-${Math.floor(Math.random() * 3)}`, changeType: 'decrease', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
-      { title: 'عاصفة الحزم', value: decisiveStorm, change: `${Math.floor(Math.random() * 2)}`, changeType: 'neutral', icon: LandPlot, iconBg: 'bg-yellow-100 dark:bg-yellow-900', iconColor: 'text-yellow-600 dark:text-yellow-300' },
-      { title: 'إجازة', value: onLeave, change: `+${Math.floor(Math.random() * 2)}`, changeType: 'increase_bad', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
-      { title: 'دورة تدريبية', value: training, change: `+${Math.floor(Math.random() * 4)}`, changeType: 'increase', icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
-      { title: 'إرسالية مرضية', value: sickLeave, change: `${Math.floor(Math.random() * 2)}`, changeType: 'neutral', icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
-      { title: 'إلحاق', value: attached, change: `-${Math.floor(Math.random() * 2)}`, changeType: 'decrease', icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
-      { title: 'غياب', value: absent, change: `-${Math.floor(Math.random() * 1)}`, changeType: 'decrease_good', icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
-      { title: 'هروب', value: escaped, change: `+${Math.floor(Math.random() * 1)}`, changeType: 'increase_bad', icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
+      { title: 'إجمالي قوة الضباط', value: total, icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
+      { title: 'بالطابور', value: inService, icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
+      { title: 'عمليات', value: operations, icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
+      { title: 'عاصفة الحزم', value: decisiveStorm, icon: LandPlot, iconBg: 'bg-yellow-100 dark:bg-yellow-900', iconColor: 'text-yellow-600 dark:text-yellow-300' },
+      { title: 'إجازة', value: onLeave, icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
+      { title: 'دورة تدريبية', value: training, icon: BookOpen, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
+      { title: 'إرسالية مرضية', value: sickLeave, icon: Plane, iconBg: 'bg-cyan-100 dark:bg-cyan-900', iconColor: 'text-cyan-600 dark:text-cyan-300' },
+      { title: 'إلحاق', value: attached, icon: UserPlus, iconBg: 'bg-teal-100 dark:bg-teal-900', iconColor: 'text-teal-600 dark:text-teal-300' },
+      { title: 'غياب', value: absent, icon: UserMinus, iconBg: 'bg-amber-100 dark:bg-amber-900', iconColor: 'text-amber-600 dark:text-amber-300' },
+      { title: 'هروب', value: escaped, icon: Footprints, iconBg: 'bg-orange-100 dark:bg-orange-900', iconColor: 'text-orange-600 dark:text-orange-300' },
     ];
     setStats(calculatedStats);
     setLoading(false);
@@ -110,12 +90,6 @@ export function StatsCards() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{formatArabicNumber(stat.value)}</div>
-            {stat.change && (
-              <p className={`text-sm mt-4 ${getChangeColor(stat.changeType)}`}>
-                <ChangeIndicator type={stat.changeType} />
-                {stat.change}
-              </p>
-            )}
           </CardContent>
         </Card>
       ))}
