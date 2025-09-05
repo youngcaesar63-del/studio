@@ -65,13 +65,13 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   }
   
   const getStatusDisplay = (person: Personnel) => {
+      let text = person.status;
       if (person.statusDetail) {
-          return `${person.status} (${person.statusDetail})`;
+          text = `${person.status} (${person.statusDetail})`;
+      } else if (person.statusDate) {
+           text = `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
       }
-      if (person.statusDate) {
-        return `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
-      }
-      return person.status;
+      return text;
   }
 
   return (

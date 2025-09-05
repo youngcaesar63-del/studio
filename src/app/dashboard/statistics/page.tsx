@@ -197,7 +197,7 @@ export default function StatisticsPage() {
         { title: 'خدمة العمليات', icon: ShieldAlert, total: serviceOpsStats.total, data: serviceOpsStats.data, category: 'serviceOperations' as const, titlePrefix: 'الضباط المشاركون في' },
         { title: 'عاصفة الحزم', icon: LandPlot, total: stormStats.total, data: stormStats.data, category: 'decisiveStorm' as const, titlePrefix: 'الضباط المشاركون في' },
         { title: 'الدورات التدريبية', icon: BookOpen, total: coursesStats.total, data: coursesStats.data, category: 'trainingCourses' as const, titlePrefix: 'الضباط الحاصلون على دورة' },
-        { title: 'الآليات', icon: Users2, total: mechanismsStats.total, data: mechanismsStats.data, category: 'mechanisms' as const, titlePrefix: 'الضباط المشاركون في آلية' },
+        { title: 'الآليات', icon: HardHat, total: mechanismsStats.total, data: mechanismsStats.data, category: 'mechanisms' as const, titlePrefix: 'الضباط المشاركون في آلية' },
     ];
 
 
