@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Settings as SettingsIcon, User, Bell, Palette, Lock } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,9 +10,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from '@/components/ui/separator';
+
+type Theme = {
+  name: string;
+  primary: { h: number; s: number; l: number };
+  accent: { h: number; s: number; l: number };
+  background: { h: number; s: number; l: number };
+};
+
+const themes: Theme[] = [
+    { name: 'افتراضي', primary: { h: 216, s: 83, l: 53 }, accent: { h: 190, s: 80, l: 45 }, background: { h: 220, s: 20, l: 96 } },
+    { name: 'أزرق داكن', primary: { h: 221, s: 83, l: 53 }, accent: { h: 217, s: 91, l: 60 }, background: { h: 224, s: 71, l: 4 } },
+    { name: 'أخضر غابي', primary: { h: 142, s: 76, l: 36 }, accent: { h: 142, s: 66, l: 46 }, background: { h: 145, s: 15, l: 96 } },
+    { name: 'أحمر قرمزي', primary: { h: 346, s: 84, l: 60 }, accent: { h: 346, s: 74, l: 50 }, background: { h: 350, s: 50, l: 96 } },
+    { name: 'برتقالي مشمس', primary: { h: 25, s: 95, l: 53 }, accent: { h: 22, s: 90, l: 60 }, background: { h: 30, s: 60, l: 97 } },
+];
+
 
 export default function SettingsPage() {
-    const { theme, setTheme } = useTheme();
+    const { theme: mode, setTheme: setMode } = useTheme();
     const { toast } = useToast();
     
     const [notificationPreferences, setNotificationPreferences] = useState({
@@ -20,6 +37,28 @@ export default function SettingsPage() {
         push: false,
         newPersonnel: true,
     });
+    
+    const [activeTheme, setActiveTheme] = useState<Theme>(themes[0]);
+
+    useEffect(() => {
+        const savedThemeName = localStorage.getItem('app-theme-name') || 'افتراضي';
+        const newTheme = themes.find(t => t.name === savedThemeName) || themes[0];
+        setTheme(newTheme);
+    }, []);
+
+    const setTheme = (theme: Theme) => {
+        localStorage.setItem('app-theme-name', theme.name);
+        setActiveTheme(theme);
+        document.documentElement.style.setProperty('--primary-hsl', `${theme.primary.h} ${theme.primary.s}% ${theme.primary.l}%`);
+        document.documentElement.style.setProperty('--primary', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
+        document.documentElement.style.setProperty('--accent', `hsl(${theme.accent.h}, ${theme.accent.s}%, ${theme.accent.l}%)`);
+        document.documentElement.style.setProperty('--background', `hsl(${theme.background.h}, ${theme.background.s}%, ${theme.background.l}%)`);
+        document.documentElement.style.setProperty('--ring', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
+        toast({
+            title: 'تم تغيير السمة',
+            description: `تم تطبيق سمة "${theme.name}" بنجاح.`,
+        });
+    };
 
     const handleSaveChanges = () => {
         toast({
@@ -124,8 +163,8 @@ export default function SettingsPage() {
                             </div>
                              <div className="flex items-center justify-between p-4 rounded-lg border">
                                 <div>
-                                    <Label htmlFor="new-personnel-notification" className="font-medium">عند إضافة فرد جديد</Label>
-                                    <p className="text-sm text-muted-foreground">إشعار عند إضافة فرد جديد للنظام.</p>
+                                    <Label htmlFor="new-personnel-notification" className="font-medium">عند إضافة ضابط جديد</Label>
+                                    <p className="text-sm text-muted-foreground">إشعار عند إضافة ضابط جديد للنظام.</p>
                                 </div>
                                 <Switch id="new-personnel-notification" checked={notificationPreferences.newPersonnel} onCheckedChange={() => handleNotificationToggle('newPersonnel')} />
                             </div>
@@ -141,11 +180,32 @@ export default function SettingsPage() {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div>
-                                <Label className="mb-2 block">السمة (Theme)</Label>
+                                <Label className="mb-2 block font-semibold">الوضع (Theme)</Label>
                                 <div className="flex gap-4">
-                                     <Button variant={theme === 'light' ? 'secondary' : 'outline'} onClick={() => setTheme('light')}>فاتح</Button>
-                                     <Button variant={theme === 'dark' ? 'secondary' : 'outline'} onClick={() => setTheme('dark')}>داكن</Button>
-                                     <Button variant={theme === 'system' ? 'secondary' : 'outline'} onClick={() => setTheme('system')}>النظام</Button>
+                                     <Button variant={mode === 'light' ? 'secondary' : 'outline'} onClick={() => setMode('light')}>فاتح</Button>
+                                     <Button variant={mode === 'dark' ? 'secondary' : 'outline'} onClick={() => setMode('dark')}>داكن</Button>
+                                     <Button variant={mode === 'system' ? 'secondary' : 'outline'} onClick={() => setMode('system')}>النظام</Button>
+                                </div>
+                            </div>
+                             <Separator />
+                            <div>
+                                <Label className="mb-4 block font-semibold">سمات الألوان</Label>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                    {themes.map((theme) => (
+                                        <div key={theme.name}>
+                                            <Button
+                                                variant={activeTheme.name === theme.name ? 'secondary' : 'outline'}
+                                                className="w-full h-auto flex flex-col items-center justify-center p-2 gap-2"
+                                                onClick={() => setTheme(theme)}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)` }}></div>
+                                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: `hsl(${theme.accent.h}, ${theme.accent.s}%, ${theme.accent.l}%)` }}></div>
+                                                </div>
+                                                <span className="text-sm">{theme.name}</span>
+                                            </Button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </CardContent>
