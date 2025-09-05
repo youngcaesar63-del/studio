@@ -117,7 +117,9 @@ export default function BackupPage() {
          try {
             const dataString = JSON.stringify(backup.data, null, 2);
             const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
-            const timestamp = new Date(backup.date).toISOString().replace(/[:.]/g, '-');
+            const backupDate = new Date(backup.date);
+            // Check if the date is valid before using it
+            const timestamp = !isNaN(backupDate.getTime()) ? backupDate.toISOString().replace(/[:.]/g, '-') : `invalid-date-${backup.id}`;
             saveAs(blob, `backup-data-${timestamp}.json`);
             toast({ title: 'تم التحميل بنجاح' });
         } catch (error) {
@@ -199,6 +201,14 @@ export default function BackupPage() {
             default: return 'bg-muted text-muted-foreground';
         }
     };
+    
+    const formatDateSafely = (dateString: string) => {
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            return format(date, "d MMMM yyyy, h:mm:ss a", { locale: arSA });
+        }
+        return "تاريخ غير صالح";
+    };
 
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
@@ -242,7 +252,7 @@ export default function BackupPage() {
                             <TableBody>
                                 {backupHistory.length > 0 ? backupHistory.map((backup) => (
                                     <TableRow key={backup.id} className="hover:bg-muted/30">
-                                        <TableCell className="font-medium text-center">{format(new Date(backup.date), "d MMMM yyyy, h:mm:ss a", { locale: arSA })}</TableCell>
+                                        <TableCell className="font-medium text-center">{formatDateSafely(backup.date)}</TableCell>
                                         <TableCell className="text-muted-foreground text-center border-r">{backup.size}</TableCell>
                                         <TableCell className="text-center border-r">
                                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusVariant(backup.status)}`}>
@@ -262,7 +272,7 @@ export default function BackupPage() {
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                        سيتم حذف النسخة الاحتياطية بتاريخ {format(new Date(backup.date), "d MMMM yyyy", { locale: arSA })} بشكل دائم.
+                                                        سيتم حذف النسخة الاحتياطية بتاريخ {formatDateSafely(backup.date)} بشكل دائم.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
