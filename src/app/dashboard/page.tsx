@@ -1,6 +1,6 @@
 
 import { ImportantAlerts } from '@/components/dashboard/important-alerts';
-import { PersonnelSearch } from '@/components/dashboard/personnel-search';
+import { QuickSearch } from '@/components/dashboard/quick-search';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RanksChart } from '@/components/dashboard/ranks-chart';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
@@ -22,7 +22,8 @@ export default function DashboardPage() {
         <h2 className="text-2xl font-bold">لوحة التحكم</h2>
         <DateTimeDisplay />
       </div>
-
+      
+      <QuickSearch />
       <StatsCards />
       <QuickActions />
 
@@ -37,7 +38,6 @@ export default function DashboardPage() {
 
       <ImportantAlerts />
       <UpcomingEvents />
-      <PersonnelSearch />
     </div>
   );
 }

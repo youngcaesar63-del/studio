@@ -9,11 +9,9 @@ import { Search, Loader2 } from 'lucide-react';
 import { fuzzyPersonnelSearch } from '@/ai/flows/fuzzy-personnel-search';
 import { useToast } from '@/hooks/use-toast';
 import { getLocalStorage } from '@/lib/localStorage-helpers';
+import { rankOrder } from '@/lib/constants';
 
-const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
-    const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
-    return (rankOrder[a] || 99) - (rankOrder[b] || 99);
-});
+const ranks = Object.keys(rankOrder);
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
 
 export function PersonnelSearch() {
@@ -71,7 +69,7 @@ export function PersonnelSearch() {
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle>البحث عن الضباط</CardTitle>
+        <CardTitle>البحث الذكي بالاسم (AI)</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSearch}>
@@ -79,7 +77,7 @@ export function PersonnelSearch() {
             <div className="relative">
               <Input
                 type="text"
-                placeholder="ابحث بالاسم أو رقم البطاقة..."
+                placeholder="ابحث بالاسم (بحث ذكي)..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="pr-10"
