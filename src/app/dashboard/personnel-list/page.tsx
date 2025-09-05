@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+import { rankOrder } from '@/lib/constants';
 
 const initialPersonnelData = [
     { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', major: 'علوم حاسوب', batch: 'الدفعة 65', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'A+', maritalStatus: 'أعزب', religion: 'مسلم', state: 'الخرطوم', city: 'الخرطوم', locality: 'بحري', address: 'شارع النيل', dateOfBirth: new Date('1998-04-15').toISOString(), nationalId: '1234567890', phoneNumbers: { sudani: '0912345678' }, nextOfKinName: 'محمد علي', nextOfKinPhone: '0912345670', nextOfKinAddress: 'الخرطوم، بحري', importantJobs: [], serviceOperations: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], fatherName: '', fatherAddress: '', motherName: '', wifeName: '', children: [], brothers: [], sisters: [] },
@@ -17,18 +18,6 @@ const initialPersonnelData = [
     { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', academicQualification: 'دكتوراه', major: 'استراتيجية وأمن قومي', batch: 'الدفعة 38', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: new Date().toISOString(), certificateType: 'مستديمة', bloodType: 'B-', maritalStatus: 'متزوج', religion: 'مسلم', importantJobs: [], serviceOperations: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], fatherName: '', fatherAddress: '', motherName: '', wifeName: '', children: [], brothers: [], sisters: [] },
 ].map(p => ({ ...p, major: p.major || '', importantJobs: p.importantJobs || [], serviceOperations: p.serviceOperations || [], decisiveStorm: p.decisiveStorm || [], trainingCourses: p.trainingCourses || [], serviceHistory: p.serviceHistory || [], medals: p.medals || [], languages: p.languages || [], children: p.children || [], brothers: p.brothers || [], sisters: p.sisters || [], mechanisms: p.mechanisms || [], phoneNumbers: p.phoneNumbers || {} }));
 
-const rankOrder: { [key: string]: number } = {
-  'فريق أول': 1,
-  'فريق': 2,
-  'لواء': 3,
-  'عميد': 4,
-  'عقيد': 5,
-  'مقدم': 6,
-  'رائد': 7,
-  'نقيب': 8,
-  'ملازم أول': 9,
-  'ملازم': 10,
-};
 
 export default function PersonnelListPage() {
   const [personnelData, setPersonnelData] = useState<any[]>([]);

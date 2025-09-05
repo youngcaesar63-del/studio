@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, WidthType, TextRun, AlignmentType, BorderStyle } from 'docx';
+import { administrations, ranks, rankOrder, statuses } from '@/lib/constants';
 
 
 type Personnel = {
@@ -34,17 +35,7 @@ const reportTypes = [
   { value: 'full-report', label: 'تقرير شامل' },
 ];
 
-const rankOrder: { [key: string]: number } = {
-  'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10,
-};
 
-const administrations = ['إدارة الشئون الإدارية', 'الإدارة العامة للاستخبارات', 'الإدارة العامة للعمل الخاص', 'الإدارة العامة للمعلومات الاستراتيجية', 'الإدارة العامة للشئون الفنية', 'الإدارة العامة للأمن العسكري', 'رئاسة الهيئة', 'الكل'];
-const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم', 'الكل'].sort((a,b) => {
-    if (a === 'الكل') return 1;
-    if (b === 'الكل') return -1;
-    return (rankOrder[a] || 99) - (rankOrder[b] || 99);
-});
-const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب', 'الكل'].sort((a,b) => a.localeCompare(b, 'ar'));
 const confidentialityLevels = ['سري', 'سري للغاية', 'سري وشخصي', 'محظور'];
 
 export default function ReportsPage() {
@@ -114,11 +105,11 @@ export default function ReportsPage() {
   const getFilterOptions = () => {
     switch(reportType) {
         case 'by-administration':
-            return { placeholder: "اختر الإدارة", options: administrations };
+            return { placeholder: "اختر الإدارة", options: [...administrations, 'الكل'] };
         case 'by-rank':
-            return { placeholder: "اختر الرتبة", options: ranks };
+            return { placeholder: "اختر الرتبة", options: [...ranks, 'الكل'] };
         case 'by-status':
-            return { placeholder: "اختر الحالة", options: statuses };
+            return { placeholder: "اختر الحالة", options: [...statuses, 'الكل'] };
         default:
             return null;
     }
@@ -137,25 +128,28 @@ export default function ReportsPage() {
         
         const dataToExport = reportData.map((person, index) => {
             const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
-            return [
-                index + 1,
-                person.cardId,
-                displayRank,
-                person.name,
-                person.administration,
-                person.status,
-            ];
+            return {
+                'م': index + 1,
+                'رقم البطاقة': person.cardId,
+                'الرتبة': displayRank,
+                'الاسم': person.name,
+                'الإدارة': person.administration,
+                'الحالة': person.status,
+            };
         });
 
 
         if (format === 'excel') {
             const reversedHeaders = [...headers].reverse();
-            const reversedData = dataToExport.map(row => [...row].reverse());
-
-            const finalData = [reversedHeaders, ...reversedData];
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport.map(row => {
+                const newRow: any = {};
+                reversedHeaders.forEach(h => {
+                    newRow[h] = row[h as keyof typeof row];
+                });
+                return newRow;
+            }), { header: reversedHeaders });
             
-            const worksheet = XLSX.utils.aoa_to_sheet(finalData);
-            worksheet['!cols'] = headers.map(() => ({ wch: 20 })); // Set column widths
+            worksheet['!cols'] = headers.map(() => ({ wch: 20 }));
             worksheet['!rtl'] = true;
 
             const workbook = XLSX.utils.book_new();
@@ -167,7 +161,7 @@ export default function ReportsPage() {
 
         } else if (format === 'word') {
              const tableHeader = new DocxTableRow({
-                children: [...headers].reverse().map(header => 
+                children: headers.map(header => 
                     new DocxTableCell({ children: [new Paragraph({ text: header, alignment: AlignmentType.CENTER, bidirectional: true })] })
                 ),
                 tableHeader: true,
@@ -175,8 +169,8 @@ export default function ReportsPage() {
 
             const tableRows = dataToExport.map((row) => {
                 return new DocxTableRow({
-                    children: [...row].reverse().map(cell => 
-                        new DocxTableCell({ children: [new Paragraph({ text: String(cell), alignment: AlignmentType.CENTER, bidirectional: true })] })
+                    children: headers.map(header => 
+                        new DocxTableCell({ children: [new Paragraph({ text: String(row[header as keyof typeof row]), alignment: AlignmentType.CENTER, bidirectional: true })] })
                     ),
                 });
             });
@@ -184,14 +178,14 @@ export default function ReportsPage() {
             const table = new DocxTable({
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
-                columnWidths: [1500, 2000, 2500, 1500, 2000, 500].reverse(),
+                columnWidths: [500, 2000, 1500, 2500, 2000, 1500],
                 bidirectional: true,
             });
 
             const doc = new Document({
                 sections: [{
                     children: [
-                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER }),
+                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER, bidirectional: true }),
                         table,
                     ],
                 }],
