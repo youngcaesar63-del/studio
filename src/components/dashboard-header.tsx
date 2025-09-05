@@ -190,13 +190,13 @@ export function DashboardHeader() {
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuItem asChild><Link href="/dashboard/settings"><UserIcon className="ml-2 h-4 w-4"/>الملف الشخصي</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/dashboard/settings"><Settings className="ml-2 h-4 w-4"/>الإعدادات</Link></DropdownMenuItem>
+            <DropdownMenuContent className="w-56" align="end" dir="rtl">
+              <DropdownMenuItem asChild className="justify-end"><Link href="/dashboard/settings">الملف الشخصي<UserIcon className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
+              <DropdownMenuItem asChild className="justify-end"><Link href="/dashboard/settings">الإعدادات<Settings className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                  <LogOut className="ml-2 h-4 w-4"/>
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end">
                   تسجيل الخروج
+                  <LogOut className="mr-2 h-4 w-4"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -207,7 +207,7 @@ export function DashboardHeader() {
           <AlertDialogHeader>
             <AlertDialogTitle>تأكيد تسجيل الخروج</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من أنك تريد تسجيل الخروج؟
+              هل أنت متأكد أنك تريد تسجيل الخروج؟
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
