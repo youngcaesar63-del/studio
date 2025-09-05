@@ -123,6 +123,7 @@ const formSchema = z.object({
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
   batch: z.string().optional(),
   academicQualification: z.string().optional(),
+  major: z.string().optional(),
   administration: z.string().min(1, 'الإدارة مطلوبة'),
   appointmentDate: z.date({ required_error: 'تاريخ التعيين مطلوب' }),
   certificateType: z.string().min(1, 'نوع البراءة مطلوب'),
@@ -189,6 +190,7 @@ export default function EditPersonnelPage() {
   });
   
   const statusValue = form.watch("status");
+  const academicQualificationValue = form.watch("academicQualification");
 
   const { fields: jobFields, append: appendJob, remove: removeJob } = useFieldArray({ control: form.control, name: "importantJobs" });
   const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "serviceOperations" });
@@ -393,6 +395,11 @@ export default function EditPersonnelPage() {
                         <FormField control={form.control} name="academicQualification" render={({ field }) => (
                             <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                         )} />
+                        {['بكالوريوس', 'ماجستير', 'دكتوراه', 'دبلوم'].includes(academicQualificationValue || '') && (
+                            <FormField control={form.control} name="major" render={({ field }) => (
+                                <FormItem><FormLabel>التخصص الدقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                        )}
                         <FormField control={form.control} name="batch" render={({ field }) => (
                             <FormItem><FormLabel>الدفعة</FormLabel>
                              <Combobox

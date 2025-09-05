@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2 } from 'lucide-react';
+import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, BrainCircuit } from 'lucide-react';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +84,7 @@ type Personnel = {
     rank: string;
     specialization?: string;
     academicQualification?: string;
+    major?: string;
     batch?: string;
     administration: string;
     status: string;
@@ -162,7 +163,7 @@ export default function ViewPersonnelPage() {
     const formatArabicNumber = (numStr: number | string) => {
       if (numStr === undefined || numStr === null) return '';
       const str = String(numStr);
-      return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(Number(str));
+      return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
     };
     
     const getStatusDisplay = (person: Personnel) => {
@@ -278,6 +279,7 @@ export default function ViewPersonnelPage() {
                             <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
                              <DetailItem icon={Badge} label="الحالة" value={getStatusDisplay(person)} />
                             <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
+                            {person.major && <DetailItem icon={BrainCircuit} label="التخصص الدقيق" value={person.major} />}
                             <DetailItem icon={Users} label="الدفعة" value={person.batch} />
                             <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
                             <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
