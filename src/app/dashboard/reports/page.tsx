@@ -166,12 +166,12 @@ export default function ReportsPage() {
                 const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                 return new DocxTableRow({
                     children: [
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${String(index + 1)} `, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${person.cardId} `, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${displayRank} `, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${person.name} `, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${person.administration} `, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: ` ${person.status} `, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER })] }),
                     ],
                 });
             });
@@ -180,6 +180,7 @@ export default function ReportsPage() {
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
                 columnWidths: [5, 20, 15, 25, 20, 15],
+                bidirectional: true,
             });
 
             const doc = new Document({
@@ -555,3 +556,4 @@ export default function ReportsPage() {
     
 
     
+
