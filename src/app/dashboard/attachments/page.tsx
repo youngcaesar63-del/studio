@@ -9,11 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, Folder as FolderIcon, FileText, MoreVertical, Search, Trash2, User, Loader2, FileUp, Eye, Edit, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
+import { getLocalStorage } from "@/lib/localStorage-helpers";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { getAttachmentsForPersonnel, addAttachments, updateAttachment, deleteAttachment, Attachment } from '@/services/attachments';
 
 
 type Personnel = {
@@ -21,16 +22,6 @@ type Personnel = {
   name: string;
   cardId: string;
   rank: string;
-};
-
-type Attachment = {
-  id: string;
-  personnelId: number;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-  dataUrl: string;
 };
 
 const getFileIcon = (fileType: string) => {
@@ -51,6 +42,7 @@ export default function AttachmentsPage() {
   const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAttachmentsLoading, setAttachmentsLoading] = useState(false);
   const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [editingAttachment, setEditingAttachment] = useState<Attachment | null>(null);
   const [newAttachmentName, setNewAttachmentName] = useState("");
@@ -74,14 +66,23 @@ export default function AttachmentsPage() {
 
   // Effect to load attachments for the selected person
   useEffect(() => {
-    if (selectedPersonnel) {
-      const allAttachments = getLocalStorage('attachmentsData', []);
-      const personAttachments = allAttachments.filter((att: Attachment) => att.personnelId === selectedPersonnel.id);
-      setAttachments(personAttachments);
-    } else {
-      setAttachments([]);
-    }
-  }, [selectedPersonnel]);
+    const fetchAttachments = async () => {
+        if (selectedPersonnel) {
+            setAttachmentsLoading(true);
+            try {
+                const personAttachments = await getAttachmentsForPersonnel(selectedPersonnel.id);
+                setAttachments(personAttachments);
+            } catch (error) {
+                toast({ title: "خطأ", description: "فشل تحميل المرفقات.", variant: "destructive" });
+            } finally {
+                setAttachmentsLoading(false);
+            }
+        } else {
+            setAttachments([]);
+        }
+    };
+    fetchAttachments();
+  }, [selectedPersonnel, toast]);
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -102,42 +103,43 @@ export default function AttachmentsPage() {
     setSearchResults([]);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0 || !selectedPersonnel) return;
 
     setIsLoading(true);
 
-    const allAttachments = getLocalStorage('attachmentsData', []);
-    let newAttachments: Attachment[] = [];
+    const newAttachmentsPromises = Array.from(files).map(file => {
+        return new Promise<Omit<Attachment, 'id'>>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                resolve({
+                    personnelId: selectedPersonnel.id,
+                    name: file.name,
+                    type: file.type,
+                    size: `${(file.size / 1024).toFixed(1)} KB`,
+                    uploadDate: new Date().toISOString(),
+                    dataUrl: e.target?.result as string,
+                });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    });
 
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newAttachment: Attachment = {
-          id: `${selectedPersonnel.id}-${Date.now()}-${file.name}`,
-          personnelId: selectedPersonnel.id,
-          name: file.name,
-          type: file.type,
-          size: `${(file.size / 1024).toFixed(1)} KB`,
-          uploadDate: new Date().toISOString(),
-          dataUrl: e.target?.result as string,
-        };
-        newAttachments.push(newAttachment);
-
-        if (newAttachments.length === files.length) {
-          const updatedAttachments = [...allAttachments, ...newAttachments];
-          updateLocalStorage('attachmentsData', updatedAttachments);
-          setAttachments(prev => [...prev, ...newAttachments]);
-          setIsLoading(false);
-          toast({
+    try {
+        const newAttachmentsData = await Promise.all(newAttachmentsPromises);
+        const addedAttachments = await addAttachments(newAttachmentsData);
+        setAttachments(prev => [...prev, ...addedAttachments]);
+        toast({
             title: 'تم الرفع بنجاح',
             description: `تم رفع ${files.length} ملفات بنجاح.`,
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+        });
+    } catch (error) {
+        toast({ title: "خطأ", description: "فشل رفع الملفات.", variant: "destructive" });
+    } finally {
+        setIsLoading(false);
+    }
   };
   
   const openEditDialog = (attachment: Attachment) => {
@@ -146,39 +148,39 @@ export default function AttachmentsPage() {
     setEditDialogOpen(true);
   };
 
-  const handleUpdateName = () => {
+  const handleUpdateName = async () => {
     if (!editingAttachment || !newAttachmentName.trim()) return;
 
-    const allAttachments = getLocalStorage('attachmentsData', []);
-    const updatedAttachments = allAttachments.map((att: Attachment) => 
-      att.id === editingAttachment.id ? { ...att, name: newAttachmentName.trim() } : att
-    );
-    
-    updateLocalStorage('attachmentsData', updatedAttachments);
-    setAttachments(prev => prev.map(att => 
-      att.id === editingAttachment.id ? { ...att, name: newAttachmentName.trim() } : att
-    ));
-    
-    toast({
-      title: 'تم التحديث',
-      description: 'تم تحديث اسم المرفق بنجاح.',
-    });
+    try {
+        const updated = await updateAttachment(editingAttachment.id, { name: newAttachmentName.trim() });
+        setAttachments(prev => prev.map(att => 
+          att.id === editingAttachment.id ? updated : att
+        ));
+        toast({
+          title: 'تم التحديث',
+          description: 'تم تحديث اسم المرفق بنجاح.',
+        });
+    } catch (error) {
+        toast({ title: "خطأ", description: "فشل تحديث اسم المرفق.", variant: "destructive" });
+    }
 
     setEditDialogOpen(false);
     setEditingAttachment(null);
     setNewAttachmentName("");
   };
 
-  const handleDelete = (attachmentId: string) => {
-    const allAttachments = getLocalStorage('attachmentsData', []);
-    const updatedAttachments = allAttachments.filter((att: Attachment) => att.id !== attachmentId);
-    updateLocalStorage('attachmentsData', updatedAttachments);
-    setAttachments(prev => prev.filter(att => att.id !== attachmentId));
-    toast({
-      title: 'تم الحذف',
-      description: 'تم حذف المرفق بنجاح.',
-      variant: 'destructive'
-    });
+  const handleDelete = async (attachmentId: string) => {
+    try {
+        await deleteAttachment(attachmentId);
+        setAttachments(prev => prev.filter(att => att.id !== attachmentId));
+        toast({
+          title: 'تم الحذف',
+          description: 'تم حذف المرفق بنجاح.',
+          variant: 'destructive'
+        });
+    } catch (error) {
+         toast({ title: "خطأ", description: "فشل حذف المرفق.", variant: "destructive" });
+    }
   };
     
   return (
@@ -248,6 +250,7 @@ export default function AttachmentsPage() {
             </Button>
           </CardHeader>
           <CardContent>
+            {isAttachmentsLoading ? <div className="flex justify-center items-center h-48"><Loader2 className="h-8 w-8 animate-spin text-primary"/></div> : 
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -305,6 +308,7 @@ export default function AttachmentsPage() {
                 </TableBody>
               </Table>
             </div>
+            }
              <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
