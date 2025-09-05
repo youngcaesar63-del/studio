@@ -28,7 +28,7 @@ type Role = {
 
 const allAvailablePermissions: Omit<Permission, 'enabled'>[] = [
     { id: 'p1', name: 'عرض لوحة التحكم' },
-    { id: 'p2', name: 'إدارة الأفراد' },
+    { id: 'p2', name: 'إدارة الضباط' },
     { id: 'p3', name: 'إنشاء التقارير' },
     { id: 'p4', name: 'إدارة المستخدمين والصلاحيات' },
     { id: 'p5', name: 'الوصول للإعدادات المتقدمة' },
@@ -42,10 +42,10 @@ const initialRoles: Role[] = [
   },
   {
     name: 'محرر',
-    description: 'يمكنه إضافة وتعديل بيانات الأفراد.',
+    description: 'يمكنه إضافة وتعديل بيانات الضباط.',
     permissions: [
         { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id: 'p2', name: 'إدارة الأفراد', enabled: true },
+        { id: 'p2', name: 'إدارة الضباط', enabled: true },
         { id: 'p3', name: 'إنشاء التقارير', enabled: true },
         { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: false },
         { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: false },
@@ -56,7 +56,7 @@ const initialRoles: Role[] = [
     description: 'يمكنه عرض البيانات فقط دون تعديل.',
     permissions: [
         { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id: 'p2', name: 'إدارة الأفراد', enabled: false },
+        { id: 'p2', name: 'إدارة الضباط', enabled: false },
         { id: 'p3', name: 'إنشاء التقارير', enabled: true },
         { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: false },
         { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: false },

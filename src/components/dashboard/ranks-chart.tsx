@@ -28,7 +28,7 @@ const rankColors: { [key: string]: string } = {
 };
 
 const chartConfig = {
-  personnel: { label: 'الأفراد' },
+  personnel: { label: 'ضباط' },
 };
 
 export function RanksChart() {
