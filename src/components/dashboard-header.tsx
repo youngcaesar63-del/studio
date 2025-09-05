@@ -91,7 +91,7 @@ export function DashboardHeader() {
 
   useEffect(() => {
     const allNotifications = generateNotifications();
-    const readNotifications = getLocalStorage('readNotifications', []);
+    const readNotifications: string[] = getLocalStorage('readNotifications', []);
     const unreadNotifications = allNotifications.filter(n => !readNotifications.includes(n.id));
     setActiveNotifications(unreadNotifications);
   }, []);
