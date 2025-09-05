@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, FileText, Loader2, FileUp, FileSpreadsheet, FileWord } from 'lucide-react';
+import { Printer, FileText, Loader2, FileUp, FileSpreadsheet, FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -457,7 +457,7 @@ export default function ReportsPage() {
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={() => handleExport('excel')}><FileSpreadsheet className="ml-2 h-4 w-4"/>تصدير Excel</Button>
-                        <Button variant="outline" onClick={() => handleExport('word')}><FileWord className="ml-2 h-4 w-4"/>تصدير Word</Button>
+                        <Button variant="outline" onClick={() => handleExport('word')}><FileCode className="ml-2 h-4 w-4"/>تصدير Word</Button>
                         <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button>
@@ -551,3 +551,5 @@ export default function ReportsPage() {
     </div>
   );
 }
+
+    
