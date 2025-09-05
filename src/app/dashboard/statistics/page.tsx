@@ -3,7 +3,7 @@
 
 import { useEffect, useState }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Minus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group } from "lucide-react"
+import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, UserMinus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group } from "lucide-react"
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { getLocalStorage } from '@/lib/localStorage-helpers';
@@ -256,3 +256,5 @@ export default function StatisticsPage() {
         </div>
     )
 }
+
+    
