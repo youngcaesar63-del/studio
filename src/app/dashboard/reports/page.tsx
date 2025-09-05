@@ -132,67 +132,65 @@ export default function ReportsPage() {
 
     const handleExport = (format: 'excel' | 'word') => {
         if (!reportData) return;
+
+        const headers = ['م', 'رقم البطاقة', 'الرتبة', 'الاسم', 'الإدارة', 'الحالة'];
         
-        const dataToExport = reportData.map((person, index) => ({
-            'م': index + 1,
-            'رقم البطاقة': person.cardId,
-            'الرتبة': `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`,
-            'الاسم': person.name,
-            'الإدارة': person.administration,
-            'الحالة': person.status,
-        }));
+        const dataToExport = reportData.map((person, index) => {
+            const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+            return [
+                index + 1,
+                person.cardId,
+                displayRank,
+                person.name,
+                person.administration,
+                person.status,
+            ];
+        });
+
 
         if (format === 'excel') {
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const reversedHeaders = [...headers].reverse();
+            const reversedData = dataToExport.map(row => [...row].reverse());
+
+            const finalData = [reversedHeaders, ...reversedData];
             
-            // Force RTL direction for the worksheet
-            if (!worksheet['!cols']) worksheet['!cols'] = [];
-            worksheet['!cols'][0] = { rpt: true }; // Repeat for all columns if necessary
-            worksheet['!props'] = {rtl: true};
-            
+            const worksheet = XLSX.utils.aoa_to_sheet(finalData);
+            worksheet['!cols'] = headers.map(() => ({ wch: 20 })); // Set column widths
+            worksheet['!rtl'] = true;
+
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير الضباط');
+            
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-            const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-            saveAs(data, 'تقرير_الضباط.xlsx');
+            const dataBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+            saveAs(dataBlob, 'تقرير_الضباط.xlsx');
+
         } else if (format === 'word') {
              const tableHeader = new DocxTableRow({
-                children: [
-                    new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                ],
+                children: [...headers].reverse().map(header => 
+                    new DocxTableCell({ children: [new Paragraph({ text: header, alignment: AlignmentType.CENTER })] })
+                ),
                 tableHeader: true,
             });
 
-            const tableRows = reportData.map((person, index) => {
-                const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+            const tableRows = dataToExport.map((row) => {
                 return new DocxTableRow({
-                    children: [
-                        new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER, bidirectional: true })] }),
-                    ],
+                    children: [...row].reverse().map(cell => 
+                        new DocxTableCell({ children: [new Paragraph({ text: String(cell), alignment: AlignmentType.CENTER })] })
+                    ),
                 });
             });
 
             const table = new DocxTable({
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
-                columnWidths: [500, 2000, 1500, 2500, 2000, 1500],
-                bidirectional: true,
+                columnWidths: [1500, 2000, 2500, 1500, 2000, 500].reverse(),
             });
 
             const doc = new Document({
                 sections: [{
                     children: [
-                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER, bidirectional: true }),
+                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER }),
                         table,
                     ],
                 }],
