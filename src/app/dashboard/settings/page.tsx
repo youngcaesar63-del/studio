@@ -40,26 +40,33 @@ export default function SettingsPage() {
     
     const [activeTheme, setActiveTheme] = useState<Theme>(themes[0]);
 
-    useEffect(() => {
-        const savedThemeName = localStorage.getItem('app-theme-name') || 'افتراضي';
-        const newTheme = themes.find(t => t.name === savedThemeName) || themes[0];
-        setTheme(newTheme);
-    }, []);
-
     const setTheme = (theme: Theme) => {
         localStorage.setItem('app-theme-name', theme.name);
         setActiveTheme(theme);
-        document.documentElement.style.setProperty('--primary-hsl', `${theme.primary.h} ${theme.primary.s}% ${theme.primary.l}%`);
-        document.documentElement.style.setProperty('--primary', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
-        document.documentElement.style.setProperty('--accent-hsl', `${theme.accent.h} ${theme.accent.s}% ${theme.accent.l}%`);
-        document.documentElement.style.setProperty('--accent', `hsl(${theme.accent.h}, ${theme.accent.s}%, ${theme.accent.l}%)`);
-        document.documentElement.style.setProperty('--background', `hsl(${theme.background.h}, ${theme.background.s}%, ${theme.background.l}%)`);
-        document.documentElement.style.setProperty('--ring', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
+        
+        const root = document.documentElement;
+        root.style.setProperty('--primary-hsl', `${theme.primary.h} ${theme.primary.s}% ${theme.primary.l}%`);
+        root.style.setProperty('--accent-hsl', `${theme.accent.h} ${theme.accent.s}% ${theme.accent.l}%`);
+        
+        // Note: For dark mode, you might need a different background color logic
+        // This example applies the background for the current mode (light/dark)
+        root.style.setProperty('--background-hsl', `${theme.background.h} ${theme.background.s}% ${theme.background.l}%`);
+        root.style.setProperty('--ring-hsl', `${theme.primary.h} ${theme.primary.s}% ${theme.primary.l}%`);
+        
         toast({
             title: 'تم تغيير السمة',
             description: `تم تطبيق سمة "${theme.name}" بنجاح.`,
         });
     };
+    
+    useEffect(() => {
+        const savedThemeName = localStorage.getItem('app-theme-name');
+        if (savedThemeName) {
+            const newTheme = themes.find(t => t.name === savedThemeName) || themes[0];
+            setTheme(newTheme);
+        }
+    }, []);
+
 
     const handleSaveChanges = () => {
         toast({
