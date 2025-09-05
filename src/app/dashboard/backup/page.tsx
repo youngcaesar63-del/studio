@@ -11,10 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
 import { saveAs } from 'file-saver';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { format } from "date-fns";
+import { arSA } from "date-fns/locale";
 
 type Backup = {
   id: string;
-  date: string;
+  date: string; // ISO Date string
   size: string;
   status: 'مكتمل' | 'فشل';
   data: any; 
@@ -85,7 +87,7 @@ export default function BackupPage() {
             
             const newBackup: Backup = {
                 id: `backup-${Date.now()}`,
-                date: new Date().toLocaleString('ar-SA'),
+                date: new Date().toISOString(),
                 size: `${sizeInMB} MB`,
                 status: 'مكتمل',
                 data: allData,
@@ -154,16 +156,20 @@ export default function BackupPage() {
                 updateLocalStorage('rolesData', restoredData.rolesData);
                 updateLocalStorage('usersData', restoredData.usersData);
                 updateLocalStorage('attachmentsData', restoredData.attachmentsData || []);
+                updateLocalStorage('readNotifications', []);
+
 
                 if (restoredData['app-theme-name']) {
                     localStorage.setItem('app-theme-name', restoredData['app-theme-name']);
                     // We need to reload to apply theme correctly
                     window.location.reload();
+                } else {
+                    // Force reload of other pages' data
+                    window.dispatchEvent(new CustomEvent('storage-update', { detail: { key: 'all' } }));
                 }
                 
                 toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
-                // Force reload of other pages' data
-                window.dispatchEvent(new CustomEvent('storage-update', { detail: { key: 'all' } }));
+                
 
             } catch (error) {
                 console.error("Restore failed:", error);
@@ -203,9 +209,9 @@ export default function BackupPage() {
                         <CardDescription>إدارة النسخ الاحتياطية لبيانات النظام لضمان سلامتها واستعادتها عند الحاجة.</CardDescription>
                     </div>
                     <div className="flex gap-2">
-                        <Button onClick={() => restoreInputRef.current?.click()} variant="outline">
-                            <Upload className="ml-2 h-4 w-4" />
-                            استعادة نسخة احتياطية
+                        <Button onClick={() => restoreInputRef.current?.click()} variant="outline" disabled={isRestoring}>
+                             {isRestoring ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Upload className="ml-2 h-4 w-4" />}
+                            {isRestoring ? 'جاري الاستعادة...' : 'استعادة نسخة احتياطية'}
                         </Button>
                         <input type="file" ref={restoreInputRef} onChange={handleFileSelect} accept=".json" className="hidden" />
                         
@@ -236,7 +242,7 @@ export default function BackupPage() {
                             <TableBody>
                                 {backupHistory.length > 0 ? backupHistory.map((backup) => (
                                     <TableRow key={backup.id} className="hover:bg-muted/30">
-                                        <TableCell className="font-medium text-center">{backup.date}</TableCell>
+                                        <TableCell className="font-medium text-center">{format(new Date(backup.date), "d MMMM yyyy, h:mm:ss a", { locale: arSA })}</TableCell>
                                         <TableCell className="text-muted-foreground text-center border-r">{backup.size}</TableCell>
                                         <TableCell className="text-center border-r">
                                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusVariant(backup.status)}`}>
@@ -256,7 +262,7 @@ export default function BackupPage() {
                                                     <AlertDialogHeader>
                                                         <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                        سيتم حذف النسخة الاحتياطية بتاريخ {backup.date} بشكل دائم.
+                                                        سيتم حذف النسخة الاحتياطية بتاريخ {format(new Date(backup.date), "d MMMM yyyy", { locale: arSA })} بشكل دائم.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
                                                     <AlertDialogFooter>
@@ -310,5 +316,3 @@ export default function BackupPage() {
         </div>
     )
 }
-
-    
