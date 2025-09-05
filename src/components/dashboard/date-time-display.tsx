@@ -7,6 +7,7 @@ import { Calendar, Clock } from 'lucide-react';
 export function DateTimeDisplay() {
   const [time, setTime] = useState('');
   const [hijriDate, setHijriDate] = useState('');
+  const [gregorianDate, setGregorianDate] = useState('');
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -18,6 +19,10 @@ export function DateTimeDisplay() {
       const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
       const hijriDateString = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now);
       setHijriDate(hijriDateString);
+      
+      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Africa/Khartoum' };
+      const gregorianDateString = new Intl.DateTimeFormat('ar-SA-u-nu-latn', gregorianDateOptions).format(now);
+      setGregorianDate(gregorianDateString);
     };
 
     updateDateTime();
@@ -28,10 +33,14 @@ export function DateTimeDisplay() {
 
 
   return (
-    <div className="flex items-center space-x-4 rtl:space-x-reverse">
+    <div className="flex items-center space-x-4 rtl:space-x-reverse flex-wrap gap-2">
         <div className="flex items-center bg-card dark:bg-card/50 px-4 py-2 rounded-lg shadow-sm transition-colors duration-300">
             <Calendar className="ml-2 h-5 w-5 text-muted-foreground" />
             <span className="font-medium text-sm">{hijriDate || '...'}</span>
+        </div>
+         <div className="flex items-center bg-card dark:bg-card/50 px-4 py-2 rounded-lg shadow-sm transition-colors duration-300">
+            <Calendar className="ml-2 h-5 w-5 text-muted-foreground" />
+            <span className="font-medium text-sm">{gregorianDate || '...'}</span>
         </div>
         <div className="flex items-center bg-card dark:bg-card/50 px-4 py-2 rounded-lg shadow-sm transition-colors duration-300">
             <Clock className="ml-2 h-5 w-5 text-muted-foreground" />
