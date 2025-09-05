@@ -50,6 +50,7 @@ import {
   getStatusDetailLabel,
   statusRequiresDate
 } from '@/lib/constants';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 const importantJobSchema = z.object({
@@ -341,586 +342,610 @@ export default function EditPersonnelPage() {
         <CardContent className="pt-6">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                     <FormField control={form.control} name="photo" render={({ field }) => (
-                      <FormItem className="flex flex-col items-center gap-4 lg:col-span-1">
-                        <FormLabel>الصورة الشخصية</FormLabel>
-                        <FormControl>
-                            <div className="flex flex-col items-center gap-4">
-                                <div 
-                                className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50 cursor-pointer hover:border-primary transition-colors"
-                                onClick={() => fileInputRef.current?.click()}
-                                >
-                                {photoPreview ? (
-                                    <Image src={photoPreview} alt="معاينة الصورة" width={160} height={160} className="rounded-lg object-cover w-full h-full" />
-                                ) : (
-                                    <div className="text-center text-muted-foreground">
-                                    <User className="w-16 h-16 mx-auto" />
-                                    <p className="text-xs mt-1">انقر للرفع</p>
+               <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
+                
+                 <AccordionItem value="item-1">
+                    <AccordionTrigger className="text-xl font-semibold">المعلومات الأساسية</AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                             <FormField control={form.control} name="photo" render={({ field }) => (
+                              <FormItem className="flex flex-col items-center gap-4 lg:col-span-1">
+                                <FormLabel>الصورة الشخصية</FormLabel>
+                                <FormControl>
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div 
+                                        className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted/50 cursor-pointer hover:border-primary transition-colors"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        >
+                                        {photoPreview ? (
+                                            <Image src={photoPreview} alt="معاينة الصورة" width={160} height={160} className="rounded-lg object-cover w-full h-full" />
+                                        ) : (
+                                            <div className="text-center text-muted-foreground">
+                                            <User className="w-16 h-16 mx-auto" />
+                                            <p className="text-xs mt-1">انقر للرفع</p>
+                                            </div>
+                                        )}
+                                        </div>
+                                        <Input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        ref={fileInputRef} 
+                                        onChange={handlePhotoChange} 
+                                        className="hidden" 
+                                        />
+                                        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                                            <Upload className="ml-2 h-4 w-4" />
+                                            تغيير الصورة
+                                        </Button>
                                     </div>
-                                )}
-                                </div>
-                                <Input 
-                                type="file" 
-                                accept="image/*" 
-                                ref={fileInputRef} 
-                                onChange={handlePhotoChange} 
-                                className="hidden" 
-                                />
-                                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                                    <Upload className="ml-2 h-4 w-4" />
-                                    تغيير الصورة
-                                </Button>
-                            </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:col-span-2">
-                        <FormField control={form.control} name="fullName" render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="cardId" render={({ field }) => (
-                            <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                         <FormField control={form.control} name="administration" render={({ field }) => (
-                            <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="rank" render={({ field }) => (
-                            <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="specialization" render={({ field }) => (
-                            <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="academicQualification" render={({ field }) => (
-                            <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        {['بكالوريوس', 'ماجستير', 'دكتوراه', 'دبلوم'].includes(academicQualificationValue || '') && (
-                            <FormField control={form.control} name="major" render={({ field }) => (
-                                <FormItem><FormLabel>التخصص الدقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
                             )} />
-                        )}
-                        <FormField control={form.control} name="batch" render={({ field }) => (
-                            <FormItem><FormLabel>الدفعة</FormLabel>
-                             <Combobox
-                                options={batches}
-                                value={field.value}
-                                onChange={(value) => form.setValue('batch', value)}
-                                placeholder="اختر الدفعة..."
-                                filterPlaceholder="ابحث عن دفعة..."
-                              />
-                            <FormMessage />
-                            </FormItem>
-                        )} />
-                         <FormField control={form.control} name="appointmentDate" render={({ field }) => (
-                           <FormItem><FormLabel>تاريخ التعيين</FormLabel>
-                           <Popover open={dateFieldOpen['appointmentDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, appointmentDate: open}))}>
-                               <PopoverTrigger asChild>
-                                   <FormControl>
-                                       <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                           {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                       </Button>
-                                   </FormControl>
-                               </PopoverTrigger>
-                               <PopoverContent className="w-auto p-0" align="start">
-                                   <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                               </PopoverContent>
-                           </Popover>
-                           <FormMessage />
-                           </FormItem>
-                        )} />
-                         <FormField control={form.control} name="certificateType" render={({ field }) => (
-                            <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-
-                <h3 className="text-xl font-semibold mb-4">المعلومات الشخصية</h3>
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
-                            <FormItem><FormLabel>تاريخ الميلاد</FormLabel>
-                            <Popover open={dateFieldOpen['dateOfBirth']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, dateOfBirth: open}))}>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                            {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name="nationalId" render={({ field }) => (
-                            <FormItem><FormLabel>الرقم الوطني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="bloodType" render={({ field }) => (
-                            <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="maritalStatus" render={({ field }) => (
-                            <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <FormField control={form.control} name="phoneNumbers.sudani" render={({ field }) => (
-                            <FormItem><FormLabel>رقم سوداني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="phoneNumbers.zain" render={({ field }) => (
-                            <FormItem><FormLabel>رقم زين</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="phoneNumbers.mtn" render={({ field }) => (
-                            <FormItem><FormLabel>رقم MTN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name="religion" render={({ field }) => (
-                            <FormItem><FormLabel>الديانة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الديانة" /></SelectTrigger></FormControl><SelectContent>{religions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-                
-                <h3 className="text-xl font-semibold mb-4">بيانات العنوان</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="state" render={({ field }) => (
-                        <FormItem><FormLabel>الولاية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الولاية" /></SelectTrigger></FormControl><SelectContent>{states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="city" render={({ field }) => (
-                        <FormItem><FormLabel>المدينة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="locality" render={({ field }) => (
-                        <FormItem><FormLabel>المحلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="address" render={({ field }) => (
-                        <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>العنوان بالتفصيل</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                </div>
-                
-                <Separator className="my-8" />
-                
-                <h3 className="text-xl font-semibold mb-4">المعلومات العائلية</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="fatherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={form.control} name="fatherAddress" render={({ field }) => ( <FormItem><FormLabel>عنوان الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={form.control} name="motherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأم</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={form.control} name="wifeName" render={({ field }) => ( <FormItem><FormLabel>اسم الزوجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
-                </div>
-                
-                <div className="mt-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-lg font-semibold">الأبناء</h4>
-                        <Button type="button" variant="outline" size="sm" onClick={() => appendChild({ name: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة إبن </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {childrenFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                            <FormField control={form.control} name={`children.${index}.name`} render={({ field }) => ( <FormItem className="md:col-span-3"><FormLabel>اسم الإبن</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeChild(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:col-span-2">
+                                <FormField control={form.control} name="fullName" render={({ field }) => (
+                                    <FormItem className="md:col-span-2"><FormLabel>الاسم الكامل</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="cardId" render={({ field }) => (
+                                    <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                 <FormField control={form.control} name="administration" render={({ field }) => (
+                                    <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="rank" render={({ field }) => (
+                                    <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="specialization" render={({ field }) => (
+                                    <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="academicQualification" render={({ field }) => (
+                                    <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                {['بكالوريوس', 'ماجستير', 'دكتوراه', 'دبلوم'].includes(academicQualificationValue || '') && (
+                                    <FormField control={form.control} name="major" render={({ field }) => (
+                                        <FormItem><FormLabel>التخصص الدقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                )}
+                                <FormField control={form.control} name="batch" render={({ field }) => (
+                                    <FormItem><FormLabel>الدفعة</FormLabel>
+                                     <Combobox
+                                        options={batches}
+                                        value={field.value}
+                                        onChange={(value) => form.setValue('batch', value)}
+                                        placeholder="اختر الدفعة..."
+                                        filterPlaceholder="ابحث عن دفعة..."
+                                      />
+                                    <FormMessage />
+                                    </FormItem>
+                                )} />
+                                 <FormField control={form.control} name="appointmentDate" render={({ field }) => (
+                                   <FormItem><FormLabel>تاريخ التعيين</FormLabel>
+                                   <Popover open={dateFieldOpen['appointmentDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, appointmentDate: open}))}>
+                                       <PopoverTrigger asChild>
+                                           <FormControl>
+                                               <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                   {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                               </Button>
+                                           </FormControl>
+                                       </PopoverTrigger>
+                                       <PopoverContent className="w-auto p-0" align="start">
+                                           <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                       </PopoverContent>
+                                   </Popover>
+                                   <FormMessage />
+                                   </FormItem>
+                                )} />
+                                 <FormField control={form.control} name="certificateType" render={({ field }) => (
+                                    <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                            </div>
                         </div>
-                    ))}
-                    </div>
-                </div>
+                    </AccordionContent>
+                 </AccordionItem>
 
-                <div className="mt-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-lg font-semibold">الأشقاء</h4>
-                        <Button type="button" variant="outline" size="sm" onClick={() => appendBrother({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيق </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {brothersFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                            <FormField control={form.control} name={`brothers.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <FormField control={form.control} name={`brothers.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeBrother(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                 <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-xl font-semibold">المعلومات الشخصية والعائلية</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-8">
+                        <div>
+                             <h4 className="text-lg font-semibold mb-4">المعلومات الشخصية</h4>
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
+                                        <FormItem><FormLabel>تاريخ الميلاد</FormLabel>
+                                        <Popover open={dateFieldOpen['dateOfBirth']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, dateOfBirth: open}))}>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                        {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="nationalId" render={({ field }) => (
+                                        <FormItem><FormLabel>الرقم الوطني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="bloodType" render={({ field }) => (
+                                        <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="maritalStatus" render={({ field }) => (
+                                        <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="religion" render={({ field }) => (
+                                        <FormItem><FormLabel>الديانة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الديانة" /></SelectTrigger></FormControl><SelectContent>{religions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    )} />
+                                </div>
+                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                     <FormField control={form.control} name="phoneNumbers.sudani" render={({ field }) => (
+                                        <FormItem><FormLabel>رقم سوداني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="phoneNumbers.zain" render={({ field }) => (
+                                        <FormItem><FormLabel>رقم زين</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="phoneNumbers.mtn" render={({ field }) => (
+                                        <FormItem><FormLabel>رقم MTN</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                 </div>
+                            </div>
                         </div>
-                    ))}
-                    </div>
-                </div>
-                
-                <div className="mt-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-lg font-semibold">الشقيقات</h4>
-                        <Button type="button" variant="outline" size="sm" onClick={() => appendSister({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيقة </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {sistersFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                            <FormField control={form.control} name={`sisters.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <FormField control={form.control} name={`sisters.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeSister(index)}> <Trash2 className="h-4 w-4" /> </Button>
+
+                         <Separator className="my-8" />
+                        <div>
+                             <h4 className="text-lg font-semibold mb-4">بيانات العنوان وأقرب الأقربين</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                                <FormField control={form.control} name="state" render={({ field }) => (
+                                    <FormItem><FormLabel>الولاية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الولاية" /></SelectTrigger></FormControl><SelectContent>{states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="city" render={({ field }) => (
+                                    <FormItem><FormLabel>المدينة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="locality" render={({ field }) => (
+                                    <FormItem><FormLabel>المحلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="address" render={({ field }) => (
+                                    <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>العنوان بالتفصيل</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <FormField control={form.control} name="nextOfKinName" render={({ field }) => (
+                                    <FormItem><FormLabel>اسم القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="nextOfKinPhone" render={({ field }) => (
+                                    <FormItem><FormLabel>رقم هاتف القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="nextOfKinAddress" render={({ field }) => (
+                                    <FormItem className="lg:col-span-3"><FormLabel>عنوان القريب</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                            </div>
                         </div>
-                    ))}
-                    </div>
-                </div>
 
+                         <Separator className="my-8" />
+                        <div>
+                             <h4 className="text-lg font-semibold mb-4">المعلومات العائلية</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField control={form.control} name="fatherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                                <FormField control={form.control} name="fatherAddress" render={({ field }) => ( <FormItem><FormLabel>عنوان الأب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                                <FormField control={form.control} name="motherName" render={({ field }) => ( <FormItem><FormLabel>اسم الأم</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                                <FormField control={form.control} name="wifeName" render={({ field }) => ( <FormItem><FormLabel>اسم الزوجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                            </div>
+                            
+                            <div className="mt-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="font-semibold">الأبناء</h4>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => appendChild({ name: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة إبن </Button>
+                                </div>
+                                <div className="space-y-4">
+                                {childrenFields.map((field, index) => (
+                                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                        <FormField control={form.control} name={`children.${index}.name`} render={({ field }) => ( <FormItem className="md:col-span-3"><FormLabel>اسم الإبن</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => removeChild(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
 
-                <Separator className="my-8" />
-                
-                <h3 className="text-xl font-semibold mb-4">بيانات أقرب الأقربين</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="nextOfKinName" render={({ field }) => (
-                        <FormItem><FormLabel>اسم القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="nextOfKinPhone" render={({ field }) => (
-                        <FormItem><FormLabel>رقم هاتف القريب</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="nextOfKinAddress" render={({ field }) => (
-                        <FormItem className="lg:col-span-3"><FormLabel>عنوان القريب</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                </div>
+                            <div className="mt-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="font-semibold">الأشقاء</h4>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => appendBrother({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيق </Button>
+                                </div>
+                                <div className="space-y-4">
+                                {brothersFields.map((field, index) => (
+                                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                        <FormField control={form.control} name={`brothers.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                        <FormField control={form.control} name={`brothers.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيق</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => removeBrother(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="font-semibold">الشقيقات</h4>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => appendSister({ name: '', address: '' })}> <PlusCircle className="ml-2 h-4 w-4" /> إضافة شقيقة </Button>
+                                </div>
+                                <div className="space-y-4">
+                                {sistersFields.map((field, index) => (
+                                    <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                        <FormField control={form.control} name={`sisters.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>اسم الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                        <FormField control={form.control} name={`sisters.${index}.address`} render={({ field }) => ( <FormItem className="md:col-span-2"><FormLabel>عنوان الشقيقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => removeSister(index)}> <Trash2 className="h-4 w-4" /> </Button>
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
+                        </div>
 
+                    </AccordionContent>
+                </AccordionItem>
 
-                <Separator className="my-8" />
-
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">أهم الوظائف التي شغلها</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة وظيفة
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {jobFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`importantJobs.${index}.jobTitle`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>المسمى الوظيفي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`importantJobs.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`importantJobs.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <div className="flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeJob(index)}>
-                                <Trash2 className="h-4 w-4" />
+                 <AccordionItem value="item-3">
+                    <AccordionTrigger className="text-xl font-semibold">التاريخ العسكري</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-8">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">أهم الوظائف التي شغلها</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendJob({ jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة وظيفة
                             </Button>
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-                
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">الوحدات والإدارات والمعاهد التي عمل بها</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {serviceHistoryFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`serviceHistory.${index}.unitName`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>اسم الوحدة/الإدارة/المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`serviceHistory.${index}.jobTitle`} render={({ field }) => (
-                            <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`serviceHistory.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`serviceHistory.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <div className="flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeServiceHistory(index)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-                
-                <Separator className="my-8" />
-                
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">مناطق خدمة العمليات</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة منطقة خدمة
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {serviceFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`serviceOperations.${index}.areaName`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>اسم المنطقة / الوحدة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`serviceOperations.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`serviceOperations.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-                
-                <Separator className="my-8" />
-                
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة مشاركة
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {decisiveStormFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`decisiveStorm.${index}.name`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>اسم الخلية/اللواء/الكتيبة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`decisiveStorm.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`decisiveStorm.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <Button type="button" variant="destructive" size="icon" onClick={() => removeDecisiveStorm(index)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-                
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">الدورات التدريبية</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date(), grade: 'أ' })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة دورة تدريبية
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {courseFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`trainingCourses.${index}.courseName`} render={({ field }) => (
-                            <FormItem><FormLabel>اسم الدورة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.institute`} render={({ field }) => (
-                            <FormItem><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.courseType`} render={({ field }) => (
-                            <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.imperativeness`} render={({ field }) => (
-                            <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.grade`} render={({ field }) => (
-                            <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`trainingCourses.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <Button type="button" variant="destructive" size="icon" onClick={() => removeCourse(index)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-                
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">الأوسمة والأنواط</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendMedal({ name: '' })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة وسام
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {medalFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`medals.${index}.name`} render={({ field }) => (
-                            <FormItem className="md:col-span-3"><FormLabel>اسم الوسام / النوط</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <div className="flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeMedal(index)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">اللغات واللهجات</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendLanguage({ name: '' })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة لغة
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {languageFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`languages.${index}.name`} render={({ field }) => (
-                            <FormItem className="md:col-span-3"><FormLabel>اسم اللغة / اللهجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <div className="flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeLanguage(index)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-                
-                <Separator className="my-8" />
-
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold">الآليات</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendMechanism({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة آلية
-                    </Button>
-                    </div>
-                    <div className="space-y-4">
-                    {mechanismFields.map((field, index) => (
-                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
-                        <FormField control={form.control} name={`mechanisms.${index}.name`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`mechanisms.${index}.periodFrom`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <FormField control={form.control} name={`mechanisms.${index}.periodTo`} render={({ field }) => (
-                            <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
-                        )} />
-                        <div className="flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => removeMechanism(index)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-
-                <Separator className="my-8" />
-                
-                <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <FormField control={form.control} name="status" render={({ field }) => (
-                        <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
-                    )} />
-                     {statusesWithDetails.includes(statusValue) && (
-                      statusRequiresDate.includes(statusValue) ? (
-                        <FormField control={form.control} name="statusDate" render={({ field }) => (
-                          <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel>
-                            <Popover open={dateFieldOpen['statusDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, statusDate: open}))}>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                            {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                                </PopoverContent>
-                            </Popover>
-                          <FormMessage />
-                          </FormItem>
-                      )} />
-                      ) : (
-                        <FormField control={form.control} name="statusDetail" render={({ field }) => (
-                            <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
-                        )} />
-                      )
-                    )}
-                    <FormField control={form.control} name="transferDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ النقل</FormLabel>
-                        <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                        {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </div>
+                            <div className="space-y-4">
+                            {jobFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`importantJobs.${index}.jobTitle`} render={({ field }) => (
+                                    <FormItem className="md:col-span-2"><FormLabel>المسمى الوظيفي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`importantJobs.${index}.periodFrom`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`importantJobs.${index}.periodTo`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <div className="flex items-end">
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => removeJob(index)}>
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={form.control} name="reportingDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ التبليغ</FormLabel>
-                        <Popover open={dateFieldOpen['reportingDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, reportingDate: open}))}>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                        {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+
+                         <Separator className="my-8" />
+                        
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">الوحدات والإدارات والمعاهد التي عمل بها</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendServiceHistory({ unitName: '', jobTitle: '', periodFrom: new Date(), periodTo: new Date() })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {serviceHistoryFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`serviceHistory.${index}.unitName`} render={({ field }) => (
+                                    <FormItem className="md:col-span-2"><FormLabel>اسم الوحدة/الإدارة/المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`serviceHistory.${index}.jobTitle`} render={({ field }) => (
+                                    <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`serviceHistory.${index}.periodFrom`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`serviceHistory.${index}.periodTo`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <div className="flex items-end">
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => removeServiceHistory(index)}>
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
-                        <FormItem><FormLabel>تاريخ آخر عودة</FormLabel>
-                        <Popover open={dateFieldOpen['lastReturnDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, lastReturnDate: open}))}>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                        {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+
+                         <Separator className="my-8" />
+                        
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">مناطق خدمة العمليات</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendService({ areaName: '', periodFrom: new Date(), periodTo: new Date() })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة منطقة خدمة
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {serviceFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`serviceOperations.${index}.areaName`} render={({ field }) => (
+                                    <FormItem className="md:col-span-2"><FormLabel>اسم المنطقة / الوحدة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`serviceOperations.${index}.periodFrom`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`serviceOperations.${index}.periodTo`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+                        
+                         <Separator className="my-8" />
+                        
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">خلايا وألوية وكتائب عاصفة الحزم</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendDecisiveStorm({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة مشاركة
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {decisiveStormFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`decisiveStorm.${index}.name`} render={({ field }) => (
+                                    <FormItem className="md:col-span-2"><FormLabel>اسم الخلية/اللواء/الكتيبة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`decisiveStorm.${index}.periodFrom`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`decisiveStorm.${index}.periodTo`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <Button type="button" variant="destructive" size="icon" onClick={() => removeDecisiveStorm(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+
+                    </AccordionContent>
+                </AccordionItem>
+
+                 <AccordionItem value="item-4">
+                    <AccordionTrigger className="text-xl font-semibold">الدورات والمهارات</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-8">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">الدورات التدريبية</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendCourse({ courseName: '', courseType: 'داخلية', imperativeness: 'حتمية', institute: '', periodFrom: new Date(), periodTo: new Date(), grade: 'أ' })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة دورة تدريبية
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {courseFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`trainingCourses.${index}.courseName`} render={({ field }) => (
+                                    <FormItem><FormLabel>اسم الدورة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.institute`} render={({ field }) => (
+                                    <FormItem><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.courseType`} render={({ field }) => (
+                                    <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.imperativeness`} render={({ field }) => (
+                                    <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.grade`} render={({ field }) => (
+                                    <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name={`trainingCourses.${index}.periodTo`} render={({ field }) => (
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                )} />
+                                <Button type="button" variant="destructive" size="icon" onClick={() => removeCourse(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+
+                        <Separator className="my-8" />
+                        
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">الأوسمة والأنواط</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendMedal({ name: '' })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة وسام
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {medalFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`medals.${index}.name`} render={({ field }) => (
+                                    <FormItem className="md:col-span-3"><FormLabel>اسم الوسام / النوط</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <div className="flex items-end">
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => removeMedal(index)}>
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
-                            </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                        </FormItem>
-                    )} />
-                    <FormField control={form.control} name="notes" render={({ field }) => (
-                        <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>معلومات إضافية</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                </div>
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+
+                        <Separator className="my-8" />
+
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold">اللغات واللهجات</h4>
+                            <Button type="button" variant="outline" size="sm" onClick={() => appendLanguage({ name: '' })}>
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                                إضافة لغة
+                            </Button>
+                            </div>
+                            <div className="space-y-4">
+                            {languageFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                                <FormField control={form.control} name={`languages.${index}.name`} render={({ field }) => (
+                                    <FormItem className="md:col-span-3"><FormLabel>اسم اللغة / اللهجة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <div className="flex items-end">
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => removeLanguage(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                        </div>
+                    </AccordionContent>
+                 </AccordionItem>
+                
+                 <AccordionItem value="item-5">
+                    <AccordionTrigger className="text-xl font-semibold">الآليات</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-8">
+                      <div>
+                          <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold">الآليات</h4>
+                          <Button type="button" variant="outline" size="sm" onClick={() => appendMechanism({ name: '', periodFrom: new Date(), periodTo: new Date() })}>
+                              <PlusCircle className="ml-2 h-4 w-4" />
+                              إضافة آلية
+                          </Button>
+                          </div>
+                          <div className="space-y-4">
+                          {mechanismFields.map((field, index) => (
+                              <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-muted/50 items-end">
+                              <FormField control={form.control} name={`mechanisms.${index}.name`} render={({ field }) => (
+                                  <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                              )} />
+                              <FormField control={form.control} name={`mechanisms.${index}.periodFrom`} render={({ field }) => (
+                                  <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                              )} />
+                              <FormField control={form.control} name={`mechanisms.${index}.periodTo`} render={({ field }) => (
+                                  <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                              )} />
+                              <div className="flex items-end">
+                                  <Button type="button" variant="destructive" size="icon" onClick={() => removeMechanism(index)}>
+                                      <Trash2 className="h-4 w-4" />
+                                  </Button>
+                              </div>
+                              </div>
+                          ))}
+                          </div>
+                      </div>
+                    </AccordionContent>
+                 </AccordionItem>
+
+                 <AccordionItem value="item-6">
+                    <AccordionTrigger className="text-xl font-semibold">معلومات إضافية</AccordionTrigger>
+                    <AccordionContent className="pt-4 space-y-8">
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <FormField control={form.control} name="status" render={({ field }) => (
+                                <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                            )} />
+                             {statusesWithDetails.includes(statusValue) && (
+                              statusRequiresDate.includes(statusValue) ? (
+                                <FormField control={form.control} name="statusDate" render={({ field }) => (
+                                  <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel>
+                                    <Popover open={dateFieldOpen['statusDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, statusDate: open}))}>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                    {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                        </PopoverContent>
+                                    </Popover>
+                                  <FormMessage />
+                                  </FormItem>
+                              )} />
+                              ) : (
+                                <FormField control={form.control} name="statusDetail" render={({ field }) => (
+                                    <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                              )
+                            )}
+                            <FormField control={form.control} name="transferDate" render={({ field }) => (
+                                <FormItem><FormLabel>تاريخ النقل</FormLabel>
+                                <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="reportingDate" render={({ field }) => (
+                                <FormItem><FormLabel>تاريخ التبليغ</FormLabel>
+                                <Popover open={dateFieldOpen['reportingDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, reportingDate: open}))}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="lastReturnDate" render={({ field }) => (
+                                <FormItem><FormLabel>تاريخ آخر عودة</FormLabel>
+                                <Popover open={dateFieldOpen['lastReturnDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, lastReturnDate: open}))}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                                {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="notes" render={({ field }) => (
+                                <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>معلومات إضافية</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
+                        </div>
+                    </AccordionContent>
+                 </AccordionItem>
+
+               </Accordion>
+
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>

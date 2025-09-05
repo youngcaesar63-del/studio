@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 type ImportantJob = {
     jobTitle: string;
@@ -254,343 +255,320 @@ export default function ViewPersonnelPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-6 md:p-8 space-y-8">
+                <CardContent className="p-6 md:p-8 space-y-2">
+                  <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
                     
-                    <div>
-                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><User className="h-5 w-5" /> المعلومات الشخصية</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            <DetailItem icon={Hash} label="رقم البطاقة" value={formatArabicNumber(person.cardId)} />
-                            <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId ? formatArabicNumber(person.nationalId) : 'غير مسجل'} />
-                            <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                            <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
-                            <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
-                             <DetailItem icon={BookOpen} label="الديانة" value={person.religion} />
-                            <DetailItem icon={Phone} label="رقم سوداني" value={person.phoneNumbers?.sudani ? formatArabicNumber(person.phoneNumbers.sudani) : 'غير مسجل'} />
-                            <DetailItem icon={Phone} label="رقم زين" value={person.phoneNumbers?.zain ? formatArabicNumber(person.phoneNumbers.zain) : 'غير مسجل'} />
-                            <DetailItem icon={Phone} label="رقم MTN" value={person.phoneNumbers?.mtn ? formatArabicNumber(person.phoneNumbers.mtn) : 'غير مسجل'} />
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Briefcase className="h-5 w-5" /> المعلومات الوظيفية</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
-                             <DetailItem icon={Badge} label="الحالة" value={getStatusDisplay(person)} />
-                            <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
-                            {person.major && <DetailItem icon={BrainCircuit} label="التخصص الدقيق" value={person.major} />}
-                            <DetailItem icon={Users} label="الدفعة" value={person.batch} />
-                            <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
-                            <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                            <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
-                            <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                            <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                            <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> المعلومات العائلية</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
-                             <DetailItem icon={User} label="اسم الأب" value={person.fatherName} />
-                             <DetailItem icon={MapPin} label="عنوان الأب" value={person.fatherAddress} />
-                             <DetailItem icon={User} label="اسم الأم" value={person.motherName} />
-                             <DetailItem icon={User} label="اسم الزوجة" value={person.wifeName} />
-                        </div>
-                        {person.children && person.children.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأبناء</h4>
-                                <ul className="list-disc list-inside space-y-1">
-                                    {person.children.map((child, index) => <li key={index}>{child.name}</li>)}
-                                </ul>
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger className="text-xl font-bold text-primary">المعلومات الأساسية والوظيفية</AccordionTrigger>
+                        <AccordionContent className="pt-4 space-y-6">
+                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                <DetailItem icon={Hash} label="رقم البطاقة" value={formatArabicNumber(person.cardId)} />
+                                <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId ? formatArabicNumber(person.nationalId) : 'غير مسجل'} />
+                                <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
+                                <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
+                                <DetailItem icon={BookOpen} label="الديانة" value={person.religion} />
                             </div>
-                        )}
-                        {person.brothers && person.brothers.length > 0 && (
-                             <div className="mt-6">
-                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأشقاء</h4>
-                                <ul className="list-disc list-inside space-y-1">
-                                    {person.brothers.map((b, index) => <li key={index}>{b.name} {b.address && ` - ${b.address}`}</li>)}
-                                </ul>
-                            </div>
-                        )}
-                         {person.sisters && person.sisters.length > 0 && (
-                             <div className="mt-6">
-                                <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الشقيقات</h4>
-                                <ul className="list-disc list-inside space-y-1">
-                                    {person.sisters.map((s, index) => <li key={index}>{s.name} {s.address && ` - ${s.address}`}</li>)}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
-                    
-                    <Separator />
-                    
-                    {person.importantJobs && person.importantJobs.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Star className="h-5 w-5" /> أهم الوظائف التي شغلها</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">المسمى الوظيفي</TableHead>
-                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
-                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.importantJobs.map((job, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{job.jobTitle}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(job.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(job.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {(person.importantJobs && person.importantJobs.length > 0) && <Separator />}
-                    
-                    {person.serviceHistory && person.serviceHistory.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Home className="h-5 w-5" /> الوحدات والإدارات والمعاهد التي عمل بها</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">الوحدة/الإدارة/المعهد</TableHead>
-                                            <TableHead className="text-center border-r">الوظيفة</TableHead>
-                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
-                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.serviceHistory.map((item, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{item.unitName}</TableCell>
-                                                <TableCell className="text-center border-r">{item.jobTitle}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(item.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(item.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-
-                    {(person.serviceHistory && person.serviceHistory.length > 0) && ((person.serviceOperations && person.serviceOperations.length > 0) || (person.decisiveStorm && person.decisiveStorm.length > 0)) && <Separator />}
-
-
-                    {person.serviceOperations && person.serviceOperations.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><LandPlot className="h-5 w-5" /> مناطق خدمة العمليات</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">المنطقة / الوحدة</TableHead>
-                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
-                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.serviceOperations.map((op, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{op.areaName}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {(person.serviceOperations && person.serviceOperations.length > 0) && (person.decisiveStorm && person.decisiveStorm.length > 0) && <Separator />}
-                    
-                    {person.decisiveStorm && person.decisiveStorm.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><LandPlot className="h-5 w-5" /> خلايا وألوية وكتائب عاصفة الحزم</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">الخلية/اللواء/الكتيبة</TableHead>
-                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
-                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.decisiveStorm.map((op, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{op.name}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-                     {((person.serviceOperations && person.serviceOperations.length > 0) || (person.decisiveStorm && person.decisiveStorm.length > 0)) && (person.trainingCourses && person.trainingCourses.length > 0) && <Separator />}
-
-
-                    {person.trainingCourses && person.trainingCourses.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><BookOpen className="h-5 w-5" /> الدورات التدريبية</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">اسم الدورة</TableHead>
-                                            <TableHead className="text-center border-r">النوع</TableHead>
-                                            <TableHead className="text-center border-r">الحتمية</TableHead>
-                                            <TableHead className="text-center border-r">التقدير</TableHead>
-                                            <TableHead className="text-center border-r">المعهد</TableHead>
-                                            <TableHead className="text-center border-r">من</TableHead>
-                                            <TableHead className="text-center border-r">إلى</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.trainingCourses.map((course, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{course.courseName}</TableCell>
-                                                <TableCell className="text-center border-r">{course.courseType}</TableCell>
-                                                <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
-                                                <TableCell className="text-center border-r">{course.grade || '-'}</TableCell>
-                                                <TableCell className="text-center border-r">{course.institute}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-
-                    {(person.trainingCourses && person.trainingCourses.length > 0) && (person.medals && person.medals.length > 0) && <Separator />}
-                    
-                    {person.medals && person.medals.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Award className="h-5 w-5" /> الأوسمة والأنواط</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">م</TableHead>
-                                            <TableHead className="text-center border-r">اسم الوسام / النوط</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.medals.map((medal, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
-                                                <TableCell className="text-center border-r">{medal.name}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-
-                    {(person.medals && person.medals.length > 0) && (person.languages && person.languages.length > 0) && <Separator />}
-
-                    {person.languages && person.languages.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Languages className="h-5 w-5" /> اللغات واللهجات</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">م</TableHead>
-                                            <TableHead className="text-center border-r">اللغة / اللهجة</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.languages.map((lang, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
-                                                <TableCell className="text-center border-r">{lang.name}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-                    
-                     {(person.languages && person.languages.length > 0) && (person.mechanisms && person.mechanisms.length > 0) && <Separator />}
-
-                    {person.mechanisms && person.mechanisms.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Users2 className="h-5 w-5" /> الآليات</h3>
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-center">اسم الآلية</TableHead>
-                                            <TableHead className="text-center border-r">من تاريخ</TableHead>
-                                            <TableHead className="text-center border-r">إلى تاريخ</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {person.mechanisms.map((v, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="text-center">{v.name}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(v.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                <TableCell className="text-center border-r">{format(new Date(v.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
-                    )}
-
-                    <Separator />
-                    
-                    <div>
-                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><MapPin className="h-5 w-5" /> بيانات العنوان</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                             <DetailItem icon={Globe} label="الولاية" value={person.state} />
-                             <DetailItem icon={Building} label="المدينة" value={person.city} />
-                             <DetailItem icon={MapPin} label="المحلية" value={person.locality} />
-                             <DetailItem icon={Info} label="العنوان بالتفصيل" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.address}</p>} fullWidth />
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                        <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><ShieldQuestion className="h-5 w-5" /> بيانات أقرب الأقربين</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                             <DetailItem icon={User} label="الاسم" value={person.nextOfKinName} />
-                             <DetailItem icon={Phone} label="رقم الهاتف" value={person.nextOfKinPhone ? formatArabicNumber(person.nextOfKinPhone) : 'غير مسجل'} />
-                             <DetailItem icon={MapPin} label="العنوان" value={person.nextOfKinAddress} fullWidth />
-                        </div>
-                    </div>
-
-                    {person.notes && (
-                         <>
                             <Separator />
-                            <div>
-                                <h3 className="text-xl font-bold mb-4 text-primary flex items-center gap-2"><Info className="h-5 w-5" /> معلومات إضافية</h3>
-                                <div className="grid grid-cols-1">
-                                    <DetailItem icon={Info} label="معلومات إضافية" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} fullWidth />
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
+                                <DetailItem icon={Badge} label="الحالة" value={getStatusDisplay(person)} />
+                                <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
+                                {person.major && <DetailItem icon={BrainCircuit} label="التخصص الدقيق" value={person.major} />}
+                                <DetailItem icon={Users} label="الدفعة" value={person.batch} />
+                                <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
+                                <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
+                                <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
                             </div>
-                         </>
-                    )}
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-2">
+                        <AccordionTrigger className="text-xl font-bold text-primary">المعلومات العائلية والعناوين</AccordionTrigger>
+                        <AccordionContent className="pt-4 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                 <DetailItem icon={User} label="اسم الأب" value={person.fatherName} />
+                                 <DetailItem icon={MapPin} label="عنوان الأب" value={person.fatherAddress} />
+                                 <DetailItem icon={User} label="اسم الأم" value={person.motherName} />
+                                 <DetailItem icon={User} label="اسم الزوجة" value={person.wifeName} />
+                            </div>
+                             {person.children && person.children.length > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأبناء</h4>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {person.children.map((child, index) => <li key={index}>{child.name}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                            {person.brothers && person.brothers.length > 0 && (
+                                 <div className="mt-6">
+                                    <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الأشقاء</h4>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {person.brothers.map((b, index) => <li key={index}>{b.name} {b.address && ` - ${b.address}`}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                             {person.sisters && person.sisters.length > 0 && (
+                                 <div className="mt-6">
+                                    <h4 className="text-lg font-semibold mb-2 text-muted-foreground">الشقيقات</h4>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {person.sisters.map((s, index) => <li key={index}>{s.name} {s.address && ` - ${s.address}`}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                            <Separator />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                 <DetailItem icon={Phone} label="رقم سوداني" value={person.phoneNumbers?.sudani ? formatArabicNumber(person.phoneNumbers.sudani) : 'غير مسجل'} />
+                                <DetailItem icon={Phone} label="رقم زين" value={person.phoneNumbers?.zain ? formatArabicNumber(person.phoneNumbers.zain) : 'غير مسجل'} />
+                                <DetailItem icon={Phone} label="رقم MTN" value={person.phoneNumbers?.mtn ? formatArabicNumber(person.phoneNumbers.mtn) : 'غير مسجل'} />
+                                 <DetailItem icon={Globe} label="الولاية" value={person.state} />
+                                 <DetailItem icon={Building} label="المدينة" value={person.city} />
+                                 <DetailItem icon={MapPin} label="المحلية" value={person.locality} />
+                                 <DetailItem icon={Info} label="العنوان بالتفصيل" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.address}</p>} fullWidth />
+                            </div>
+                            <Separator />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                 <DetailItem icon={ShieldQuestion} label="أقرب الأقربين" value={person.nextOfKinName} />
+                                 <DetailItem icon={Phone} label="هاتف القريب" value={person.nextOfKinPhone ? formatArabicNumber(person.nextOfKinPhone) : 'غير مسجل'} />
+                                 <DetailItem icon={MapPin} label="عنوان القريب" value={person.nextOfKinAddress} fullWidth />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="item-3">
+                        <AccordionTrigger className="text-xl font-bold text-primary">التاريخ العسكري والمهارات</AccordionTrigger>
+                        <AccordionContent className="pt-4 space-y-6">
+                           {person.importantJobs && person.importantJobs.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><Star className="h-5 w-5" /> أهم الوظائف التي شغلها</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">المسمى الوظيفي</TableHead>
+                                                    <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                                    <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.importantJobs.map((job, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{job.jobTitle}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(job.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(job.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {person.serviceHistory && person.serviceHistory.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><Home className="h-5 w-5" /> الوحدات والإدارات التي عمل بها</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">الوحدة/الإدارة/المعهد</TableHead>
+                                                    <TableHead className="text-center border-r">الوظيفة</TableHead>
+                                                    <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                                    <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.serviceHistory.map((item, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{item.unitName}</TableCell>
+                                                        <TableCell className="text-center border-r">{item.jobTitle}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(item.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(item.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+
+                             {person.serviceOperations && person.serviceOperations.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><LandPlot className="h-5 w-5" /> مناطق خدمة العمليات</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">المنطقة / الوحدة</TableHead>
+                                                    <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                                    <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.serviceOperations.map((op, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{op.areaName}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {person.decisiveStorm && person.decisiveStorm.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><LandPlot className="h-5 w-5" /> خلايا وألوية وكتائب عاصفة الحزم</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">الخلية/اللواء/الكتيبة</TableHead>
+                                                    <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                                    <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.decisiveStorm.map((op, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{op.name}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+
+                             {person.trainingCourses && person.trainingCourses.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><BookOpen className="h-5 w-5" /> الدورات التدريبية</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">اسم الدورة</TableHead>
+                                                    <TableHead className="text-center border-r">النوع</TableHead>
+                                                    <TableHead className="text-center border-r">الحتمية</TableHead>
+                                                    <TableHead className="text-center border-r">التقدير</TableHead>
+                                                    <TableHead className="text-center border-r">المعهد</TableHead>
+                                                    <TableHead className="text-center border-r">من</TableHead>
+                                                    <TableHead className="text-center border-r">إلى</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.trainingCourses.map((course, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{course.courseName}</TableCell>
+                                                        <TableCell className="text-center border-r">{course.courseType}</TableCell>
+                                                        <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
+                                                        <TableCell className="text-center border-r">{course.grade || '-'}</TableCell>
+                                                        <TableCell className="text-center border-r">{course.institute}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+
+                             {person.medals && person.medals.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><Award className="h-5 w-5" /> الأوسمة والأنواط</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">م</TableHead>
+                                                    <TableHead className="text-center border-r">اسم الوسام / النوط</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.medals.map((medal, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
+                                                        <TableCell className="text-center border-r">{medal.name}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+
+                             {person.languages && person.languages.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><Languages className="h-5 w-5" /> اللغات واللهجات</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">م</TableHead>
+                                                    <TableHead className="text-center border-r">اللغة / اللهجة</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.languages.map((lang, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center w-16">{formatArabicNumber(index + 1)}</TableCell>
+                                                        <TableCell className="text-center border-r">{lang.name}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+                            
+                             {person.mechanisms && person.mechanisms.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground flex items-center gap-2"><Users2 className="h-5 w-5" /> الآليات</h3>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="text-center">اسم الآلية</TableHead>
+                                                    <TableHead className="text-center border-r">من تاريخ</TableHead>
+                                                    <TableHead className="text-center border-r">إلى تاريخ</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {person.mechanisms.map((v, index) => (
+                                                    <TableRow key={index}>
+                                                        <TableCell className="text-center">{v.name}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(v.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{format(new Date(v.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                    
+                     <AccordionItem value="item-4">
+                        <AccordionTrigger className="text-xl font-bold text-primary">معلومات إضافية</AccordionTrigger>
+                        <AccordionContent className="pt-4">
+                             {person.notes && (
+                                <div>
+                                    <DetailItem icon={Info} label="ملاحظات" value={<p className="text-base font-normal text-muted-foreground whitespace-pre-wrap">{person.notes}</p>} fullWidth />
+                                </div>
+                             )}
+                        </AccordionContent>
+                    </AccordionItem>
+                 </Accordion>
+
                 </CardContent>
                 <CardFooter className="mt-8 pt-6 border-t flex justify-start items-center">
                     <Button onClick={() => router.push(`/dashboard/attachments?personnelId=${person.id}`)} variant="outline">

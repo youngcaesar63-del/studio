@@ -232,7 +232,7 @@ export default function StatisticsPage() {
                             dialogData.map((person, index) => (
                               <TableRow key={person.id}>
                                 <TableCell className="text-center">{formatArabicNumber(index + 1)}</TableCell>
-                                <TableCell className="text-center border-r">{formatArabicNumber(person.cardId)}</TableCell>
+                                <TableCell className="text-center border-r">{person.cardId}</TableCell>
                                 <TableCell className="text-center border-r">{person.name}</TableCell>
                                 <TableCell className="text-center border-r">{person.rank}</TableCell>
                                 <TableCell className="text-center border-r">{person.administration}</TableCell>

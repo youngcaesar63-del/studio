@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { fuzzyPersonnelSearch } from '@/ai/flows/fuzzy-personnel-search';
 import { useToast } from '@/hooks/use-toast';
+import { getLocalStorage } from '@/lib/localStorage-helpers';
 
 const ranks = ['فريق أول', 'فريق', 'لواء', 'عميد', 'عقيد', 'مقدم', 'رائد', 'نقيب', 'ملازم أول', 'ملازم'].sort((a,b) => {
     const rankOrder: { [key: string]: number } = { 'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10 };
@@ -20,6 +21,7 @@ export function PersonnelSearch() {
   const [allPersonnel, setAllPersonnel] = useState<string[]>([]);
   const [results, setResults] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,6 +33,8 @@ export function PersonnelSearch() {
       }
     } catch (e) {
       console.error("Failed to load personnel names for search", e);
+    } finally {
+      setIsDataLoading(false);
     }
   }, []);
 
@@ -101,9 +105,10 @@ export function PersonnelSearch() {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || isDataLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'جاري البحث...' : 'بحث'}
-            <Search className="mr-2 h-4 w-4" />
+            {!isLoading && <Search className="mr-2 h-4 w-4" />}
           </Button>
         </form>
         {results.length > 0 && (
