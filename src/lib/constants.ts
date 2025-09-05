@@ -13,6 +13,24 @@ export const administrations = ['إدارة الشئون الإدارية', 'ا�
 
 export const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب', 'لواء الحزم', 'ملحقية', 'الية', 'مامورية'].sort((a,b) => a.localeCompare(b, 'ar'));
 
+export const statusesWithDetails = ['إلحاق', 'الية', 'مامورية', 'إنتداب', 'عمليات', 'لواء الحزم', 'منقول', 'نقل و لم يبلغ', 'دورة تدريبية'];
+
+export const getStatusDetailLabel = (status: string): string => {
+    switch(status) {
+        case 'إلحاق': return 'الجهة الملحق عليها';
+        case 'الية': return 'اسم الآلية';
+        case 'مامورية': return 'اسم المأمورية';
+        case 'إنتداب': return 'الجهة المنتدب إليها';
+        case 'عمليات': return 'اسم العملية';
+        case 'لواء الحزم': return 'اسم اللواء';
+        case 'منقول': return 'الجهة المنقول إليها';
+        case 'نقل و لم يبلغ': return 'الجهة المنقول إليها';
+        case 'دورة تدريبية': return 'اسم الدورة';
+        default: return 'تفاصيل';
+    }
+}
+
+
 export const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 export const maritalStatuses = ['أعزب', 'متزوج', 'مطلق', 'أرمل'];

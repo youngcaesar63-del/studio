@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -46,7 +45,9 @@ import {
   certificateTypes,
   states,
   courseGrades,
-  generateBatches
+  generateBatches,
+  statusesWithDetails,
+  getStatusDetailLabel
 } from '@/lib/constants';
 
 
@@ -128,7 +129,7 @@ const formSchema = z.object({
   transferDate: z.date().optional(),
   reportingDate: z.date().optional(),
   status: z.string().min(1, 'الحالة مطلوبة'),
-  attachedTo: z.string().optional(),
+  statusDetail: z.string().optional(),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   religion: z.string().optional(),
@@ -823,14 +824,14 @@ export default function EditPersonnelPage() {
                 <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="status" render={({ field }) => (
-                        <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                        <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
-                     {statusValue === 'إلحاق' && (
-                        <FormField control={form.control} name="attachedTo" render={({ field }) => (
-                            <FormItem><FormLabel>الجهة الملحق عليها</FormLabel><FormControl><Input {...field} placeholder="ادخل اسم الجهة" /></FormControl><FormMessage /></FormItem>
+                     {statusesWithDetails.includes(statusValue) && (
+                        <FormField control={form.control} name="statusDetail" render={({ field }) => (
+                            <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
                         )} />
                     )}
-                     <FormField control={form.control} name="transferDate" render={({ field }) => (
+                    <FormField control={form.control} name="transferDate" render={({ field }) => (
                         <FormItem><FormLabel>تاريخ النقل</FormLabel>
                         <Popover open={dateFieldOpen['transferDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, transferDate: open}))}>
                             <PopoverTrigger asChild>
@@ -891,7 +892,7 @@ export default function EditPersonnelPage() {
                 <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
                     <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
                     <Button type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                        {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
                     </Button>
                 </div>
             </form>

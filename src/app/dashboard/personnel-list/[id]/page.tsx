@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -88,7 +87,7 @@ type Personnel = {
     batch?: string;
     administration: string;
     status: string;
-    attachedTo?: string;
+    statusDetail?: string;
     appointmentDate?: string;
     certificateType?: string;
     lastReturnDate?: string;
@@ -162,14 +161,14 @@ export default function ViewPersonnelPage() {
     const formatArabicNumber = (numStr: number | string) => {
       if (numStr === undefined || numStr === null) return '';
       const str = String(numStr);
-      return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+      return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(Number(str));
     };
     
     const getStatusDisplay = (person: Personnel) => {
         const variant = getStatusVariant(person.status);
         let text = person.status;
-        if (person.status === 'إلحاق' && person.attachedTo) {
-            text = `${person.status} (${person.attachedTo})`;
+        if (person.statusDetail) {
+            text = `${person.status} (${person.statusDetail})`;
         }
         return <Badge variant={variant} className="text-md px-3 py-1">{text}</Badge>;
     }

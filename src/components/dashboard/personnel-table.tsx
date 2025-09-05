@@ -1,4 +1,3 @@
-
 'use client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -28,7 +27,7 @@ type Personnel = {
   batch?: string;
   administration: string;
   status: string;
-  attachedTo?: string;
+  statusDetail?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -56,12 +55,12 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   const formatArabicNumber = (numStr: number | string) => {
     if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
-    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+    return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(Number(str));
   }
   
   const getStatusDisplay = (person: Personnel) => {
-      if (person.status === 'إلحاق' && person.attachedTo) {
-          return `${person.status} (${person.attachedTo})`;
+      if (person.statusDetail) {
+          return `${person.status} (${person.statusDetail})`;
       }
       return person.status;
   }
