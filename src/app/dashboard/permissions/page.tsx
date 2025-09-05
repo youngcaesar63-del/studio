@@ -50,9 +50,15 @@ export default function PermissionsPage() {
   const loadData = useCallback(() => {
     setLoading(true);
     let data = getLocalStorage('rolesData', null);
-    if (data === null) {
-        data = initialRoles;
-        updateLocalStorage('rolesData', initialRoles);
+    if (data === null || data.length === 0) {
+        // Initialize with a default 'مدير' role if no roles exist
+        const defaultManagerRole: Role = {
+            name: 'مدير',
+            description: 'يمتلك جميع صلاحيات الوصول للنظام.',
+            permissions: allAvailablePermissions.map(p => ({ ...p, enabled: true }))
+        };
+        data = [defaultManagerRole];
+        updateLocalStorage('rolesData', data);
     }
     setRoles(data);
     setLoading(false);
@@ -172,7 +178,7 @@ export default function PermissionsPage() {
           </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {roles.map((role) => (
+          {roles.length > 0 ? roles.map((role) => (
             <Card key={role.name} className="shadow-md">
               <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
                 <div>
@@ -207,7 +213,12 @@ export default function PermissionsPage() {
                   </Table>
               </CardContent>
             </Card>
-          ))}
+          )) : (
+             <Card className="shadow-md text-center p-8">
+                <CardTitle>لا توجد أدوار</CardTitle>
+                <CardDescription>لم يتم تعريف أي أدوار في النظام حتى الآن. ابدأ بإضافة دور جديد.</CardDescription>
+            </Card>
+          )}
         </div>
       )}
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
@@ -253,6 +264,7 @@ export default function PermissionsPage() {
                                         onCheckedChange={(checked) => {
                                             setRolePermissions(prev => ({...prev, [p.id]: !!checked}));
                                         }}
+                                        disabled={editingRole?.name === 'مدير'}
                                     />
                                     <Label htmlFor={`perm-${p.id}`}>{p.name}</Label>
                                 </div>
