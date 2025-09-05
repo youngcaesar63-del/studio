@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip } from 'recharts';
+import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
@@ -125,25 +124,24 @@ export function RanksChart() {
             </ResponsiveContainer>
           ) : (
              <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 40, left: 20 }}>
+              <BarChart data={chartData} layout="vertical" margin={{ right: 40 }}>
                 <CartesianGrid vertical={false} />
-                <XAxis 
+                <XAxis type="number" hide />
+                <YAxis 
                   dataKey="rank" 
+                  type="category"
                   tickLine={false} 
                   axisLine={false}
-                  tickMargin={8}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                  interval={0}
+                  tickMargin={5}
+                  width={60}
                   tick={{fill: 'hsl(var(--foreground))', fontSize: 12}}
+                  orientation="right"
                  />
-                <YAxis tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} />
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
                 />
-                <Bar dataKey="personnel" radius={8}>
+                <Bar dataKey="personnel" radius={8} layout="vertical">
                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
                 </Bar>
               </BarChart>
