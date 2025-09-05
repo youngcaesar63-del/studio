@@ -16,6 +16,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, WidthType, TextRun, AlignmentType, BorderStyle } from 'docx';
 import { administrations, ranks, rankOrder, statuses } from '@/lib/constants';
+import { logActivity } from '@/lib/activity-log';
 
 
 type Personnel = {
@@ -94,6 +95,9 @@ export default function ReportsPage() {
 
       setReportData(sortedData);
       setLoading(false);
+      
+      const reportTypeLabel = reportTypes.find(rt => rt.value === reportType)?.label || '';
+      logActivity('create_report', `تم إنشاء تقرير جديد: ${reportTypeLabel}`, filterValue && filterValue !== 'الكل' ? `فلتر: ${filterValue}` : 'بدون فلتر');
       
       toast({
         title: 'نجاح',

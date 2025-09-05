@@ -40,6 +40,7 @@ import {
   statusRequiresDate
 } from '@/lib/constants';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { logActivity } from '@/lib/activity-log';
 
 const importantJobSchema = z.object({
   jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
@@ -340,6 +341,7 @@ export function AddPersonnelForm() {
 
     const updatedList = [...personnelList, newPersonnel];
     updateLocalStorage('personnelData', updatedList);
+    logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
 
     toast({
       title: 'تم الحفظ بنجاح',
