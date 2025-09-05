@@ -47,7 +47,7 @@ export default function LoginPage() {
           <div className="mx-auto bg-primary text-primary-foreground p-4 rounded-full w-fit mb-4">
             <Users className="h-10 w-10" />
           </div>
-          <CardTitle className="text-3xl">نظام شئون الأفراد</CardTitle>
+          <CardTitle className="text-3xl">نظام شئون ضباط هيئة الاستخبارات العسكرية</CardTitle>
           <CardDescription>الرجاء تسجيل الدخول للمتابعة</CardDescription>
         </CardHeader>
         <CardContent>
