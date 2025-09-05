@@ -21,7 +21,7 @@ export const getStatusDetailLabel = (status: string): string => {
         case 'الية': return 'اسم الآلية';
         case 'مامورية': return 'اسم المأمورية';
         case 'إنتداب': return 'الجهة المنتدب إليها';
-        case 'عمليات': return 'اسم العملية';
+        case 'عمليات': return 'منطقة العمليات';
         case 'لواء الحزم': return 'اسم اللواء';
         case 'منقول': return 'الجهة المنقول إليها';
         case 'نقل و لم يبلغ': return 'الجهة المنقول إليها';
