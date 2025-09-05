@@ -72,7 +72,7 @@ export function RanksChart() {
     return (
         <Card className="shadow-md">
             <CardHeader>
-                <CardTitle>توزيع الأفراد حسب الرتب</CardTitle>
+                <CardTitle>توزيع الضباط حسب الرتب</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-center min-h-[300px]">
                 <p className="text-muted-foreground">لا توجد بيانات لعرضها.</p>
@@ -84,7 +84,7 @@ export function RanksChart() {
   return (
     <Card className="shadow-md">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>توزيع الأفراد حسب الرتب</CardTitle>
+        <CardTitle>توزيع الضباط حسب الرتب</CardTitle>
         <div className="flex gap-2">
           <Button size="icon" variant={chartType === 'doughnut' ? 'secondary' : 'ghost'} onClick={() => setChartType('doughnut')}>
             <PieIcon className="h-4 w-4" />
