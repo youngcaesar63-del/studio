@@ -35,7 +35,8 @@ import {
   courseGrades,
   generateBatches,
   getStatusDetailLabel,
-  statusesWithDetails
+  statusesWithDetails,
+  statusRequiresDate
 } from '@/lib/constants';
 
 const importantJobSchema = z.object({
@@ -117,6 +118,7 @@ const formSchema = z.object({
   reportingDate: z.date().optional(),
   status: z.string().min(1, 'الحالة مطلوبة'),
   statusDetail: z.string().optional(),
+  statusDate: z.date().optional(),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   religion: z.string().optional(),
@@ -298,6 +300,7 @@ export function AddPersonnelForm() {
       transferDate: values.transferDate?.toISOString(),
       reportingDate: values.reportingDate?.toISOString(),
       dateOfBirth: values.dateOfBirth?.toISOString(),
+      statusDate: values.statusDate?.toISOString(),
       importantJobs: values.importantJobs?.map(job => ({
         ...job,
         periodFrom: job.periodFrom.toISOString(),
@@ -833,12 +836,33 @@ export function AddPersonnelForm() {
         <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
             )} />
             {statusesWithDetails.includes(statusValue) && (
-              <FormField control={form.control} name="statusDetail" render={({ field }) => (
-                  <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
-              )} />
+              statusRequiresDate.includes(statusValue) ? (
+                 <FormField control={form.control} name="statusDate" render={({ field }) => (
+                    <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel>
+                      <Popover open={dateFieldOpen['statusDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, statusDate: open}))}>
+                          <PopoverTrigger asChild>
+                              <FormControl>
+                                  <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                      {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                              </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus />
+                          </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                )} />
+              ) : (
+                <FormField control={form.control} name="statusDetail" render={({ field }) => (
+                    <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
+                )} />
+              )
             )}
             <FormField control={form.control} name="transferDate" render={({ field }) => (
               <FormItem><FormLabel>تاريخ النقل</FormLabel>

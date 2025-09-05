@@ -88,6 +88,7 @@ type Personnel = {
     administration: string;
     status: string;
     statusDetail?: string;
+    statusDate?: string;
     appointmentDate?: string;
     certificateType?: string;
     lastReturnDate?: string;
@@ -169,6 +170,8 @@ export default function ViewPersonnelPage() {
         let text = person.status;
         if (person.statusDetail) {
             text = `${person.status} (${person.statusDetail})`;
+        } else if (person.statusDate) {
+             text = `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
         }
         return <Badge variant={variant} className="text-md px-3 py-1">{text}</Badge>;
     }

@@ -17,6 +17,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { format } from 'date-fns';
+import { arSA } from 'date-fns/locale';
 
 type Personnel = {
   id: number;
@@ -28,6 +30,7 @@ type Personnel = {
   administration: string;
   status: string;
   statusDetail?: string;
+  statusDate?: string;
 };
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -61,6 +64,9 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   const getStatusDisplay = (person: Personnel) => {
       if (person.statusDetail) {
           return `${person.status} (${person.statusDetail})`;
+      }
+      if (person.statusDate) {
+        return `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
       }
       return person.status;
   }

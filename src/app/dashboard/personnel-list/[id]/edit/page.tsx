@@ -47,7 +47,8 @@ import {
   courseGrades,
   generateBatches,
   statusesWithDetails,
-  getStatusDetailLabel
+  getStatusDetailLabel,
+  statusRequiresDate
 } from '@/lib/constants';
 
 
@@ -130,6 +131,7 @@ const formSchema = z.object({
   reportingDate: z.date().optional(),
   status: z.string().min(1, 'الحالة مطلوبة'),
   statusDetail: z.string().optional(),
+  statusDate: z.date().optional(),
   bloodType: z.string().min(1, 'فصيلة الدم مطلوبة'),
   maritalStatus: z.string().min(1, 'الحالة الاجتماعية مطلوبة'),
   religion: z.string().optional(),
@@ -220,6 +222,7 @@ export default function EditPersonnelPage() {
             transferDate: parseDate(personToEdit.transferDate),
             reportingDate: parseDate(personToEdit.reportingDate),
             dateOfBirth: parseDate(personToEdit.dateOfBirth),
+            statusDate: parseDate(personToEdit.statusDate),
             importantJobs: personToEdit.importantJobs?.map((j: any) => ({ ...j, periodFrom: parseDate(j.periodFrom), periodTo: parseDate(j.periodTo) })),
             serviceOperations: personToEdit.serviceOperations?.map((s: any) => ({ ...s, periodFrom: parseDate(s.periodFrom), periodTo: parseDate(s.periodTo) })),
             decisiveStorm: personToEdit.decisiveStorm?.map((d: any) => ({ ...d, periodFrom: parseDate(d.periodFrom), periodTo: parseDate(d.periodTo) })),
@@ -279,6 +282,7 @@ export default function EditPersonnelPage() {
           transferDate: toISO(values.transferDate),
           reportingDate: toISO(values.reportingDate),
           dateOfBirth: toISO(values.dateOfBirth),
+          statusDate: toISO(values.statusDate),
           importantJobs: mapTimeBasedArray(sortTimeBasedArrays(values.importantJobs)),
           serviceOperations: mapTimeBasedArray(sortTimeBasedArrays(values.serviceOperations)),
           decisiveStorm: mapTimeBasedArray(sortTimeBasedArrays(values.decisiveStorm)),
@@ -824,12 +828,33 @@ export default function EditPersonnelPage() {
                 <h3 className="text-xl font-semibold mb-4">معلومات إضافية</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <FormField control={form.control} name="status" render={({ field }) => (
-                        <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                        <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                      {statusesWithDetails.includes(statusValue) && (
+                      statusRequiresDate.includes(statusValue) ? (
+                        <FormField control={form.control} name="statusDate" render={({ field }) => (
+                          <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel>
+                            <Popover open={dateFieldOpen['statusDate']} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, statusDate: open}))}>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
+                                            {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                </PopoverContent>
+                            </Popover>
+                          <FormMessage />
+                          </FormItem>
+                      )} />
+                      ) : (
                         <FormField control={form.control} name="statusDetail" render={({ field }) => (
                             <FormItem><FormLabel>{getStatusDetailLabel(statusValue)}</FormLabel><FormControl><Input {...field} placeholder={`أدخل ${getStatusDetailLabel(statusValue)}`} /></FormControl><FormMessage /></FormItem>
                         )} />
+                      )
                     )}
                     <FormField control={form.control} name="transferDate" render={({ field }) => (
                         <FormItem><FormLabel>تاريخ النقل</FormLabel>

@@ -13,7 +13,9 @@ export const administrations = ['إدارة الشئون الإدارية', 'ا�
 
 export const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب', 'عاصفة الحزم', 'ملحقية', 'الية', 'مامورية'].sort((a,b) => a.localeCompare(b, 'ar'));
 
-export const statusesWithDetails = ['إلحاق', 'الية', 'مامورية', 'إنتداب', 'عمليات', 'عاصفة الحزم', 'منقول', 'نقل و لم يبلغ', 'دورة تدريبية'];
+export const statusesWithDetails = ['إجازة', 'غياب', 'هروب', 'ملحقية', 'إلحاق', 'الية', 'مامورية', 'إنتداب', 'عمليات', 'عاصفة الحزم', 'منقول', 'نقل و لم يبلغ', 'دورة تدريبية'];
+export const statusRequiresDate = ['إجازة', 'غياب', 'هروب'];
+
 
 export const getStatusDetailLabel = (status: string): string => {
     switch(status) {
@@ -26,6 +28,10 @@ export const getStatusDetailLabel = (status: string): string => {
         case 'منقول': return 'الجهة المنقول منها';
         case 'نقل و لم يبلغ': return 'الجهة المنقول منها';
         case 'دورة تدريبية': return 'اسم الدورة';
+        case 'ملحقية': return 'اسم الملحقية';
+        case 'إجازة': return 'آخر يوم للإجازة';
+        case 'غياب': return 'تاريخ بداية الغياب';
+        case 'هروب': return 'تاريخ الهروب';
         default: return 'تفاصيل';
     }
 }
