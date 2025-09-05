@@ -78,6 +78,7 @@ export default function BackupPage() {
                 rolesData: getLocalStorage('rolesData', []),
                 usersData: getLocalStorage('usersData', []),
                 attachmentsData: getLocalStorage('attachmentsData', []),
+                activityLog: getLocalStorage('activityLog', []),
                 'app-theme-name': localStorage.getItem('app-theme-name') || 'افتراضي',
             };
 
@@ -208,24 +209,24 @@ export default function BackupPage() {
                 }
 
                 // Restore all data
-                updateLocalStorage('personnelData', restoredData.personnelData);
-                updateLocalStorage('rolesData', restoredData.rolesData);
-                updateLocalStorage('usersData', restoredData.usersData);
+                updateLocalStorage('personnelData', restoredData.personnelData || []);
+                updateLocalStorage('rolesData', restoredData.rolesData || []);
+                updateLocalStorage('usersData', restoredData.usersData || []);
                 updateLocalStorage('attachmentsData', restoredData.attachmentsData || []);
+                updateLocalStorage('activityLog', restoredData.activityLog || []);
                 updateLocalStorage('readNotifications', []);
 
 
+                toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
+                
                 if (restoredData['app-theme-name']) {
                     localStorage.setItem('app-theme-name', restoredData['app-theme-name']);
-                    // We need to reload to apply theme correctly
+                    // We need to reload to apply theme correctly and ensure all components get new data
                     window.location.reload();
                 } else {
                     // Force reload of other pages' data
                     window.dispatchEvent(new CustomEvent('storage-update', { detail: { key: 'all' } }));
                 }
-                
-                toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
-                
 
             } catch (error) {
                 console.error("Restore failed:", error);
