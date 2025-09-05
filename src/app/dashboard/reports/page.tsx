@@ -168,7 +168,7 @@ export default function ReportsPage() {
         } else if (format === 'word') {
              const tableHeader = new DocxTableRow({
                 children: [...headers].reverse().map(header => 
-                    new DocxTableCell({ children: [new Paragraph({ text: header, alignment: AlignmentType.CENTER })] })
+                    new DocxTableCell({ children: [new Paragraph({ text: header, alignment: AlignmentType.CENTER, bidirectional: true })] })
                 ),
                 tableHeader: true,
             });
@@ -176,7 +176,7 @@ export default function ReportsPage() {
             const tableRows = dataToExport.map((row) => {
                 return new DocxTableRow({
                     children: [...row].reverse().map(cell => 
-                        new DocxTableCell({ children: [new Paragraph({ text: String(cell), alignment: AlignmentType.CENTER })] })
+                        new DocxTableCell({ children: [new Paragraph({ text: String(cell), alignment: AlignmentType.CENTER, bidirectional: true })] })
                     ),
                 });
             });
@@ -185,6 +185,7 @@ export default function ReportsPage() {
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
                 columnWidths: [1500, 2000, 2500, 1500, 2000, 500].reverse(),
+                bidirectional: true,
             });
 
             const doc = new Document({
@@ -557,3 +558,5 @@ export default function ReportsPage() {
   );
 }
 
+
+    
