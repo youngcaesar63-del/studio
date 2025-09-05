@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '../ui/skeleton';
+import { getAllPersonnel } from '@/services/personnel.service';
+import { toast } from '@/hooks/use-toast';
 
 type Personnel = {
   id: number;
@@ -22,12 +23,17 @@ export function QuickSearch() {
   const [allPersonnel, setAllPersonnel] = useState<Personnel[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     setIsDataLoading(true);
-    const data = getLocalStorage('personnelData', []);
-    setAllPersonnel(data);
-    setIsDataLoading(false);
-  }, []);
+    try {
+        const data = await getAllPersonnel();
+        setAllPersonnel(data);
+    } catch (error) {
+        toast({ title: 'خطأ', description: 'فشل تحميل بيانات البحث.', variant: 'destructive' });
+    } finally {
+        setIsDataLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
     loadData();

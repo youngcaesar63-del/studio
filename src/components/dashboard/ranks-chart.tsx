@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,9 @@ import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { rankOrder } from '@/lib/constants';
+import { getAllPersonnel, Personnel } from '@/services/personnel.service';
+import { toast } from '@/hooks/use-toast';
 
-
-type Personnel = {
-  rank: string;
-};
 
 const rankColors: { [key: string]: string } = {
   'ملازم': 'hsl(var(--chart-1))',
@@ -36,10 +35,10 @@ export function RanksChart() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
+    setLoading(true);
     try {
-        const storedData = localStorage.getItem('personnelData');
-        const personnelList: Personnel[] = storedData ? JSON.parse(storedData) : [];
+        const personnelList = await getAllPersonnel();
         
         const rankCounts: { [key: string]: number } = {};
         personnelList.forEach(p => {
@@ -58,11 +57,29 @@ export function RanksChart() {
         setChartData(data);
     } catch (e) {
         console.error("Failed to load chart data", e);
+        toast({ title: 'خطأ', description: 'فشل تحميل بيانات مخطط الرتب', variant: 'destructive' });
         setChartData([]);
     } finally {
         setLoading(false);
     }
-  }, []);
+  }, [toast]);
+
+  useEffect(() => {
+    loadData();
+
+    const handleStorageChange = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
+            loadData();
+        }
+    };
+
+    window.addEventListener('storage-update', handleStorageChange);
+
+    return () => {
+        window.removeEventListener('storage-update', handleStorageChange);
+    };
+  }, [loadData]);
 
   if (loading) {
     return <Skeleton className="h-[386px] w-full" />

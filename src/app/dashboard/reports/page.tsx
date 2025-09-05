@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,17 +17,8 @@ import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, WidthType, TextRun, AlignmentType, BorderStyle } from 'docx';
 import { administrations, ranks, rankOrder, statuses } from '@/lib/constants';
 import { logActivity } from '@/lib/activity-log';
+import { getAllPersonnel, Personnel } from '@/services/personnel.service';
 
-
-type Personnel = {
-  id: number;
-  cardId: string;
-  name: string;
-  rank: string;
-  specialization?: string;
-  administration: string;
-  status: string;
-};
 
 const reportTypes = [
   { value: 'by-administration', label: 'تقرير حسب الإدارة' },
@@ -45,6 +36,7 @@ export default function ReportsPage() {
   const [personnelData, setPersonnelData] = useState<Personnel[]>([]);
   const [reportData, setReportData] = useState<Personnel[] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const { toast } = useToast();
   const [isPrintDialogOpen, setPrintDialogOpen] = useState(false);
   const [confidentiality, setConfidentiality] = useState(confidentialityLevels[0]);
@@ -52,17 +44,22 @@ export default function ReportsPage() {
   const [includeAdministration, setIncludeAdministration] = useState(false);
 
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
+    setIsDataLoading(true);
     try {
-      const storedData = localStorage.getItem('personnelData');
-      if (storedData) {
-        setPersonnelData(JSON.parse(storedData));
-      }
+      const data = await getAllPersonnel();
+      setPersonnelData(data);
     } catch (error) {
-      console.error("Failed to read from localStorage", error);
+      console.error("Failed to load personnel data", error);
       toast({ title: 'خطأ', description: 'فشل تحميل بيانات الضباط.', variant: 'destructive' });
+    } finally {
+      setIsDataLoading(false);
     }
   }, [toast]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleGenerateReport = () => {
     if (!reportType) {

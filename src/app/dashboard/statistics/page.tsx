@@ -4,27 +4,12 @@
 import { useEffect, useState, useCallback }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
-import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-type Personnel = {
-  id: number;
-  name: string;
-  cardId: string;
-  rank: string;
-  administration: string;
-  status: string;
-  specialization?: string;
-  academicQualification?: string;
-  batch?: string;
-  serviceOperations?: { areaName: string }[];
-  trainingCourses?: { courseName: string }[];
-  decisiveStorm?: { name: string }[];
-  mechanisms?: { name: string }[];
-};
+import { getAllPersonnel, Personnel } from '@/services/personnel.service';
+import { toast } from '@/hooks/use-toast';
 
 const rankOrder: { [key: string]: number } = {
   'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10,
@@ -85,12 +70,17 @@ export default function StatisticsPage() {
     const [dialogData, setDialogData] = useState<Personnel[]>([]);
 
 
-    const loadData = useCallback(() => {
+    const loadData = useCallback(async () => {
         setLoading(true);
-        const data = getLocalStorage('personnelData', []);
-        setPersonnelData(data);
-        setLoading(false);
-    }, []);
+        try {
+            const data = await getAllPersonnel();
+            setPersonnelData(data);
+        } catch (error) {
+            toast({ title: "خطأ", description: "فشل تحميل البيانات.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+    }, [toast]);
 
     useEffect(() => {
         loadData();
