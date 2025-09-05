@@ -5,13 +5,16 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, FileText, Loader2 } from 'lucide-react';
+import { Printer, FileText, Loader2, FileUp, FileSpreadsheet, FileWord } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, WidthType, TextRun, AlignmentType, BorderStyle } from 'docx';
 
 
 type Personnel = {
@@ -103,7 +106,7 @@ export default function ReportsPage() {
       
       toast({
         title: 'نجاح',
-        description: `تم إنشاء التقرير بنجاح وجاهز للطباعة.`,
+        description: `تم إنشاء التقرير بنجاح وجاهز للطباعة والتصدير.`,
       });
     }, 500); // Simulate generation time
   };
@@ -126,6 +129,76 @@ export default function ReportsPage() {
     const str = String(numStr);
     return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
+
+    const handleExport = (format: 'excel' | 'word') => {
+        if (!reportData) return;
+        
+        const dataToExport = reportData.map((person, index) => ({
+            'م': index + 1,
+            'رقم البطاقة': person.cardId,
+            'الرتبة': `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`,
+            'الاسم': person.name,
+            'الإدارة': person.administration,
+            'الحالة': person.status,
+        }));
+
+        if (format === 'excel') {
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير الضباط');
+            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+            saveAs(data, 'تقرير_الضباط.xlsx');
+        } else if (format === 'word') {
+            const tableHeader = new DocxTableRow({
+                children: [
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER })] }),
+                ],
+                tableHeader: true,
+            });
+
+            const tableRows = reportData.map((person, index) => {
+                const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
+                return new DocxTableRow({
+                    children: [
+                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER })] }),
+                    ],
+                });
+            });
+
+            const table = new DocxTable({
+                rows: [tableHeader, ...tableRows],
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                columnWidths: [15, 20, 25, 15, 20, 5],
+            });
+
+            const doc = new Document({
+                sections: [{
+                    children: [
+                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER }),
+                        table,
+                    ],
+                }],
+            });
+
+            Packer.toBlob(doc).then(blob => {
+                saveAs(blob, 'تقرير_الضباط.docx');
+            });
+        }
+
+        toast({ title: 'تم التصدير بنجاح' });
+    };
+
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -334,8 +407,8 @@ export default function ReportsPage() {
     <div className="animate-in fade-in duration-500 space-y-6">
         <Card className="shadow-md">
             <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/> الطباعة والتقارير</CardTitle>
-                <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة التقرير.</CardDescription>
+                <CardTitle className="text-2xl flex items-center gap-2"><Printer className="h-6 w-6"/>الطباعة والتقارير</CardTitle>
+                <CardDescription>اختر نوع التقرير وقم بتحديد الفلاتر المطلوبة لإنشاء وطباعة وتصدير التقرير.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -380,55 +453,60 @@ export default function ReportsPage() {
                 <CardHeader className="flex flex-row justify-between items-center no-print">
                     <div>
                         <CardTitle>معاينة التقرير</CardTitle>
+                        <CardDescription>تم إنشاء التقرير بنجاح. يمكنك الآن معاينته أو طباعته أو تصديره.</CardDescription>
                     </div>
-                     <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <Printer className="ml-2 h-4 w-4" />
-                                طباعة
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                                <DialogTitle>خيارات الطباعة</DialogTitle>
-                                <DialogDescription>
-                                    اختر الخيارات التالية لتضمينها في رأس وتذييل التقرير المطبوع.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="confidentiality">درجة السرية</Label>
-                                    <Select dir="rtl" value={confidentiality} onValueChange={setConfidentiality}>
-                                        <SelectTrigger id="confidentiality">
-                                            <SelectValue placeholder="اختر درجة السرية" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {confidentialityLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="report-title">عنوان التقرير (اختياري)</Label>
-                                    <Input
-                                        id="report-title"
-                                        value={reportTitleInput}
-                                        onChange={(e) => setReportTitleInput(e.target.value)}
-                                        placeholder="مثال: كشف بأسماء الضباط"
-                                    />
-                                </div>
-                                <div className="flex items-center space-x-2 space-x-reverse pt-2">
-                                    <Checkbox id="include-administration" checked={includeAdministration} onCheckedChange={(checked) => setIncludeAdministration(!!checked)} />
-                                    <Label htmlFor="include-administration">إضافة عمود الإدارة (يغير اتجاه الصفحة إلى أفقي)</Label>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button onClick={handlePrint}>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => handleExport('excel')}><FileSpreadsheet className="ml-2 h-4 w-4"/>تصدير Excel</Button>
+                        <Button variant="outline" onClick={() => handleExport('word')}><FileWord className="ml-2 h-4 w-4"/>تصدير Word</Button>
+                        <Dialog open={isPrintDialogOpen} onOpenChange={setPrintDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
                                     <Printer className="ml-2 h-4 w-4" />
-                                    تأكيد الطباعة
+                                    طباعة
                                 </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>خيارات الطباعة</DialogTitle>
+                                    <DialogDescription>
+                                        اختر الخيارات التالية لتضمينها في رأس وتذييل التقرير المطبوع.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confidentiality">درجة السرية</Label>
+                                        <Select dir="rtl" value={confidentiality} onValueChange={setConfidentiality}>
+                                            <SelectTrigger id="confidentiality">
+                                                <SelectValue placeholder="اختر درجة السرية" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {confidentialityLevels.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="report-title">عنوان التقرير (اختياري)</Label>
+                                        <Input
+                                            id="report-title"
+                                            value={reportTitleInput}
+                                            onChange={(e) => setReportTitleInput(e.target.value)}
+                                            placeholder="مثال: كشف بأسماء الضباط"
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2 space-x-reverse pt-2">
+                                        <Checkbox id="include-administration" checked={includeAdministration} onCheckedChange={(checked) => setIncludeAdministration(!!checked)} />
+                                        <Label htmlFor="include-administration">إضافة عمود الإدارة (يغير اتجاه الصفحة إلى أفقي)</Label>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button onClick={handlePrint}>
+                                        <Printer className="ml-2 h-4 w-4" />
+                                        تأكيد الطباعة
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </CardHeader>
                 <CardContent id="print-area">
                     <div className="prose prose-sm dark:prose-invert max-w-none print:prose-base">
@@ -472,3 +550,4 @@ export default function ReportsPage() {
         )}
     </div>
   );
+}
