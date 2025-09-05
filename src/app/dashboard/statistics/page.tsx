@@ -41,7 +41,7 @@ const GenericBarChart = ({ data, title, icon: Icon, loading }: { data: any[], ti
                 <ResponsiveContainer width="100%" height={data.length * 30 + 50}>
                     <BarChart data={data} layout="vertical" margin={{ right: 20, left: 20 }}>
                         <XAxis type="number" hide />
-                        <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={120} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} interval={0} />
+                        <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={150} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} interval={0} />
                         <ChartTooltip
                             formatter={(value) => new Intl.NumberFormat('ar-SA-u-nu-arab').format(Number(value))}
                             content={<ChartTooltipContent indicator="dot" />}
@@ -195,7 +195,7 @@ export default function StatisticsPage() {
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={rankData} layout="vertical" margin={{ right: 20, left: 10 }}>
                                     <XAxis type="number" hide />
-                                    <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
+                                    <YAxis dataKey="name" type="category" tickLine={false} axisLine={false} tickMargin={10} width={100} tick={{fill: 'hsl(var(--muted-foreground))', fontSize: 12}} />
                                     <ChartTooltip formatter={arabicNumberFormatter} content={<ChartTooltipContent indicator="dot" />} />
                                     <Bar dataKey="value" radius={4}>
                                         {rankData.map((entry) => (
