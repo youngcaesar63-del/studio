@@ -5,7 +5,7 @@ import { useEffect, useState }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart2, Users, Calendar, TrendingUp, TrendingDown, MapPin, GraduationCap, ShieldAlert, BookOpen, Plane, UserMinus, Footprints, Briefcase, UserPlus, Minus } from "lucide-react"
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from '@/components/ui/chart';
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ranks } from '@/lib/constants';
@@ -232,6 +232,5 @@ export default function StatisticsPage() {
             </div>
         </div>
     )
-}
 
     
