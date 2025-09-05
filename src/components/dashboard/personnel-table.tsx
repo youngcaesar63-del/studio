@@ -53,6 +53,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   }
   
   const formatArabicNumber = (numStr: number | string) => {
+    if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
     return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }

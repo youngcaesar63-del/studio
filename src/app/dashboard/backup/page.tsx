@@ -32,7 +32,7 @@ export default function BackupPage() {
     const [isCreating, setIsCreating] = useState(false);
 
     const formatArabicNumber = (num: number) => {
-      return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+      return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(num);
     }
     
     const loadData = useCallback(() => {
@@ -193,5 +193,3 @@ export default function BackupPage() {
         </div>
     )
 }
-
-    

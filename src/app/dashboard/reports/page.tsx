@@ -124,7 +124,7 @@ export default function ReportsPage() {
    const formatArabicNumber = (numStr: number | string) => {
     if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(Number(str.replace(/,/g, ''))).replace(/٬/g, '');
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
 
   const handlePrint = () => {

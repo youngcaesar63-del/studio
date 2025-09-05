@@ -42,7 +42,7 @@ type StatsDetailCardProps = {
 const formatArabicNumber = (num: number | string) => {
     if (num === undefined || num === null) return '';
     const str = String(num);
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(Number(str.replace(/,/g, '')));
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
 };
 
 const StatsDetailCard = ({ title, icon: Icon, total, data, loading, onItemClick }: StatsDetailCardProps) => (
