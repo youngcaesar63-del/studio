@@ -3,18 +3,22 @@
 
 import { useEffect, useState }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart2, Users, Calendar, TrendingUp, TrendingDown, MapPin, GraduationCap, ShieldAlert, BookOpen, Plane, UserMinus, Footprints, Briefcase, UserPlus, Minus } from "lucide-react"
+import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Minus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group } from "lucide-react"
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegendContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ranks } from '@/lib/constants';
 
 type Personnel = {
   rank: string;
   administration: string;
   status: string;
   academicQualification?: string;
+  batch?: string;
+  serviceOperations?: { areaName: string }[];
+  trainingCourses?: { courseName: string }[];
+  decisiveStorm?: { name: string }[];
+  mechanisms?: { name: string }[];
 };
 
 const rankOrder: { [key: string]: number } = {
@@ -71,7 +75,7 @@ export default function StatisticsPage() {
         if (loading || personnelData.length === 0) return [];
         const counts = personnelData.reduce((acc, p) => {
             const value = p[key] || 'غير محدد';
-            acc[value] = (acc[value] || 0) + 1;
+            acc[value as string] = (acc[value as string] || 0) + 1;
             return acc;
         }, {} as {[key: string]: number});
 
@@ -87,24 +91,70 @@ export default function StatisticsPage() {
 
         return data;
     }
+    
+    const processArrayChartData = (key: keyof Personnel, nameKey: string) => {
+        if (loading || personnelData.length === 0) return [];
+        const counts = personnelData.reduce((acc, p) => {
+            const items = p[key] as any[];
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const value = item[nameKey] || 'غير محدد';
+                    acc[value] = (acc[value] || 0) + 1;
+                })
+            }
+            return acc;
+        }, {} as {[key: string]: number});
+        
+        return Object.entries(counts).map(([name, value], index) => ({
+            name,
+            value,
+            fill: chartColors[index % chartColors.length]
+        }));
+    };
 
     const rankData = processChartData('rank');
     const administrationData = processChartData('administration');
     const statusData = processChartData('status');
     const qualificationData = processChartData('academicQualification');
+    const batchData = processChartData('batch');
+    const serviceOpsData = processArrayChartData('serviceOperations', 'areaName');
+    const coursesData = processArrayChartData('trainingCourses', 'courseName');
+    const stormData = processArrayChartData('decisiveStorm', 'name');
+    const mechanismsData = processArrayChartData('mechanisms', 'name');
 
     const chartConfig = {
         value: { label: "العدد" },
-        ...rankData.reduce((acc, item) => ({...acc, [item.name]: {label: item.name, color: item.fill}}), {}),
-        ...administrationData.reduce((acc, item) => ({...acc, [item.name]: {label: item.name, color: item.fill}}), {}),
-        ...statusData.reduce((acc, item) => ({...acc, [item.name]: {label: item.name, color: item.fill}}), {}),
-        ...qualificationData.reduce((acc, item) => ({...acc, [item.name]: {label: item.name, color: item.fill}}), {}),
     };
-    
+
     const statsCards = getStatsCardsData();
 
+    const GenericBarChart = ({ data, title, icon: Icon }: { data: any[], title: string, icon: React.ElementType }) => (
+        <Card className="shadow-md">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Icon className="h-5 w-5" />{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+               {loading ? <Skeleton className="h-[300px] w-full" /> : 
+               <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data}>
+                            <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} angle={-45} textAnchor="end" height={80} interval={0} />
+                            <YAxis tickFormatter={arabicNumberFormatter} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                            <ChartTooltip formatter={arabicNumberFormatter} content={<ChartTooltipContent indicator="dot" />} />
+                            <Bar dataKey="value" radius={4}>
+                                 {data.map((entry) => (
+                                    <Cell key={entry.name} fill={entry.fill} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </ChartContainer>}
+            </CardContent>
+        </Card>
+    );
+
     return (
-        <div className="animate-in fade-in duration-500 space-y-6">
+        <div className="animate-in fade-in duration-500 space-y-6 mb-12">
             <Card className="shadow-md">
                 <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-2"><BarChart2 className="h-6 w-6"/>إحصائيات شاملة</CardTitle>
@@ -133,7 +183,7 @@ export default function StatisticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card className="shadow-md">
                     <CardHeader>
-                        <CardTitle>توزيع الأفراد حسب الرتبة</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" />توزيع الأفراد حسب الرتبة</CardTitle>
                     </CardHeader>
                     <CardContent>
                        {loading ? <Skeleton className="h-[300px] w-full" /> : 
@@ -155,7 +205,7 @@ export default function StatisticsPage() {
                 </Card>
                 <Card className="shadow-md">
                     <CardHeader>
-                        <CardTitle>توزيع الأفراد حسب الحالة</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Briefcase className="h-5 w-5" />توزيع الأفراد حسب الحالة</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {loading ? <Skeleton className="h-[300px] w-full" /> : 
@@ -177,7 +227,7 @@ export default function StatisticsPage() {
                                             <Cell key={`cell-${entry.name}`} fill={entry.fill} />
                                         ))}
                                     </Pie>
-                                     <Legend content={<ChartLegendContent nameKey="name" className="flex-wrap" />} />
+                                     <ChartLegend content={<ChartLegendContent nameKey="name" className="flex-wrap" />} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </ChartContainer>}
@@ -185,52 +235,24 @@ export default function StatisticsPage() {
                 </Card>
             </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="shadow-md">
-                    <CardHeader>
-                        <CardTitle>توزيع الأفراد على الإدارات</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                       {loading ? <Skeleton className="h-[300px] w-full" /> : 
-                       <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={administrationData}>
-                                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
-                                    <YAxis tickFormatter={arabicNumberFormatter} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                    <ChartTooltip formatter={arabicNumberFormatter} content={<ChartTooltipContent indicator="dot" />} />
-                                    <Bar dataKey="value" radius={4}>
-                                         {administrationData.map((entry) => (
-                                            <Cell key={entry.name} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>}
-                    </CardContent>
-                </Card>
-                 <Card className="shadow-md">
-                    <CardHeader>
-                        <CardTitle>توزيع الأفراد حسب المؤهل الأكاديمي</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                       {loading ? <Skeleton className="h-[300px] w-full" /> : 
-                       <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <BarChart data={qualificationData}>
-                                    <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
-                                    <YAxis tickFormatter={arabicNumberFormatter} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                                    <ChartTooltip formatter={arabicNumberFormatter} content={<ChartTooltipContent indicator="dot" />} />
-                                    <Bar dataKey="value" radius={4}>
-                                        {qualificationData.map((entry) => (
-                                            <Cell key={entry.name} fill={entry.fill} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>}
-                    </CardContent>
-                </Card>
+                <GenericBarChart data={administrationData} title="توزيع الأفراد على الإدارات" icon={Group} />
+                <GenericBarChart data={qualificationData} title="توزيع الأفراد حسب المؤهل الأكاديمي" icon={GraduationCap} />
             </div>
+            
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <GenericBarChart data={batchData} title="توزيع الأفراد حسب الدفعة" icon={Users} />
+                <GenericBarChart data={serviceOpsData} title="المشاركين في خدمة العمليات" icon={ShieldAlert} />
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <GenericBarChart data={coursesData} title="المشاركين في الدورات التدريبية" icon={BookOpen} />
+                <GenericBarChart data={stormData} title="المشاركين في عاصفة الحزم" icon={Shield} />
+             </div>
+
+             <div className="grid grid-cols-1 gap-6">
+                <GenericBarChart data={mechanismsData} title="المشاركين في الآليات" icon={LandPlot} />
+             </div>
+
         </div>
     )
-
-    
+}
