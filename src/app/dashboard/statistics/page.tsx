@@ -3,7 +3,7 @@
 
 import { useEffect, useState }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, UserMinus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group, HardHat, Users2 } from "lucide-react"
+import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 type Personnel = {
   id: number;
   name: string;
+  cardId: string;
   rank: string;
   administration: string;
   status: string;
@@ -38,9 +39,10 @@ type StatsDetailCardProps = {
   onItemClick: (itemName: string) => void;
 };
 
-const formatArabicNumber = (num: number) => {
-    if (typeof num !== 'number') return '';
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+const formatArabicNumber = (num: number | string) => {
+    if (num === undefined || num === null) return '';
+    const str = String(num);
+    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(Number(str.replace(/,/g, '')));
 };
 
 const StatsDetailCard = ({ title, icon: Icon, total, data, loading, onItemClick }: StatsDetailCardProps) => (
@@ -129,7 +131,7 @@ export default function StatisticsPage() {
         
         let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
         data.sort((a, b) => b.value - a.value);
-        const total = personnelData.filter(p => p[key] && (p[key] as any[]).length > 0).length;
+        const total = data.reduce((sum, item) => sum + item.value, 0);
 
 
         return { total, data };
@@ -147,11 +149,12 @@ export default function StatisticsPage() {
 
                 return (p[category] as any[])?.some(item => item[nameKey as string] === itemName);
             }
-            return p[category] === itemName;
+            const value = p[category] || 'غير محدد';
+            return String(value) === itemName;
         });
 
         setDialogTitle(`${titlePrefix}: ${itemName}`);
-        setDialogData(filteredData);
+        setDialogData(filteredData.sort((a,b) => (rankOrder[a.rank] || 99) - (rankOrder[b.rank] || 99)));
         setDialogOpen(true);
     };
 
@@ -167,16 +170,16 @@ export default function StatisticsPage() {
     const mechanismsStats = processArrayChartData('mechanisms', 'name');
 
     const statsCardsData = [
-        { title: 'إجمالي الرتب', icon: Shield, ...rankStats, category: 'rank', titlePrefix: 'الأفراد برتبة' },
-        { title: 'إجمالي الإدارات', icon: Group, ...adminStats, category: 'administration', titlePrefix: 'الأفراد في إدارة' },
-        { title: 'إجمالي الدفعات', icon: Users, ...batchStats, category: 'batch', titlePrefix: 'الأفراد من دفعة' },
-        { title: 'الحالة', icon: Briefcase, ...statusStats, category: 'status', titlePrefix: 'الأفراد بحالة' },
-        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, ...qualificationStats, category: 'academicQualification', titlePrefix: 'الأفراد الحاصلون على' },
-        { title: 'التخصصات', icon: HardHat, ...specializationStats, category: 'specialization', titlePrefix: 'الأفراد بتخصص' },
-        { title: 'خدمة العمليات', icon: ShieldAlert, ...serviceOpsStats, category: 'serviceOperations', titlePrefix: 'الأفراد المشاركون في' },
-        { title: 'عاصفة الحزم', icon: LandPlot, ...stormStats, category: 'decisiveStorm', titlePrefix: 'الأفراد المشاركون في' },
-        { title: 'الدورات التدريبية', icon: BookOpen, ...coursesStats, category: 'trainingCourses', titlePrefix: 'الأفراد الحاصلون على دورة' },
-        { title: 'الآليات', icon: Users2, ...mechanismsStats, category: 'mechanisms', titlePrefix: 'الأفراد المشاركون في آلية' },
+        { title: 'إجمالي الرتب', icon: Shield, ...rankStats, category: 'rank' as const, titlePrefix: 'الأفراد برتبة' },
+        { title: 'إجمالي الإدارات', icon: Users, ...adminStats, category: 'administration' as const, titlePrefix: 'الأفراد في إدارة' },
+        { title: 'إجمالي الدفعات', icon: Users, ...batchStats, category: 'batch' as const, titlePrefix: 'الأفراد من دفعة' },
+        { title: 'الحالة', icon: Briefcase, ...statusStats, category: 'status' as const, titlePrefix: 'الأفراد بحالة' },
+        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, ...qualificationStats, category: 'academicQualification' as const, titlePrefix: 'الأفراد الحاصلون على' },
+        { title: 'التخصصات', icon: HardHat, ...specializationStats, category: 'specialization' as const, titlePrefix: 'الأفراد بتخصص' },
+        { title: 'خدمة العمليات', icon: ShieldAlert, ...serviceOpsStats, category: 'serviceOperations' as const, titlePrefix: 'الأفراد المشاركون في' },
+        { title: 'عاصفة الحزم', icon: LandPlot, ...stormStats, category: 'decisiveStorm' as const, titlePrefix: 'الأفراد المشاركون في' },
+        { title: 'الدورات التدريبية', icon: BookOpen, ...coursesStats, category: 'trainingCourses' as const, titlePrefix: 'الأفراد الحاصلون على دورة' },
+        { title: 'الآليات', icon: Users2, ...mechanismsStats, category: 'mechanisms' as const, titlePrefix: 'الأفراد المشاركون في آلية' },
     ];
 
 
@@ -199,7 +202,7 @@ export default function StatisticsPage() {
                             total={stat.total}
                             data={stat.data}
                             loading={loading}
-                            onItemClick={(itemName) => handleStatItemClick(stat.category as keyof Personnel, itemName, stat.titlePrefix)}
+                            onItemClick={(itemName) => handleStatItemClick(stat.category, itemName, stat.titlePrefix)}
                         />
                     ))
                 }
@@ -218,8 +221,10 @@ export default function StatisticsPage() {
                         <TableHeader>
                           <TableRow>
                             <TableHead className="w-[50px] text-center">م</TableHead>
-                            <TableHead className="text-center">الاسم</TableHead>
-                            <TableHead className="text-center">الرتبة</TableHead>
+                            <TableHead className="text-center border-r">رقم البطاقة</TableHead>
+                            <TableHead className="text-center border-r">الاسم</TableHead>
+                            <TableHead className="text-center border-r">الرتبة</TableHead>
+                             <TableHead className="text-center border-r">الإدارة</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -227,13 +232,15 @@ export default function StatisticsPage() {
                             dialogData.map((person, index) => (
                               <TableRow key={person.id}>
                                 <TableCell className="text-center">{formatArabicNumber(index + 1)}</TableCell>
-                                <TableCell className="text-center">{person.name}</TableCell>
-                                <TableCell className="text-center">{person.rank}</TableCell>
+                                <TableCell className="text-center border-r">{formatArabicNumber(person.cardId)}</TableCell>
+                                <TableCell className="text-center border-r">{person.name}</TableCell>
+                                <TableCell className="text-center border-r">{person.rank}</TableCell>
+                                <TableCell className="text-center border-r">{person.administration}</TableCell>
                               </TableRow>
                             ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={3} className="h-24 text-center">
+                              <TableCell colSpan={5} className="h-24 text-center">
                                 لا توجد بيانات.
                               </TableCell>
                             </TableRow>
