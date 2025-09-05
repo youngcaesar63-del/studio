@@ -28,13 +28,13 @@ function Calendar({
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
         caption_dropdowns: "flex justify-center gap-2",
-        nav: "space-x-1 flex items-center absolute",
+        nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: "right-1.5",
-        nav_button_next: "left-1.5",
+        nav_button_previous: "absolute right-0",
+        nav_button_next: "absolute left-0",
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell:
@@ -75,3 +75,4 @@ function Calendar({
 Calendar.displayName = "Calendar"
 
 export { Calendar }
+
