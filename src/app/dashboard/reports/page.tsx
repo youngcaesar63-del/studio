@@ -144,13 +144,19 @@ export default function ReportsPage() {
 
         if (format === 'excel') {
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            
+            // Force RTL direction for the worksheet
+            if (!worksheet['!cols']) worksheet['!cols'] = [];
+            worksheet['!cols'][0] = { rpt: true }; // Repeat for all columns if necessary
+            worksheet['!props'] = {rtl: true};
+            
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير الضباط');
             const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
             const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
             saveAs(data, 'تقرير_الضباط.xlsx');
         } else if (format === 'word') {
-            const tableHeader = new DocxTableRow({
+             const tableHeader = new DocxTableRow({
                 children: [
                     new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER, bidirectional: true })] }),
                     new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
@@ -179,7 +185,7 @@ export default function ReportsPage() {
             const table = new DocxTable({
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
-                columnWidths: [5, 20, 15, 25, 20, 15],
+                columnWidths: [500, 2000, 1500, 2500, 2000, 1500],
                 bidirectional: true,
             });
 
@@ -552,3 +558,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+
