@@ -7,8 +7,12 @@ import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, UserMinu
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 type Personnel = {
+  id: number;
+  name: string;
   rank: string;
   administration: string;
   status: string;
@@ -31,6 +35,7 @@ type StatsDetailCardProps = {
   total: number;
   data: { name: string; value: number }[];
   loading: boolean;
+  onItemClick: (itemName: string) => void;
 };
 
 const formatArabicNumber = (num: number) => {
@@ -38,7 +43,7 @@ const formatArabicNumber = (num: number) => {
     return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
 };
 
-const StatsDetailCard = ({ title, icon: Icon, total, data, loading }: StatsDetailCardProps) => (
+const StatsDetailCard = ({ title, icon: Icon, total, data, loading, onItemClick }: StatsDetailCardProps) => (
     <Card className="shadow-md flex flex-col">
         <CardHeader className='pb-4'>
             <CardTitle className="flex items-center gap-3">
@@ -53,7 +58,11 @@ const StatsDetailCard = ({ title, icon: Icon, total, data, loading }: StatsDetai
               <Separator className='mb-4' />
               <div className="space-y-2 text-sm max-h-60 overflow-y-auto pr-2">
                 {data.length > 0 ? data.map(item => (
-                    <div key={item.name} className="flex justify-between items-center hover:bg-muted/50 p-1 rounded-md">
+                    <div 
+                        key={item.name} 
+                        className="flex justify-between items-center hover:bg-muted/50 p-1 rounded-md cursor-pointer"
+                        onClick={() => onItemClick(item.name)}
+                    >
                        <span className="font-medium text-muted-foreground">{item.name}</span>
                        <span className="font-bold">{formatArabicNumber(item.value)}</span>
                     </div>
@@ -69,6 +78,10 @@ const StatsDetailCard = ({ title, icon: Icon, total, data, loading }: StatsDetai
 export default function StatisticsPage() {
     const [personnelData, setPersonnelData] = useState<Personnel[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState('');
+    const [dialogData, setDialogData] = useState<Personnel[]>([]);
+
 
     useEffect(() => {
         const data = getLocalStorage('personnelData', []);
@@ -116,10 +129,30 @@ export default function StatisticsPage() {
         
         let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
         data.sort((a, b) => b.value - a.value);
-        const total = data.reduce((sum, item) => sum + item.value, 0);
+        const total = personnelData.filter(p => p[key] && (p[key] as any[]).length > 0).length;
 
 
         return { total, data };
+    };
+
+    const handleStatItemClick = (category: keyof Personnel, itemName: string, titlePrefix: string) => {
+        const filteredData = personnelData.filter(p => {
+            if (Array.isArray(p[category])) {
+                const nameKey = {
+                    'serviceOperations': 'areaName',
+                    'trainingCourses': 'courseName',
+                    'decisiveStorm': 'name',
+                    'mechanisms': 'name'
+                }[category as string];
+
+                return (p[category] as any[])?.some(item => item[nameKey as string] === itemName);
+            }
+            return p[category] === itemName;
+        });
+
+        setDialogTitle(`${titlePrefix}: ${itemName}`);
+        setDialogData(filteredData);
+        setDialogOpen(true);
     };
 
     const rankStats = processChartData('rank');
@@ -134,16 +167,16 @@ export default function StatisticsPage() {
     const mechanismsStats = processArrayChartData('mechanisms', 'name');
 
     const statsCardsData = [
-        { title: 'إجمالي الرتب', icon: Shield, ...rankStats },
-        { title: 'إجمالي الإدارات', icon: Group, ...adminStats },
-        { title: 'إجمالي الدفعات', icon: Users, ...batchStats },
-        { title: 'الحالة', icon: Briefcase, ...statusStats },
-        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, ...qualificationStats },
-        { title: 'التخصصات', icon: HardHat, ...specializationStats },
-        { title: 'خدمة العمليات', icon: ShieldAlert, ...serviceOpsStats },
-        { title: 'عاصفة الحزم', icon: LandPlot, ...stormStats },
-        { title: 'الدورات التدريبية', icon: BookOpen, ...coursesStats },
-        { title: 'الآليات', icon: Users2, ...mechanismsStats },
+        { title: 'إجمالي الرتب', icon: Shield, ...rankStats, category: 'rank', titlePrefix: 'الأفراد برتبة' },
+        { title: 'إجمالي الإدارات', icon: Group, ...adminStats, category: 'administration', titlePrefix: 'الأفراد في إدارة' },
+        { title: 'إجمالي الدفعات', icon: Users, ...batchStats, category: 'batch', titlePrefix: 'الأفراد من دفعة' },
+        { title: 'الحالة', icon: Briefcase, ...statusStats, category: 'status', titlePrefix: 'الأفراد بحالة' },
+        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, ...qualificationStats, category: 'academicQualification', titlePrefix: 'الأفراد الحاصلون على' },
+        { title: 'التخصصات', icon: HardHat, ...specializationStats, category: 'specialization', titlePrefix: 'الأفراد بتخصص' },
+        { title: 'خدمة العمليات', icon: ShieldAlert, ...serviceOpsStats, category: 'serviceOperations', titlePrefix: 'الأفراد المشاركون في' },
+        { title: 'عاصفة الحزم', icon: LandPlot, ...stormStats, category: 'decisiveStorm', titlePrefix: 'الأفراد المشاركون في' },
+        { title: 'الدورات التدريبية', icon: BookOpen, ...coursesStats, category: 'trainingCourses', titlePrefix: 'الأفراد الحاصلون على دورة' },
+        { title: 'الآليات', icon: Users2, ...mechanismsStats, category: 'mechanisms', titlePrefix: 'الأفراد المشاركون في آلية' },
     ];
 
 
@@ -152,7 +185,7 @@ export default function StatisticsPage() {
             <Card className="shadow-md">
                 <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-2"><BarChart2 className="h-6 w-6"/>إحصائيات شاملة</CardTitle>
-                    <CardDescription>نظرة عامة مفصلة على بيانات الأفراد في النظام.</CardDescription>
+                    <CardDescription>نظرة عامة مفصلة على بيانات الأفراد في النظام. انقر على أي عنصر لعرض التفاصيل.</CardDescription>
                 </CardHeader>
             </Card>
 
@@ -166,10 +199,50 @@ export default function StatisticsPage() {
                             total={stat.total}
                             data={stat.data}
                             loading={loading}
+                            onItemClick={(itemName) => handleStatItemClick(stat.category as keyof Personnel, itemName, stat.titlePrefix)}
                         />
                     ))
                 }
             </div>
+
+             <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="sm:max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle>{dialogTitle}</DialogTitle>
+                        <DialogDescription>
+                            قائمة بجميع الأفراد الذين يطابقون هذا التصنيف.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[50px] text-center">م</TableHead>
+                            <TableHead className="text-center">الاسم</TableHead>
+                            <TableHead className="text-center">الرتبة</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {dialogData.length > 0 ? (
+                            dialogData.map((person, index) => (
+                              <TableRow key={person.id}>
+                                <TableCell className="text-center">{formatArabicNumber(index + 1)}</TableCell>
+                                <TableCell className="text-center">{person.name}</TableCell>
+                                <TableCell className="text-center">{person.rank}</TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={3} className="h-24 text-center">
+                                لا توجد بيانات.
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
