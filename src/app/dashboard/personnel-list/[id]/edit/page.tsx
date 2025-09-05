@@ -273,28 +273,8 @@ export default function EditPersonnelPage() {
   const handleConfirmSave = async () => {
     const values = form.getValues();
     
-    const toISO = (date: Date | undefined) => date?.toISOString();
-    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
-
-    const dataToSave = {
-        ...values,
-        name: values.fullName,
-        appointmentDate: toISO(values.appointmentDate),
-        lastReturnDate: toISO(values.lastReturnDate),
-        transferDate: toISO(values.transferDate),
-        reportingDate: toISO(values.reportingDate),
-        dateOfBirth: toISO(values.dateOfBirth),
-        statusDate: toISO(values.statusDate),
-        importantJobs: mapTimeBasedArray(values.importantJobs),
-        serviceOperations: mapTimeBasedArray(values.serviceOperations),
-        decisiveStorm: mapTimeBasedArray(values.decisiveStorm),
-        trainingCourses: mapTimeBasedArray(values.trainingCourses),
-        serviceHistory: mapTimeBasedArray(values.serviceHistory),
-        mechanisms: mapTimeBasedArray(values.mechanisms),
-    };
-    
     try {
-        await updatePersonnel(id, dataToSave);
+        await updatePersonnel(id, values);
         logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
 
         toast({
@@ -835,10 +815,10 @@ export default function EditPersonnelPage() {
                                     <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name={`mechanisms.${index}.periodFrom`} render={({ field }) => (
-                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`mechFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`mechFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name={`mechanisms.${index}.periodTo`} render={({ field }) => (
-                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`mechTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`mechTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                 )} />
                                 <div className="flex items-end">
                                   <Button type="button" variant="destructive" size="icon" onClick={() => removeMechanism(index)}>
@@ -857,7 +837,7 @@ export default function EditPersonnelPage() {
                     <AccordionContent className="pt-4 space-y-8">
                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           <FormField control={form.control} name="status" render={({ field }) => (
-                              <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                              <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                           )} />
                           {statusesWithDetails.includes(statusValue) && (
                             statusRequiresDate.includes(statusValue) ? (
@@ -867,7 +847,7 @@ export default function EditPersonnelPage() {
                                         <PopoverTrigger asChild>
                                             <FormControl>
                                                 <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                                    {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                                    {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                 </Button>
                                             </FormControl>
@@ -891,7 +871,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
@@ -909,7 +889,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
@@ -927,7 +907,7 @@ export default function EditPersonnelPage() {
                                   <PopoverTrigger asChild>
                                       <FormControl>
                                           <Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>
-                                              {field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
+                                              {field.value ? (format(new Date(field.value), "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}
                                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                           </Button>
                                       </FormControl>
@@ -945,17 +925,34 @@ export default function EditPersonnelPage() {
                       </div>
                     </AccordionContent>
                  </AccordionItem>
-        </Accordion>
+              </Accordion>
 
-        <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
-          <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+              <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
+                <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      
+      <AlertDialog open={isConfirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
+            <AlertDialogDescription>
+                هل أنت متأكد من أنك تريد حفظ التغييرات على بيانات الضابط؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSave}>حفظ</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+    </div>
   );
 }
-
-    

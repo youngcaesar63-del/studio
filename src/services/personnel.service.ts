@@ -78,6 +78,29 @@ async function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const toISO = (date: Date | undefined) => date?.toISOString();
+
+const mapDatesToISO = (data: Partial<Personnel>): Partial<Personnel> => {
+    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
+    
+    return {
+        ...data,
+        name: (data as any).fullName, // Handle name mapping from form
+        appointmentDate: toISO(data.appointmentDate as any),
+        lastReturnDate: toISO(data.lastReturnDate as any),
+        transferDate: toISO(data.transferDate as any),
+        reportingDate: toISO(data.reportingDate as any),
+        dateOfBirth: toISO(data.dateOfBirth as any),
+        statusDate: toISO(data.statusDate as any),
+        importantJobs: mapTimeBasedArray(data.importantJobs),
+        serviceOperations: mapTimeBasedArray(data.serviceOperations),
+        decisiveStorm: mapTimeBasedArray(data.decisiveStorm),
+        trainingCourses: mapTimeBasedArray(data.trainingCourses),
+        serviceHistory: mapTimeBasedArray(data.serviceHistory),
+        mechanisms: mapTimeBasedArray(data.mechanisms),
+    };
+};
+
 export async function getAllPersonnel(): Promise<Personnel[]> {
   await delay(200); // Simulate network delay
   
@@ -107,18 +130,12 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
   await delay(300);
   const personnelList = getLocalStorage('personnelData', []) as Personnel[];
 
-  // Sort date-based arrays before saving
-  newPersonnelData.importantJobs?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-  newPersonnelData.serviceOperations?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-  newPersonnelData.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-  newPersonnelData.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-  newPersonnelData.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-  newPersonnelData.mechanisms?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+  const processedData = mapDatesToISO(newPersonnelData);
   
   const newPersonnel: Personnel = {
-    ...newPersonnelData,
+    ...processedData,
     id: Date.now(),
-  };
+  } as Personnel;
 
   const updatedList = [...personnelList, newPersonnel];
   updateLocalStorage('personnelData', updatedList);
@@ -129,18 +146,12 @@ export async function updatePersonnel(id: number, updatedData: Partial<Omit<Pers
     await delay(300);
     const personnelList = getLocalStorage('personnelData', []) as Personnel[];
 
-    // Sort date-based arrays before saving
-    updatedData.importantJobs?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    updatedData.serviceOperations?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    updatedData.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    updatedData.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    updatedData.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    updatedData.mechanisms?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    const processedData = mapDatesToISO(updatedData);
 
     let updatedPersonnel: Personnel | undefined;
     const updatedList = personnelList.map(p => {
         if (p.id === id) {
-            updatedPersonnel = { ...p, ...updatedData };
+            updatedPersonnel = { ...p, ...processedData };
             return updatedPersonnel;
         }
         return p;
