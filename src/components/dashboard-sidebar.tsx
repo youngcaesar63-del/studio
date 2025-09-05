@@ -71,12 +71,12 @@ const NavContent = () => {
                   <Link
                     href={item.href}
                     className={cn(
-                      'flex items-center p-2 rounded-lg transition-colors duration-200 hover:bg-muted',
+                      'flex items-center p-2 rounded-lg transition-colors duration-200 hover:bg-muted gap-2',
                       'sidebar-item',
                       isActive ? 'bg-primary/10 text-primary font-bold' : 'text-foreground/70 hover:text-foreground'
                     )}
                   >
-                    <item.icon className="ml-2 h-4 w-4" />
+                    <item.icon className="h-4 w-4 shrink-0" />
                     <span>{item.label}</span>
                   </Link>
                 </li>

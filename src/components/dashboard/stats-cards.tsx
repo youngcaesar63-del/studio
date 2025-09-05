@@ -40,7 +40,7 @@ export function StatsCards() {
   const [loading, setLoading] = useState(true);
 
   const formatArabicNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-EG').format(num);
+    return new Intl.NumberFormat('ar-SA').format(num);
   }
 
   const calculateStats = useCallback(() => {

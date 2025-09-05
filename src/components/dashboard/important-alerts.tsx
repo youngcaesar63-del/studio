@@ -29,7 +29,7 @@ const alerts = [
 
 export function ImportantAlerts() {
     const formatArabicNumber = (num: number) => {
-        return new Intl.NumberFormat('ar-EG').format(num);
+        return new Intl.NumberFormat('ar-SA').format(num);
     }
     return (
         <Card className="shadow-md">

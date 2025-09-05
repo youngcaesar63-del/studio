@@ -137,9 +137,6 @@ const themes: Theme[] = [
 const toHslString = (color: ThemeColor) => `${color.h} ${color.s}% ${color.l}%`;
 
 const applyTheme = (theme: Theme) => {
-    const root = document.querySelector(':root') as HTMLElement;
-    if (!root) return;
-
     const styleId = 'dynamic-theme-style';
     let styleTag = document.getElementById(styleId) as HTMLStyleElement;
     if (!styleTag) {
@@ -147,7 +144,7 @@ const applyTheme = (theme: Theme) => {
         styleTag.id = styleId;
         document.head.appendChild(styleTag);
     }
-    
+
     const lightVars = `
         --background: ${toHslString(theme.light.background)};
         --foreground: ${toHslString(theme.light.foreground)};
@@ -156,13 +153,13 @@ const applyTheme = (theme: Theme) => {
         --popover: ${toHslString(theme.light.card)};
         --popover-foreground: ${toHslString(theme.light.foreground)};
         --primary: ${toHslString(theme.light.primary)};
-        --primary-foreground: ${toHslString(theme.dark.foreground)};
+        --primary-foreground: ${toHslString(theme.light.background.l > 50 ? theme.dark.foreground : theme.light.foreground)};
         --secondary: ${toHslString(theme.light.secondary)};
         --secondary-foreground: ${toHslString(theme.light.foreground)};
         --muted: ${toHslString(theme.light.muted)};
         --muted-foreground: ${toHslString(theme.light.foreground)} / 0.6;
         --accent: ${toHslString(theme.light.accent)};
-        --accent-foreground: ${toHslString(theme.dark.foreground)};
+        --accent-foreground: ${toHslString(theme.light.background.l > 50 ? theme.dark.foreground : theme.light.foreground)};
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
         --border: ${toHslString(theme.light.border)};
@@ -178,13 +175,13 @@ const applyTheme = (theme: Theme) => {
         --popover: ${toHslString(theme.dark.card)};
         --popover-foreground: ${toHslString(theme.dark.foreground)};
         --primary: ${toHslString(theme.dark.primary)};
-        --primary-foreground: ${toHslString(theme.dark.foreground)};
+        --primary-foreground: ${toHslString(theme.dark.background.l < 50 ? theme.light.foreground : theme.dark.foreground)};
         --secondary: ${toHslString(theme.dark.secondary)};
         --secondary-foreground: ${toHslString(theme.dark.foreground)};
         --muted: ${toHslString(theme.dark.muted)};
         --muted-foreground: ${toHslString(theme.dark.foreground)} / 0.6;
         --accent: ${toHslString(theme.dark.accent)};
-        --accent-foreground: ${toHslString(theme.light.foreground)};
+        --accent-foreground: ${toHslString(theme.dark.background.l < 50 ? theme.light.foreground : theme.dark.foreground)};
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 0 0% 100%;
         --border: ${toHslString(theme.dark.border)};
@@ -214,8 +211,10 @@ export default function SettingsPage() {
     useEffect(() => {
         const savedThemeName = localStorage.getItem('app-theme-name') || themes[0].name;
         const newTheme = themes.find(t => t.name === savedThemeName) || themes[0];
-        setActiveThemeName(newTheme.name);
-        applyTheme(newTheme);
+        if (newTheme) {
+            setActiveThemeName(newTheme.name);
+            applyTheme(newTheme);
+        }
     }, []);
 
     const handleSetTheme = (theme: Theme) => {
@@ -385,5 +384,3 @@ export default function SettingsPage() {
         </div>
     )
 }
-
-    

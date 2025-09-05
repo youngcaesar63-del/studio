@@ -58,5 +58,5 @@ export const generateBatches = () => {
   for (let i = 20; i >= 1; i--) batches.push({ value: `تأهيلية ${i}`, label: `تأهيلية ${i}` });
   for (let i = 10; i >= 1; i--) batches.push({ value: `اكرامية ${i}`, label: `اكرامية ${i}` });
   batches.push({ value: 'لا يوجد', label: 'لا يوجد' });
-  return batches.reverse();
+  return batches;
 };
