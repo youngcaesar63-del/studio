@@ -3,7 +3,7 @@
 
 import { useEffect, useState }from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, UserMinus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group, HardHat } from "lucide-react"
+import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, UserMinus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Group, HardHat, Users2 } from "lucide-react"
 import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
