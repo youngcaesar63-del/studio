@@ -49,6 +49,23 @@ export default function PermissionsPage() {
   const loadData = useCallback(() => {
     setLoading(true);
     let data = getLocalStorage('rolesData', null);
+    
+    let dataWasUpdated = false;
+    if (data) {
+        data.forEach((role: Role) => {
+            role.permissions.forEach(permission => {
+                if (permission.id === 'p2' && permission.name === 'إدارة الأفراد') {
+                    permission.name = 'إدارة الضباط';
+                    dataWasUpdated = true;
+                }
+            });
+        });
+    }
+
+    if (dataWasUpdated) {
+        updateLocalStorage('rolesData', data);
+    }
+
     if (data === null || data.length === 0) {
         // Initialize with a default 'مدير' role if no roles exist
         const defaultManagerRole: Role = {
