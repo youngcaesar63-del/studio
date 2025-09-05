@@ -308,7 +308,7 @@ export default function EditPersonnelPage() {
     });
     setConfirmOpen(false);
     router.push('/dashboard/personnel-list');
-  }
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setConfirmOpen(true);
@@ -946,15 +946,34 @@ export default function EditPersonnelPage() {
                       </div>
                     </AccordionContent>
                  </AccordionItem>
-        </Accordion>
+               </Accordion>
 
-        <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
-          <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
-          </Button>
-        </div>
-      </form>
-    </Form>
+              <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
+                <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      
+      <AlertDialog open={isConfirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من رغبتك في حفظ التغييرات على بيانات هذا الضابط؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSave}>تأكيد</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+    </div>
   );
 }
