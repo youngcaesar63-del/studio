@@ -33,9 +33,10 @@ export async function addAttachments(newAttachmentsData: Omit<Attachment, 'id'>[
 
   const allAttachments = getLocalStorage('attachmentsData', []) as Attachment[];
   
-  const addedAttachments: Attachment[] = newAttachmentsData.map(data => ({
+  const addedAttachments: Attachment[] = newAttachmentsData.map((data, index) => ({
       ...data,
-      id: `${data.personnelId}-${Date.now()}-${Math.random()}`, // Create a unique ID
+      // Create a more robust unique ID to prevent collisions on rapid uploads
+      id: `${data.personnelId}-${Date.now()}-${index}-${data.name}-${data.size}`,
   }));
 
   const updatedAttachments = [...allAttachments, ...addedAttachments];
