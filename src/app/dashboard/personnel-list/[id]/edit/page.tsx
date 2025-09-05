@@ -270,7 +270,7 @@ export default function EditPersonnelPage() {
     const sortTimeBasedArrays = (arr: any[] | undefined) => {
         if (!arr) return [];
         return arr.sort((a,b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    }
+    };
 
     const updatedList = personnelList.map(p => {
       if (p.id === id) {
@@ -332,7 +332,7 @@ export default function EditPersonnelPage() {
                 </div>
             </CardContent>
         </Card>
-    )
+    );
   }
 
   return (
@@ -345,7 +345,7 @@ export default function EditPersonnelPage() {
         <CardContent className="pt-6">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-               <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
+               <Accordion type="multiple" defaultValue={['item-1']} className="w-full">
                 
                  <AccordionItem value="item-1">
                     <AccordionTrigger className="text-xl font-semibold">المعلومات الأساسية</AccordionTrigger>
@@ -946,7 +946,7 @@ export default function EditPersonnelPage() {
                       </div>
                     </AccordionContent>
                  </AccordionItem>
-               </Accordion>
+              </Accordion>
 
               <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
                 <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
@@ -964,12 +964,12 @@ export default function EditPersonnelPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من رغبتك في حفظ التغييرات على بيانات هذا الضابط؟
+              هل أنت متأكد من رغبتك في حفظ التعديلات التي أجريتها على بيانات الضابط؟
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmSave}>تأكيد</AlertDialogAction>
+            <AlertDialogAction onClick={handleConfirmSave}>حفظ</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

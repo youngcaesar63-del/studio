@@ -353,7 +353,7 @@ export function AddPersonnelForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
+        <Accordion type="multiple" defaultValue={['item-1']} className="w-full">
                 
                  <AccordionItem value="item-1">
                     <AccordionTrigger className="text-xl font-semibold">المعلومات الأساسية</AccordionTrigger>
