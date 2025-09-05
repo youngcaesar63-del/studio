@@ -51,6 +51,7 @@ export default function SettingsPage() {
         setActiveTheme(theme);
         document.documentElement.style.setProperty('--primary-hsl', `${theme.primary.h} ${theme.primary.s}% ${theme.primary.l}%`);
         document.documentElement.style.setProperty('--primary', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
+        document.documentElement.style.setProperty('--accent-hsl', `${theme.accent.h} ${theme.accent.s}% ${theme.accent.l}%`);
         document.documentElement.style.setProperty('--accent', `hsl(${theme.accent.h}, ${theme.accent.s}%, ${theme.accent.l}%)`);
         document.documentElement.style.setProperty('--background', `hsl(${theme.background.h}, ${theme.background.s}%, ${theme.background.l}%)`);
         document.documentElement.style.setProperty('--ring', `hsl(${theme.primary.h}, ${theme.primary.s}%, ${theme.primary.l}%)`);
@@ -215,5 +216,3 @@ export default function SettingsPage() {
         </div>
     )
 }
-
-    
