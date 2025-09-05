@@ -35,7 +35,7 @@ export function StatsCards() {
     const attached = personnelList.filter(p => p.status === 'إلحاق').length;
     const absent = personnelList.filter(p => p.status === 'غياب').length;
     const escaped = personnelList.filter(p => p.status === 'هروب').length;
-    const decisiveStorm = personnelList.filter(p => (p.decisiveStorm && p.decisiveStorm.length > 0) || p.status === 'عاصفة الحزم').length;
+    const decisiveStorm = personnelList.filter(p => p.status === 'عاصفة الحزم').length;
 
     const calculatedStats = [
       { title: 'إجمالي قوة الضباط', value: total, icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
