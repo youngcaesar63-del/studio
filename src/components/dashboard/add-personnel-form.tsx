@@ -19,7 +19,6 @@ import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { useState, useRef } from 'react';
 import Image from 'next/image';
-import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '../ui/separator';
 import {
@@ -41,6 +40,7 @@ import {
 } from '@/lib/constants';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { logActivity } from '@/lib/activity-log';
+import { addPersonnel } from '@/services/personnel.service';
 
 const importantJobSchema = z.object({
   jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
@@ -286,68 +286,40 @@ export function AddPersonnelForm() {
   const statusValue = form.watch("status");
   const academicQualificationValue = form.watch("academicQualification");
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const personnelList = getLocalStorage('personnelData', []);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     
-    // Sort date-based arrays
-    values.importantJobs?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.serviceOperations?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.decisiveStorm?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.trainingCourses?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.serviceHistory?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
-    values.mechanisms?.sort((a, b) => new Date(a.periodFrom).getTime() - new Date(b.periodFrom).getTime());
+    const toISO = (date: Date | undefined) => date?.toISOString();
+    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
 
-    const newPersonnel = {
-      id: Date.now(), // Use timestamp for unique ID
-      ...values,
-      name: values.fullName,
-      appointmentDate: values.appointmentDate.toISOString(),
-      lastReturnDate: values.lastReturnDate?.toISOString(),
-      transferDate: values.transferDate?.toISOString(),
-      reportingDate: values.reportingDate?.toISOString(),
-      dateOfBirth: values.dateOfBirth?.toISOString(),
-      statusDate: values.statusDate?.toISOString(),
-      importantJobs: values.importantJobs?.map(job => ({
-        ...job,
-        periodFrom: job.periodFrom.toISOString(),
-        periodTo: job.periodTo.toISOString(),
-      })),
-      serviceOperations: values.serviceOperations?.map(op => ({
-        ...op,
-        periodFrom: op.periodFrom.toISOString(),
-        periodTo: op.periodTo.toISOString(),
-      })),
-      decisiveStorm: values.decisiveStorm?.map(op => ({
-        ...op,
-        periodFrom: op.periodFrom.toISOString(),
-        periodTo: op.periodTo.toISOString(),
-      })),
-      trainingCourses: values.trainingCourses?.map(course => ({
-        ...course,
-        periodFrom: course.periodFrom.toISOString(),
-        periodTo: course.periodTo.toISOString(),
-      })),
-      serviceHistory: values.serviceHistory?.map(history => ({
-        ...history,
-        periodFrom: history.periodFrom.toISOString(),
-        periodTo: history.periodTo.toISOString(),
-      })),
-      mechanisms: values.mechanisms?.map(v => ({
-        ...v,
-        periodFrom: v.periodFrom.toISOString(),
-        periodTo: v.periodTo.toISOString(),
-      })),
+    const dataToSave = {
+        ...values,
+        name: values.fullName,
+        appointmentDate: toISO(values.appointmentDate),
+        lastReturnDate: toISO(values.lastReturnDate),
+        transferDate: toISO(values.transferDate),
+        reportingDate: toISO(values.reportingDate),
+        dateOfBirth: toISO(values.dateOfBirth),
+        statusDate: toISO(values.statusDate),
+        importantJobs: mapTimeBasedArray(values.importantJobs),
+        serviceOperations: mapTimeBasedArray(values.serviceOperations),
+        decisiveStorm: mapTimeBasedArray(values.decisiveStorm),
+        trainingCourses: mapTimeBasedArray(values.trainingCourses),
+        serviceHistory: mapTimeBasedArray(values.serviceHistory),
+        mechanisms: mapTimeBasedArray(values.mechanisms),
     };
+    
+    try {
+        await addPersonnel(dataToSave);
+        logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
 
-    const updatedList = [...personnelList, newPersonnel];
-    updateLocalStorage('personnelData', updatedList);
-    logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
-
-    toast({
-      title: 'تم الحفظ بنجاح',
-      description: `تمت إضافة الضابط ${values.fullName} إلى السجل.`,
-    });
-    router.push('/dashboard/personnel-list');
+        toast({
+          title: 'تم الحفظ بنجاح',
+          description: `تمت إضافة الضابط ${values.fullName} إلى السجل.`,
+        });
+        router.push('/dashboard/personnel-list');
+    } catch (error) {
+        toast({ title: 'خطأ', description: 'فشل إضافة الضابط.', variant: 'destructive' });
+    }
   }
 
   return (
@@ -441,7 +413,7 @@ export function AddPersonnelForm() {
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, appointmentDate: false})) }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                     <FormMessage />
@@ -474,7 +446,7 @@ export function AddPersonnelForm() {
                                                 </FormControl>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                                <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, dateOfBirth: false})) }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                             </PopoverContent>
                                         </Popover>
                                         <FormMessage />
@@ -617,10 +589,10 @@ export function AddPersonnelForm() {
                                       <FormItem className="md:col-span-2"><FormLabel>المسمى الوظيفي</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`importantJobs.${index}.periodFrom`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`jobFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`jobFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`jobFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`importantJobs.${index}.periodTo`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`jobTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`jobTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`jobTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                   <div className="flex items-end">
                                     <Button type="button" variant="destructive" size="icon" onClick={() => removeJob(index)}>
@@ -652,10 +624,10 @@ export function AddPersonnelForm() {
                                       <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`serviceHistory.${index}.periodFrom`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`serviceHistoryFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`serviceHistoryFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`serviceHistoryFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`serviceHistory.${index}.periodTo`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`serviceHistoryTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`serviceHistoryTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`serviceHistoryTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                   <div className="flex items-end">
                                     <Button type="button" variant="destructive" size="icon" onClick={() => removeServiceHistory(index)}>
@@ -684,10 +656,10 @@ export function AddPersonnelForm() {
                                       <FormItem className="md:col-span-2"><FormLabel>اسم المنطقة / الوحدة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`serviceOperations.${index}.periodFrom`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`serviceOpFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`serviceOpFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`serviceOpFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`serviceOperations.${index}.periodTo`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`serviceOpTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`serviceOpTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`serviceOpTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                   <Button type="button" variant="destructive" size="icon" onClick={() => removeService(index)}>
                                       <Trash2 className="h-4 w-4" />
@@ -714,10 +686,10 @@ export function AddPersonnelForm() {
                                       <FormItem className="md:col-span-2"><FormLabel>اسم الخلية/اللواء/الكتيبة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`decisiveStorm.${index}.periodFrom`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`stormFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`stormFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`stormFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`decisiveStorm.${index}.periodTo`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`stormTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`stormTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`stormTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                   <Button type="button" variant="destructive" size="icon" onClick={() => removeDecisiveStorm(index)}>
                                       <Trash2 className="h-4 w-4" />
@@ -759,10 +731,10 @@ export function AddPersonnelForm() {
                                     <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`courseFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`courseFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`courseFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`trainingCourses.${index}.periodTo`} render={({ field }) => (
-                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                      <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`courseTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`courseTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`courseTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                   )} />
                                   <Button type="button" variant="destructive" size="icon" onClick={() => removeCourse(index)}>
                                       <Trash2 className="h-4 w-4" />
@@ -844,10 +816,10 @@ export function AddPersonnelForm() {
                                     <FormItem className="md:col-span-2"><FormLabel>اسم الآلية</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name={`mechanisms.${index}.periodFrom`} render={({ field }) => (
-                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`mechanismFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechanismFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechanismFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name={`mechanisms.${index}.periodTo`} render={({ field }) => (
-                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الفترة إلى</FormLabel><Popover open={dateFieldOpen[`mechanismTo${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`mechanismTo${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`mechanismTo${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
                                 )} />
                                 <div className="flex items-end">
                                   <Button type="button" variant="destructive" size="icon" onClick={() => removeMechanism(index)}>
@@ -882,7 +854,7 @@ export function AddPersonnelForm() {
                                             </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date()} initialFocus />
+                                            <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, statusDate: false})) }} disabled={(date) => date > new Date()} initialFocus />
                                         </PopoverContent>
                                     </Popover>
                                     <FormMessage />
@@ -906,7 +878,7 @@ export function AddPersonnelForm() {
                                       </FormControl>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0" align="start">
-                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, transferDate: false})) }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                   </PopoverContent>
                               </Popover>
                             <FormMessage />
@@ -924,7 +896,7 @@ export function AddPersonnelForm() {
                                       </FormControl>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0" align="start">
-                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, reportingDate: false})) }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                   </PopoverContent>
                               </Popover>
                             <FormMessage />
@@ -942,7 +914,7 @@ export function AddPersonnelForm() {
                                       </FormControl>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-auto p-0" align="start">
-                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
+                                      <Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, lastReturnDate: false})) }} disabled={(date) => date > new Date() || date < new Date("1900-01-01")} initialFocus />
                                   </PopoverContent>
                               </Popover>
                               <FormMessage />
@@ -966,3 +938,5 @@ export function AddPersonnelForm() {
     </Form>
   );
 }
+
+    

@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, Shield, Briefcase, Calendar, Info, Hash, ArrowRight, HeartPulse, Heart, Undo2, ArrowLeftRight, FileCheck, GraduationCap, Users, FileBadge, Phone, MapPin, Building, Globe, Fingerprint, ShieldQuestion, LandPlot, BookOpen, Star, Folder, Home, Award, Languages, Users2, BrainCircuit } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -15,123 +15,8 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { getPersonnelById, Personnel as PersonnelData } from '@/services/personnel.service';
 
-type ImportantJob = {
-    jobTitle: string;
-    periodFrom: string;
-    periodTo: string;
-}
-
-type ServiceOperation = {
-    areaName: string;
-    periodFrom: string;
-    periodTo: string;
-}
-
-type DecisiveStorm = {
-    name: string;
-    periodFrom: string;
-    periodTo: string;
-}
-
-type TrainingCourse = {
-    courseName: string;
-    courseType: string;
-    imperativeness: string;
-    institute: string;
-    periodFrom: string;
-    periodTo: string;
-    grade?: string;
-}
-
-type ServiceHistory = {
-    unitName: string;
-    jobTitle: string;
-    periodFrom: string;
-    periodTo: string;
-}
-
-type Medal = {
-    name: string;
-}
-
-type Language = {
-    name: string;
-}
-
-type Child = {
-    name: string;
-}
-
-type Brother = {
-    name: string;
-    address?: string;
-}
-
-type Sister = {
-    name: string;
-    address?: string;
-}
-
-type Mechanism = {
-  name: string;
-  periodFrom: string;
-  periodTo: string;
-}
-
-type Personnel = {
-    id: number;
-    name: string;
-    cardId: string;
-    rank: string;
-    specialization?: string;
-    academicQualification?: string;
-    major?: string;
-    batch?: string;
-    administration: string;
-    status: string;
-    statusDetail?: string;
-    statusDate?: string;
-    appointmentDate?: string;
-    certificateType?: string;
-    lastReturnDate?: string;
-    transferDate?: string;
-    reportingDate?: string;
-    bloodType?: string;
-    maritalStatus?: string;
-    religion?: string;
-    notes?: string;
-    photo?: string;
-    dateOfBirth?: string;
-    nationalId?: string;
-    phoneNumbers?: {
-        sudani?: string;
-        zain?: string;
-        mtn?: string;
-    };
-    state?: string;
-    city?: string;
-    locality?: string;
-    address?: string;
-    nextOfKinName?: string;
-    nextOfKinPhone?: string;
-    nextOfKinAddress?: string;
-    importantJobs?: ImportantJob[];
-    serviceOperations?: ServiceOperation[];
-    decisiveStorm?: DecisiveStorm[];
-    trainingCourses?: TrainingCourse[];
-    serviceHistory?: ServiceHistory[];
-    medals?: Medal[];
-    languages?: Language[];
-    fatherName?: string;
-    fatherAddress?: string;
-    motherName?: string;
-    wifeName?: string;
-    children?: Child[];
-    brothers?: Brother[];
-    sisters?: Sister[];
-    mechanisms?: Mechanism[];
-};
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
@@ -159,39 +44,18 @@ export default function ViewPersonnelPage() {
     const params = useParams();
     const router = useRouter();
     const id = Number(params.id);
-    const [person, setPerson] = useState<Personnel | null>(null);
+    const [person, setPerson] = useState<PersonnelData | null>(null);
     const [loading, setLoading] = useState(true);
-
-    const formatArabicNumber = (numStr: number | string) => {
-      if (numStr === undefined || numStr === null) return '';
-      const str = String(numStr);
-      return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
-    };
     
-    const getStatusDisplay = (person: Personnel) => {
-        const variant = getStatusVariant(person.status);
-        let text = person.status;
-        if (person.statusDetail) {
-            text = `${person.status} (${person.statusDetail})`;
-        } else if (person.statusDate) {
-             text = `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
-        }
-        return <Badge variant={variant} className="text-md px-3 py-1">{text}</Badge>;
-    }
-
-
-    useEffect(() => {
+    const loadData = useCallback(async () => {
         if (!id) return;
+        setLoading(true);
         try {
-            const storedData = localStorage.getItem('personnelData');
-            if (storedData) {
-                const personnelList: Personnel[] = JSON.parse(storedData);
-                const personToView = personnelList.find(p => p.id === id);
-                if (personToView) {
-                    setPerson(personToView);
-                } else {
-                    router.push('/dashboard/personnel-list');
-                }
+            const personToView = await getPersonnelById(id);
+            if (personToView) {
+                setPerson(personToView);
+            } else {
+                router.push('/dashboard/personnel-list');
             }
         } catch (error) {
             console.error("Failed to load data for viewing", error);
@@ -199,6 +63,42 @@ export default function ViewPersonnelPage() {
             setLoading(false);
         }
     }, [id, router]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+
+    const formatArabicNumber = (numStr: number | string | undefined) => {
+      if (numStr === undefined || numStr === null) return '';
+      const str = String(numStr);
+      return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+    };
+    
+    const getStatusDisplay = (person: PersonnelData) => {
+        const variant = getStatusVariant(person.status);
+        let text = person.status;
+        if (person.statusDetail) {
+            text = `${person.status} (${person.statusDetail})`;
+        } else if (person.statusDate) {
+             try {
+                 text = `${person.status} (حتى: ${format(parseISO(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
+             } catch(e) {
+                // Ignore invalid date
+             }
+        }
+        return <Badge variant={variant} className="text-md px-3 py-1">{text}</Badge>;
+    }
+
+    const formatDateSafely = (dateString: string | undefined) => {
+        if (!dateString) return 'غير مسجل';
+        try {
+            return format(parseISO(dateString), 'd MMMM yyyy', { locale: arSA });
+        } catch (error) {
+            return 'تاريخ غير صالح';
+        }
+    }
+
 
     if (loading) {
         return (
@@ -265,7 +165,7 @@ export default function ViewPersonnelPage() {
                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                 <DetailItem icon={Hash} label="رقم البطاقة" value={formatArabicNumber(person.cardId)} />
                                 <DetailItem icon={Fingerprint} label="الرقم الوطني" value={person.nationalId ? formatArabicNumber(person.nationalId) : 'غير مسجل'} />
-                                <DetailItem icon={Calendar} label="تاريخ الميلاد" value={person.dateOfBirth ? format(new Date(person.dateOfBirth), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={Calendar} label="تاريخ الميلاد" value={formatDateSafely(person.dateOfBirth)} />
                                 <DetailItem icon={HeartPulse} label="فصيلة الدم" value={person.bloodType} />
                                 <DetailItem icon={Heart} label="الحالة الاجتماعية" value={person.maritalStatus} />
                                 <DetailItem icon={BookOpen} label="الديانة" value={person.religion} />
@@ -278,11 +178,11 @@ export default function ViewPersonnelPage() {
                                 {person.major && <DetailItem icon={BrainCircuit} label="التخصص الدقيق" value={person.major} />}
                                 <DetailItem icon={Users} label="الدفعة" value={person.batch} />
                                 <DetailItem icon={GraduationCap} label="التخصص" value={person.specialization} />
-                                <DetailItem icon={Calendar} label="تاريخ التعيين" value={person.appointmentDate ? format(new Date(person.appointmentDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={Calendar} label="تاريخ التعيين" value={formatDateSafely(person.appointmentDate)} />
                                 <DetailItem icon={FileBadge} label="نوع البراءة" value={person.certificateType} />
-                                <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={person.transferDate ? format(new Date(person.transferDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                                <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={person.reportingDate ? format(new Date(person.reportingDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
-                                <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={person.lastReturnDate ? format(new Date(person.lastReturnDate), 'd MMMM yyyy', { locale: arSA }) : 'غير مسجل'} />
+                                <DetailItem icon={ArrowLeftRight} label="تاريخ النقل" value={formatDateSafely(person.transferDate)} />
+                                <DetailItem icon={FileCheck} label="تاريخ التبليغ" value={formatDateSafely(person.reportingDate)} />
+                                <DetailItem icon={Undo2} label="تاريخ آخر عودة" value={formatDateSafely(person.lastReturnDate)} />
                             </div>
                         </AccordionContent>
                     </AccordionItem>
@@ -358,8 +258,8 @@ export default function ViewPersonnelPage() {
                                                 {person.importantJobs.map((job, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell className="text-center">{job.jobTitle}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(job.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(job.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(job.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(job.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -386,8 +286,8 @@ export default function ViewPersonnelPage() {
                                                     <TableRow key={index}>
                                                         <TableCell className="text-center">{item.unitName}</TableCell>
                                                         <TableCell className="text-center border-r">{item.jobTitle}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(item.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(item.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(item.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(item.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -412,8 +312,8 @@ export default function ViewPersonnelPage() {
                                                 {person.serviceOperations.map((op, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell className="text-center">{op.areaName}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(op.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(op.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -438,8 +338,8 @@ export default function ViewPersonnelPage() {
                                                 {person.decisiveStorm.map((op, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell className="text-center">{op.name}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(op.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(op.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(op.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(op.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -472,8 +372,8 @@ export default function ViewPersonnelPage() {
                                                         <TableCell className="text-center border-r">{course.imperativeness}</TableCell>
                                                         <TableCell className="text-center border-r">{course.grade || '-'}</TableCell>
                                                         <TableCell className="text-center border-r">{course.institute}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(course.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(course.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(course.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(course.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -546,8 +446,8 @@ export default function ViewPersonnelPage() {
                                                 {person.mechanisms.map((v, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell className="text-center">{v.name}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(v.periodFrom), 'd MMMM yyyy', { locale: arSA })}</TableCell>
-                                                        <TableCell className="text-center border-r">{format(new Date(v.periodTo), 'd MMMM yyyy', { locale: arSA })}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(v.periodFrom)}</TableCell>
+                                                        <TableCell className="text-center border-r">{formatDateSafely(v.periodTo)}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -599,3 +499,5 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
+
+    
