@@ -6,8 +6,8 @@ import { Sparkles, AlertTriangle } from "lucide-react";
 export async function WellbeingAnalysis() {
   try {
     const analysis = await analyzePersonnelWellbeing({
-      leaveRequests: "120 فرد في إجازة حاليًا، بزيادة 3.5٪ عن الشهر الماضي.",
-      recentActivity: "تمت إضافة 64 فردًا جديدًا هذا الشهر، وتمت ترقية 15 فردًا.",
+      leaveRequests: "120 ضابط في إجازة حاليًا، بزيادة 3.5٪ عن الشهر الماضي.",
+      recentActivity: "تمت إضافة 64 ضابطًا جديدًا هذا الشهر، وتمت ترقية 15 ضابطًا.",
       otherData: "لوحظ انخفاض طفيف في معدلات الحضور في الوحدة الثالثة.",
     });
 
@@ -16,7 +16,7 @@ export async function WellbeingAnalysis() {
           <CardHeader>
               <CardTitle className="flex items-center gap-2">
                   <Sparkles className="text-primary"/>
-                  تحليل معنويات الأفراد
+                  تحليل معنويات الضباط
               </CardTitle>
               <CardDescription>
                   هذا التحليل تم إنشاؤه بواسطة الذكاء الاصطناعي Genkit AI
@@ -47,7 +47,7 @@ export async function WellbeingAnalysis() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-destructive/90">
-              تعذر تحميل تحليل معنويات الأفراد في الوقت الحالي. قد يكون هذا بسبب مشكلة في الاتصال أو خطأ في النظام.
+              تعذر تحميل تحليل معنويات الضباط في الوقت الحالي. قد يكون هذا بسبب مشكلة في الاتصال أو خطأ في النظام.
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
               تفاصيل الخطأ: {errorMessage}

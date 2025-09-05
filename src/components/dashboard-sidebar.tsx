@@ -29,8 +29,8 @@ const mainNav = [
 ];
 
 const personnelNav = [
-  { href: '/dashboard/personnel-list', label: 'كشف الأفراد', icon: List },
-  { href: '/dashboard/add-personnel', label: 'إضافة فرد جديد', icon: UserPlus },
+  { href: '/dashboard/personnel-list', label: 'قائمة الضباط', icon: List },
+  { href: '/dashboard/add-personnel', label: 'إضافة ضابط جديد', icon: UserPlus },
   { href: '/dashboard/attachments', label: 'المرفقات', icon: Folder },
 ];
 
@@ -48,9 +48,9 @@ const adminNav = [
 
 const navSections = [
   { title: 'الرئيسية', icon: Home, items: mainNav },
-  { title: 'إدارة الأفراد', icon: Users, items: personnelNav },
+  { title: 'شئون الضباط', icon: Users, items: personnelNav },
   { title: 'التقارير', icon: FileText, items: reportsNav },
-  { title: 'الإدارة', icon: Settings, items: adminNav },
+  { title: 'إدارة النظام', icon: Settings, items: adminNav },
 ];
 
 const NavContent = () => {

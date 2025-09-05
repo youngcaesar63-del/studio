@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 
 const actions = [
-  { href: '/dashboard/add-personnel', label: 'إضافة فرد', icon: UserPlus, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
+  { href: '/dashboard/add-personnel', label: 'إضافة ضابط', icon: UserPlus, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
   { href: '/dashboard/reports', label: 'إنشاء تقرير', icon: FileText, iconBg: 'bg-blue-100 dark:bg-blue-900', iconColor: 'text-blue-600 dark:text-blue-300' },
   { href: '/dashboard/backup', label: 'نسخ احتياطي', icon: Database, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
   { href: '/dashboard/settings', label: 'الإعدادات', icon: Settings, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },
@@ -33,5 +33,3 @@ export function QuickActions() {
         </Card>
     );
 }
-
-    

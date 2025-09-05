@@ -71,7 +71,7 @@ export function PersonnelSearch() {
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle>البحث عن الأفراد</CardTitle>
+        <CardTitle>البحث عن الضباط</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSearch}>

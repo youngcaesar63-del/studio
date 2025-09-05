@@ -131,23 +131,23 @@ export default function StatisticsPage() {
         
         let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
         data.sort((a, b) => b.value - a.value);
-        const total = data.reduce((sum, item) => sum + item.value, 0);
-
+        const total = data.length; // Total unique items
 
         return { total, data };
     };
 
     const handleStatItemClick = (category: keyof Personnel, itemName: string, titlePrefix: string) => {
         const filteredData = personnelData.filter(p => {
+             const nameKeyMap: { [key: string]: string } = {
+                serviceOperations: 'areaName',
+                trainingCourses: 'courseName',
+                decisiveStorm: 'name',
+                mechanisms: 'name'
+            };
             if (Array.isArray(p[category])) {
-                const nameKey = {
-                    'serviceOperations': 'areaName',
-                    'trainingCourses': 'courseName',
-                    'decisiveStorm': 'name',
-                    'mechanisms': 'name'
-                }[category as string];
-
-                return (p[category] as any[])?.some(item => item[nameKey as string] === itemName);
+                 const nameKey = nameKeyMap[category as string];
+                 if(!nameKey) return false;
+                return (p[category] as any[])?.some(item => item[nameKey] === itemName);
             }
             const value = p[category] || 'غير محدد';
             return String(value) === itemName;
@@ -170,16 +170,16 @@ export default function StatisticsPage() {
     const mechanismsStats = processArrayChartData('mechanisms', 'name');
 
     const statsCardsData = [
-        { title: 'إجمالي الرتب', icon: Shield, ...rankStats, category: 'rank' as const, titlePrefix: 'الأفراد برتبة' },
-        { title: 'إجمالي الإدارات', icon: Users, ...adminStats, category: 'administration' as const, titlePrefix: 'الأفراد في إدارة' },
-        { title: 'إجمالي الدفعات', icon: Users, ...batchStats, category: 'batch' as const, titlePrefix: 'الأفراد من دفعة' },
-        { title: 'الحالة', icon: Briefcase, ...statusStats, category: 'status' as const, titlePrefix: 'الأفراد بحالة' },
-        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, ...qualificationStats, category: 'academicQualification' as const, titlePrefix: 'الأفراد الحاصلون على' },
-        { title: 'التخصصات', icon: HardHat, ...specializationStats, category: 'specialization' as const, titlePrefix: 'الأفراد بتخصص' },
-        { title: 'خدمة العمليات', icon: ShieldAlert, ...serviceOpsStats, category: 'serviceOperations' as const, titlePrefix: 'الأفراد المشاركون في' },
-        { title: 'عاصفة الحزم', icon: LandPlot, ...stormStats, category: 'decisiveStorm' as const, titlePrefix: 'الأفراد المشاركون في' },
-        { title: 'الدورات التدريبية', icon: BookOpen, ...coursesStats, category: 'trainingCourses' as const, titlePrefix: 'الأفراد الحاصلون على دورة' },
-        { title: 'الآليات', icon: Users2, ...mechanismsStats, category: 'mechanisms' as const, titlePrefix: 'الأفراد المشاركون في آلية' },
+        { title: 'إحصائيات الرتب', icon: Shield, total: rankStats.data.reduce((s,i) => s + i.value, 0), data: rankStats.data, category: 'rank' as const, titlePrefix: 'الضباط برتبة' },
+        { title: 'إحصائيات الإدارات', icon: Users, total: adminStats.data.reduce((s,i) => s + i.value, 0), data: adminStats.data, category: 'administration' as const, titlePrefix: 'الضباط في إدارة' },
+        { title: 'إحصائيات الدفعات', icon: Users, total: batchStats.data.reduce((s,i) => s + i.value, 0), data: batchStats.data, category: 'batch' as const, titlePrefix: 'الضباط من دفعة' },
+        { title: 'إحصائيات الحالة', icon: Briefcase, total: statusStats.data.reduce((s,i) => s + i.value, 0), data: statusStats.data, category: 'status' as const, titlePrefix: 'الضباط بحالة' },
+        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, total: qualificationStats.data.reduce((s,i) => s + i.value, 0), data: qualificationStats.data, category: 'academicQualification' as const, titlePrefix: 'الضباط الحاصلون على' },
+        { title: 'التخصصات', icon: HardHat, total: specializationStats.data.reduce((s,i) => s + i.value, 0), data: specializationStats.data, category: 'specialization' as const, titlePrefix: 'الضباط بتخصص' },
+        { title: 'خدمة العمليات', icon: ShieldAlert, total: serviceOpsStats.total, data: serviceOpsStats.data, category: 'serviceOperations' as const, titlePrefix: 'الضباط المشاركون في' },
+        { title: 'عاصفة الحزم', icon: LandPlot, total: stormStats.total, data: stormStats.data, category: 'decisiveStorm' as const, titlePrefix: 'الضباط المشاركون في' },
+        { title: 'الدورات التدريبية', icon: BookOpen, total: coursesStats.total, data: coursesStats.data, category: 'trainingCourses' as const, titlePrefix: 'الضباط الحاصلون على دورة' },
+        { title: 'الآليات', icon: Users2, total: mechanismsStats.total, data: mechanismsStats.data, category: 'mechanisms' as const, titlePrefix: 'الضباط المشاركون في آلية' },
     ];
 
 
@@ -188,7 +188,7 @@ export default function StatisticsPage() {
             <Card className="shadow-md">
                 <CardHeader>
                     <CardTitle className="text-2xl flex items-center gap-2"><BarChart2 className="h-6 w-6"/>إحصائيات شاملة</CardTitle>
-                    <CardDescription>نظرة عامة مفصلة على بيانات الأفراد في النظام. انقر على أي عنصر لعرض التفاصيل.</CardDescription>
+                    <CardDescription>نظرة عامة مفصلة على بيانات الضباط في النظام. انقر على أي عنصر لعرض التفاصيل.</CardDescription>
                 </CardHeader>
             </Card>
 
@@ -213,7 +213,7 @@ export default function StatisticsPage() {
                     <DialogHeader>
                         <DialogTitle>{dialogTitle}</DialogTitle>
                         <DialogDescription>
-                            قائمة بجميع الأفراد الذين يطابقون هذا التصنيف.
+                            قائمة بجميع الضباط الذين يطابقون هذا التصنيف.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="max-h-[60vh] overflow-y-auto">

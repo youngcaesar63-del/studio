@@ -1,3 +1,4 @@
+
 'use client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
     onDelete(person.id);
     toast({
       title: 'تم الحذف بنجاح',
-      description: `تم حذف بيانات الفرد: ${person.name}`,
+      description: `تم حذف بيانات الضابط: ${person.name}`,
       variant: 'destructive'
     });
   }
@@ -58,7 +59,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
   const formatArabicNumber = (numStr: number | string) => {
     if (numStr === undefined || numStr === null) return '';
     const str = String(numStr);
-    return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(Number(str));
+    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
   }
   
   const getStatusDisplay = (person: Personnel) => {
@@ -129,7 +130,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    سيتم حذف بيانات الفرد '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                    سيتم حذف بيانات الضابط '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -149,7 +150,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
         </div>
         <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
             <div className="text-sm text-muted-foreground">
-                عرض {formatArabicNumber(data.length)} من {formatArabicNumber(data.length)} فرد
+                عرض {formatArabicNumber(data.length)} من {formatArabicNumber(data.length)} ضابط
             </div>
         </div>
     </div>

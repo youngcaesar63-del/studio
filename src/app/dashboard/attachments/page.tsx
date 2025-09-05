@@ -186,14 +186,14 @@ export default function AttachmentsPage() {
       <Card className="shadow-md">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2"><FolderIcon className="h-6 w-6"/>إدارة المرفقات</CardTitle>
-          <CardDescription>ابحث عن فرد لرفع وعرض مرفقاته.</CardDescription>
+          <CardDescription>ابحث عن ضابط لرفع وعرض مرفقاته.</CardDescription>
            <div className="pt-2">
                 <div className="flex items-start rounded-md border border-l-4 border-l-blue-500 bg-muted/30 p-4">
                     <AlertCircle className="h-6 w-6 mr-3 text-blue-500 flex-shrink-0" />
                     <div>
-                        <h4 className="font-semibold text-foreground">المرفقات المطلوبة</h4>
+                        <h4 className="font-semibold text-foreground">توجيهات المرفقات</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                            صورة شخصية للرتبة الحالية بحجم البوستال، صورة للبطاقة العسكرية، صورة من الرقم الوطني، صورة من الشهادات العسكرية، صورة من الشهادات الأكاديمية.
+                           يرجى رفع المرفقات التالية لكل ضابط: صورة شخصية بالزي العسكري (بحجم البوستال)، صورة للبطاقة العسكرية، صورة من الرقم الوطني، وصور من جميع الشهادات العسكرية والأكاديمية الحاصل عليها.
                         </p>
                     </div>
                 </div>
@@ -230,7 +230,7 @@ export default function AttachmentsPage() {
         <Card className="shadow-md">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardDescription>مرفقات الفرد</CardDescription>
+              <CardDescription>مرفقات الضابط</CardDescription>
               <CardTitle className="text-xl flex items-center gap-2">
                 <User className="h-5 w-5"/>{selectedPersonnel.name} <Badge variant="secondary">{selectedPersonnel.rank}</Badge>
               </CardTitle>
@@ -298,7 +298,7 @@ export default function AttachmentsPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                        لا توجد مرفقات لهذا الفرد.
+                        لا توجد مرفقات لهذا الضابط.
                       </TableCell>
                     </TableRow>
                   )}
@@ -337,9 +337,4 @@ export default function AttachmentsPage() {
       )}
     </div>
   );
-
-    
-
-    
-
-    
+}

@@ -7,8 +7,8 @@ export default function AddPersonnelPage() {
     <div className="animate-in fade-in duration-500">
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle className="text-2xl">إضافة فرد جديد</CardTitle>
-          <CardDescription>أدخل البيانات المطلوبة لإضافة فرد جديد للنظام.</CardDescription>
+          <CardTitle className="text-2xl">إضافة ضابط جديد</CardTitle>
+          <CardDescription>أدخل البيانات المطلوبة لإضافة ضابط جديد للنظام.</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <AddPersonnelForm />

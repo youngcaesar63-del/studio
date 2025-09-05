@@ -32,7 +32,7 @@ export default function BackupPage() {
     const [isCreating, setIsCreating] = useState(false);
 
     const formatArabicNumber = (num: number) => {
-      return new Intl.NumberFormat('ar-SA', { useGrouping: false }).format(num);
+        return new Intl.NumberFormat('ar-EG').format(num);
     }
     
     const loadData = useCallback(() => {
@@ -127,7 +127,7 @@ export default function BackupPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle className="text-2xl flex items-center gap-2"><Database className="h-6 w-6"/>النسخ الاحتياطي والاستعادة</CardTitle>
-                        <CardDescription>إدارة النسخ الاحتياطية لبيانات النظام لضمان سلامتها.</CardDescription>
+                        <CardDescription>إدارة النسخ الاحتياطية لبيانات النظام لضمان سلامتها واستعادتها عند الحاجة.</CardDescription>
                     </div>
                     <Button onClick={handleNewBackup} disabled={isCreating}>
                         {isCreating ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <PlusCircle className="ml-2 h-4 w-4" />}
@@ -185,7 +185,7 @@ export default function BackupPage() {
                    )}
                      <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
                         <div className="text-sm text-muted-foreground">
-                            عرض {formatArabicNumber(backupHistory.length)} من {formatArabicNumber(backupHistory.length)} نسخة احتياطية
+                            عرض {formatArabicNumber(backupHistory.length)} من {formatArabicNumber(backupHistory.length)} نسخة احتياطية.
                         </div>
                     </div>
                 </CardContent>

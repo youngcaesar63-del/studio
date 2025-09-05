@@ -40,7 +40,7 @@ export function StatsCards() {
   const [loading, setLoading] = useState(true);
 
   const formatArabicNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA-u-nu-arab').format(num);
+    return new Intl.NumberFormat('ar-EG').format(num);
   }
 
   const calculateStats = useCallback(() => {
@@ -58,7 +58,7 @@ export function StatsCards() {
     const escaped = personnelList.filter(p => p.status === 'هروب').length;
 
     const calculatedStats = [
-      { title: 'إجمالي الأفراد', value: total, change: `+${Math.floor(Math.random() * 5)} هذا الشهر`, changeType: 'increase', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
+      { title: 'إجمالي الضباط', value: total, change: `+${Math.floor(Math.random() * 5)} هذا الشهر`, changeType: 'increase', icon: Users, iconBg: 'bg-indigo-100 dark:bg-indigo-900', iconColor: 'text-indigo-600 dark:text-indigo-300' },
       { title: 'بالطابور', value: inService, change: `+${Math.floor(Math.random() * 10)}`, changeType: 'increase', icon: Users, iconBg: 'bg-green-100 dark:bg-green-900', iconColor: 'text-green-600 dark:text-green-300' },
       { title: 'عمليات', value: operations, change: `-${Math.floor(Math.random() * 3)}`, changeType: 'decrease', icon: ShieldAlert, iconBg: 'bg-red-100 dark:bg-red-900', iconColor: 'text-red-600 dark:text-red-300' },
       { title: 'إجازة', value: onLeave, change: `+${Math.floor(Math.random() * 2)}`, changeType: 'increase_bad', icon: Briefcase, iconBg: 'bg-purple-100 dark:bg-purple-900', iconColor: 'text-purple-600 dark:text-purple-300' },

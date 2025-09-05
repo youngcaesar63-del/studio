@@ -40,8 +40,7 @@ type Notification = {
 };
 
 const formatArabicNumber = (num: number) => {
-    const str = String(num);
-    return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
+    return new Intl.NumberFormat('ar-EG').format(num);
 }
 
 const generateNotifications = (): Notification[] => {
@@ -54,7 +53,7 @@ const generateNotifications = (): Notification[] => {
         notifications.push({
             id: 'incomplete-data',
             title: 'بيانات غير مكتملة',
-            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} أفراد ببيانات غير مكتملة تحتاج إلى مراجعة.`,
+            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} ضباط ببيانات غير مكتملة تحتاج إلى مراجعة.`,
             icon: AlertTriangle,
             style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 focus:bg-red-100 dark:focus:bg-red-800/50',
             time: 'الآن',
@@ -74,7 +73,7 @@ const generateNotifications = (): Notification[] => {
     notifications.push({
         id: 'performance-review',
         title: 'مراجعة الأداء',
-        description: 'حان وقت مراجعة أداء الأفراد للربع الحالي.',
+        description: 'حان وقت مراجعة أداء الضباط للربع الحالي.',
         icon: UserCheck,
         style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 focus:bg-blue-100 dark:focus:bg-blue-800/50',
         time: 'تذكير',
@@ -220,5 +219,3 @@ export function DashboardHeader() {
     </header>
   );
 }
-
-    

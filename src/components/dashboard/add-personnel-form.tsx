@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -342,7 +343,7 @@ export function AddPersonnelForm() {
 
     toast({
       title: 'تم الحفظ بنجاح',
-      description: `تمت إضافة الفرد ${values.fullName} إلى السجل.`,
+      description: `تمت إضافة الضابط ${values.fullName} إلى السجل.`,
     });
     router.push('/dashboard/personnel-list');
   }

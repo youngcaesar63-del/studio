@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -224,10 +225,10 @@ export default function ViewPersonnelPage() {
     if (!person) {
         return (
             <Card className="shadow-md text-center p-8">
-                <CardTitle>الفرد غير موجود</CardTitle>
-                <CardDescription>لم نتمكن من العثور على بيانات الفرد المطلوب.</CardDescription>
+                <CardTitle>الضابط غير موجود</CardTitle>
+                <CardDescription>لم نتمكن من العثور على بيانات الضابط المطلوب.</CardDescription>
                 <Button onClick={() => router.push('/dashboard/personnel-list')} className="mt-4">
-                    العودة إلى قائمة الأفراد
+                    العودة إلى قائمة الضباط
                 </Button>
             </Card>
         )

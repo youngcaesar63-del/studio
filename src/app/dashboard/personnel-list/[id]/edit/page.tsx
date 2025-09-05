@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -238,7 +239,7 @@ export default function EditPersonnelPage() {
             setPhotoPreview(personToEdit.photo);
           }
         } else {
-            toast({ title: 'خطأ', description: 'الفرد غير موجود.', variant: 'destructive' });
+            toast({ title: 'خطأ', description: 'الضابط غير موجود.', variant: 'destructive' });
             router.push('/dashboard/personnel-list');
         }
     } catch (error) {
@@ -301,7 +302,7 @@ export default function EditPersonnelPage() {
 
     toast({
       title: 'تم التحديث بنجاح',
-      description: `تم تحديث بيانات الفرد ${values.fullName}.`,
+      description: `تم تحديث بيانات الضابط ${values.fullName}.`,
     });
     setConfirmOpen(false);
     router.push('/dashboard/personnel-list');
@@ -962,7 +963,7 @@ export default function EditPersonnelPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>تأكيد حفظ التغييرات</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من أنك تريد حفظ هذه التعديلات على بيانات الفرد؟
+              هل أنت متأكد من أنك تريد حفظ هذه التعديلات على بيانات الضابط؟
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

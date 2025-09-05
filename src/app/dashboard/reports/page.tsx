@@ -65,7 +65,7 @@ export default function ReportsPage() {
       }
     } catch (error) {
       console.error("Failed to read from localStorage", error);
-      toast({ title: 'خطأ', description: 'فشل تحميل بيانات الأفراد.', variant: 'destructive' });
+      toast({ title: 'خطأ', description: 'فشل تحميل بيانات الضباط.', variant: 'destructive' });
     }
   }, [toast]);
 
@@ -131,31 +131,33 @@ export default function ReportsPage() {
     const printWindow = window.open('', '_blank');
     
     if (printWindow) {
-      const administrationHeaderTitle = includeAdministration ? `<th>الإدارة</th>` : '';
-      const administrationHeaderLetter = includeAdministration ? `<th>(هـ)</th>` : '';
-      const notesHeaderLetter = includeAdministration ? `<th>(و)</th>` : `<th>(هـ)</th>` ;
+      const administrationHeaderTitle = includeAdministration ? `<th class="text-center">الإدارة</th>` : '';
+      const administrationHeaderLetter = includeAdministration ? `<th class="text-center">(هـ)</th>` : '';
+      const notesHeaderLetter = includeAdministration ? `<th class="text-center">(و)</th>` : `<th class="text-center">(هـ)</th>` ;
 
 
       const headerRow1 = `
-        <th>م</th>
-        <th>رقم البطاقة</th>
-        <th>الرتبة</th>
-        <th>الاسم</th>
+        <th class="text-center">م</th>
+        <th class="text-center">رقم البطاقة</th>
+        <th class="text-center">الرتبة</th>
+        <th class="text-center">الاسم</th>
         ${administrationHeaderTitle}
-        <th>ملحوظات</th>
+        <th class="text-center">ملحوظات</th>
       `;
 
       const headerRow2 = `
-        <th>(أ)</th>
-        <th>(ب)</th>
-        <th>(جـ)</th>
-        <th>(د)</th>
+        <th class="text-center">(أ)</th>
+        <th class="text-center">(ب)</th>
+        <th class="text-center">(جـ)</th>
+        <th class="text-center">(د)</th>
         ${administrationHeaderLetter}
         ${notesHeaderLetter}
       `;
       
       const captionContent = `
         <div class="bismillah">بسم الله الرحمن الرحيم</div>
+        <div class="header-org">رئاسة هيئة الأركان</div>
+        <div class="header-org-sub">هيئة الاستخبارات العسكرية</div>
         <div class="confidentiality">${confidentiality}</div>
         ${reportTitleInput ? `<div class="title">${reportTitleInput}</div>` : ''}
       `;
@@ -177,13 +179,13 @@ export default function ReportsPage() {
         reportData.forEach((person, index) => {
             const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
             const arabicIndex = formatArabicNumber(index + 1);
-            const adminCell = includeAdministration ? `<td>${person.administration}</td>` : '';
+            const adminCell = includeAdministration ? `<td class="text-center">${person.administration}</td>` : '';
             tableContent += `
               <tr class="report-row">
-                <td>${arabicIndex}</td>
-                <td>${formatArabicNumber(person.cardId)}</td>
-                <td>${displayRank}</td>
-                <td>${person.name}</td>
+                <td class="text-center">${arabicIndex}</td>
+                <td class="text-center">${formatArabicNumber(person.cardId)}</td>
+                <td class="text-center">${displayRank}</td>
+                <td class="text-center">${person.name}</td>
                 ${adminCell}
                 <td></td>
               </tr>
@@ -200,7 +202,7 @@ export default function ReportsPage() {
         </div>
       `;
 
-      printWindow.document.write('<html><head><title></title>');
+      printWindow.document.write('<html><head><title>طباعة تقرير</title>');
       
       const pageOrientation = includeAdministration ? 'landscape' : 'portrait';
 
@@ -210,13 +212,12 @@ export default function ReportsPage() {
         
         @page {
             size: A4 ${pageOrientation};
-            margin: 1cm;
+            margin: 1.5cm;
         }
 
         body { 
             font-family: 'Tajawal', sans-serif; 
             direction: rtl;
-            counter-reset: page-counter;
         }
         
         .report-table {
@@ -240,6 +241,16 @@ export default function ReportsPage() {
             font-family: 'Amiri', serif;
             font-size: 16px;
             font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .header-org {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .header-org-sub {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 0.5rem;
         }
         .confidentiality {
             font-family: 'Arial', sans-serif;
@@ -248,53 +259,51 @@ export default function ReportsPage() {
             border-bottom: 1px solid #000;
             padding-bottom: 1px;
             display: inline-block;
+            margin-top: 0.5rem;
         }
         .title {
             font-family: 'Cairo', sans-serif;
             font-weight: 900;
             font-size: 16px;
             margin-top: 5px;
+            text-decoration: underline;
         }
         .report-table th, .report-table td {
           border: 1px solid #000; 
           padding: 8px;
           text-align: center;
-          border-left: 2px solid #000;
-          border-right: 2px solid #000;
         }
-         .report-table th:first-child, .report-table td:first-child {
-            border-right: 2px solid #000;
-         }
-         .report-table th:last-child, .report-table td:last-child {
-            border-left: 2px solid #000;
-         }
         .report-table thead tr {
           background-color: #e0e0e0 !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
           page-break-inside: avoid;
+          font-weight: bold;
         }
         .report-table tbody tr td:first-child {
             background-color: #e0e0e0 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            font-weight: bold;
         }
 
         .print-footer {
             text-align: center;
-            width: 100%;
+            width: calc(100% - 3cm);
             position: fixed;
             bottom: 1cm;
-            left: 0;
-            right: 0;
+            left: 1.5cm;
+            right: 1.5cm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
         }
         .page-number-container::before {
-            content: "( " counter(page-counter) " من ${formatArabicNumber(totalPages)} )";
+            content: "( " counter(page) " )";
             font-family: 'Arial', sans-serif;
             font-weight: bold;
             font-size: 14px;
-            display: block;
-            margin-bottom: 4px;
         }
       `);
       printWindow.document.write('</style>');
@@ -379,20 +388,18 @@ export default function ReportsPage() {
                                 طباعة
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
+                        <DialogContent className="sm:max-w-md">
                             <DialogHeader>
                                 <DialogTitle>خيارات الطباعة</DialogTitle>
                                 <DialogDescription>
-                                    اختر الخيارات التالية لتضمينها في رأس التقرير المطبوع.
+                                    اختر الخيارات التالية لتضمينها في رأس وتذييل التقرير المطبوع.
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="confidentiality" className="text-right">
-                                        درجة السرية
-                                    </Label>
+                                <div className="space-y-2">
+                                    <Label htmlFor="confidentiality">درجة السرية</Label>
                                     <Select dir="rtl" value={confidentiality} onValueChange={setConfidentiality}>
-                                        <SelectTrigger className="col-span-3">
+                                        <SelectTrigger id="confidentiality">
                                             <SelectValue placeholder="اختر درجة السرية" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -400,21 +407,18 @@ export default function ReportsPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="report-title" className="text-right">
-                                        العنوان
-                                    </Label>
+                                <div className="space-y-2">
+                                    <Label htmlFor="report-title">عنوان التقرير (اختياري)</Label>
                                     <Input
                                         id="report-title"
                                         value={reportTitleInput}
                                         onChange={(e) => setReportTitleInput(e.target.value)}
-                                        className="col-span-3"
-                                        placeholder="أدخل عنوان التقرير (اختياري)"
+                                        placeholder="مثال: كشف بأسماء الضباط"
                                     />
                                 </div>
-                                <div className="flex items-center space-x-2 space-x-reverse">
+                                <div className="flex items-center space-x-2 space-x-reverse pt-2">
                                     <Checkbox id="include-administration" checked={includeAdministration} onCheckedChange={(checked) => setIncludeAdministration(!!checked)} />
-                                    <Label htmlFor="include-administration">إضافة عمود الإدارة</Label>
+                                    <Label htmlFor="include-administration">إضافة عمود الإدارة (يغير اتجاه الصفحة إلى أفقي)</Label>
                                 </div>
                             </div>
                             <DialogFooter>
