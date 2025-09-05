@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, FileText, Loader2, FileUp, FileSpreadsheet, FileCode } from 'lucide-react';
+import { Printer, FileText, Loader2, FileSpreadsheet, FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -152,12 +152,12 @@ export default function ReportsPage() {
         } else if (format === 'word') {
             const tableHeader = new DocxTableRow({
                 children: [
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER })] }),
                     new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER })] }),
                 ],
                 tableHeader: true,
             });
@@ -166,20 +166,20 @@ export default function ReportsPage() {
                 const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                 return new DocxTableRow({
                     children: [
-                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
                         new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER })] }),
-                    ].reverse(), // Corrected order by reversing
+                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER })] }),
+                    ],
                 });
             });
 
             const table = new DocxTable({
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
-                columnWidths: [15, 20, 25, 15, 20, 5],
+                columnWidths: [5, 20, 15, 25, 20, 15],
             });
 
             const doc = new Document({
@@ -551,5 +551,7 @@ export default function ReportsPage() {
     </div>
   );
 }
+
+    
 
     
