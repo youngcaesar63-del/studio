@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Search, Loader2 } from 'lucide-react';
 import { fuzzyPersonnelSearch } from '@/ai/flows/fuzzy-personnel-search';
 import { useToast } from '@/hooks/use-toast';
-import { getLocalStorage } from '@/lib/localStorage-helpers';
+import { getAllPersonnel } from '@/services/personnel.service';
 import { rankOrder } from '@/lib/constants';
+import type { Personnel } from '@/services/personnel.service';
 
 const ranks = Object.keys(rankOrder);
 const statuses = ['إجازة', 'إلحاق', 'إرسالية مرضية', 'إنتداب', 'بالطابور', 'دورة تدريبية', 'غياب', 'عمليات', 'منقول', 'نقل و لم يبلغ', 'هروب'].sort((a,b) => a.localeCompare(b, 'ar'));
@@ -22,19 +23,23 @@ export function PersonnelSearch() {
   const [isDataLoading, setIsDataLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
+    setIsDataLoading(true);
     try {
-      const storedData = localStorage.getItem('personnelData');
-      if (storedData) {
-        const personnelList = JSON.parse(storedData);
-        setAllPersonnel(personnelList.map((p: any) => p.name));
-      }
+      const personnelList = await getAllPersonnel();
+      setAllPersonnel(personnelList.map((p: Personnel) => p.name));
     } catch (e) {
       console.error("Failed to load personnel names for search", e);
+      toast({ title: "خطأ", description: "فشل تحميل أسماء الضباط للبحث.", variant: "destructive" });
     } finally {
       setIsDataLoading(false);
     }
-  }, []);
+  }, [toast]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
