@@ -5,14 +5,18 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Database, Download, RefreshCw, Trash2, PlusCircle, Loader2, Upload } from "lucide-react";
+import { Database, Download, RefreshCw, Trash2, PlusCircle, Loader2, Upload, Cog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
 import { saveAs } from 'file-saver';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { format } from "date-fns";
+import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { arSA } from "date-fns/locale";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
 type Backup = {
   id: string;
@@ -20,6 +24,11 @@ type Backup = {
   size: string;
   status: 'مكتمل' | 'فشل';
   data: any; 
+};
+
+type AutoBackupSettings = {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
 };
 
 const initialBackupHistory: Backup[] = [];
@@ -32,6 +41,10 @@ export default function BackupPage() {
     const [isRestoring, setIsRestoring] = useState(false);
     const [fileToRestore, setFileToRestore] = useState<File | null>(null);
     const restoreInputRef = useRef<HTMLInputElement>(null);
+    const [autoBackupSettings, setAutoBackupSettings] = useState<AutoBackupSettings>({
+        enabled: false,
+        frequency: 'weekly',
+    });
 
     const formatArabicNumber = (num: number) => {
         return new Intl.NumberFormat('ar-EG').format(num);
@@ -44,34 +57,21 @@ export default function BackupPage() {
             data = initialBackupHistory;
             updateLocalStorage('backupHistory', initialBackupHistory);
         }
+        const settings = getLocalStorage('autoBackupSettings', { enabled: false, frequency: 'weekly' });
+        setAutoBackupSettings(settings);
         setBackupHistory(data);
         setLoading(false);
     }, []);
 
-    useEffect(() => {
-        loadData();
+    const createBackup = useCallback((isAuto: boolean = false) => {
+        if (!isAuto) {
+            setIsCreating(true);
+            toast({
+                title: 'بدء عملية النسخ الاحتياطي',
+                description: 'جاري إنشاء نسخة احتياطية جديدة للنظام.',
+            });
+        }
         
-        const handleStorageChange = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'backupHistory' || customEvent.detail.key === 'all') {
-                loadData();
-            }
-        };
-
-        window.addEventListener('storage-update', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage-update', handleStorageChange);
-        };
-    }, [loadData]);
-
-    const handleNewBackup = () => {
-        setIsCreating(true);
-        toast({
-            title: 'بدء عملية النسخ الاحتياطي',
-            description: 'جاري إنشاء نسخة احتياطية جديدة للنظام.',
-        });
-
         try {
             const allData = {
                 personnelData: getLocalStorage('personnelData', []),
@@ -97,22 +97,76 @@ export default function BackupPage() {
             const updatedHistory = [newBackup, ...currentHistory];
             updateLocalStorage('backupHistory', updatedHistory);
 
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            saveAs(blob, `backup-data-${timestamp}.json`);
-            
-            toast({
-                title: 'اكتمل النسخ الاحتياطي',
-                description: 'تم إنشاء وتنزيل النسخة الاحتياطية بنجاح.',
-            });
+            if (!isAuto) {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                saveAs(blob, `backup-data-${timestamp}.json`);
+                toast({
+                    title: 'اكتمل النسخ الاحتياطي',
+                    description: 'تم إنشاء وتنزيل النسخة الاحتياطية بنجاح.',
+                });
+            } else {
+                 toast({
+                    title: 'نسخ تلقائي مكتمل',
+                    description: `تم إنشاء نسخة احتياطية تلقائية بنجاح.`,
+                });
+            }
 
         } catch (error) {
             console.error("Backup failed:", error);
-            toast({ title: "خطأ", description: "فشل إنشاء النسخة الاحتياطية.", variant: "destructive" });
+            if (!isAuto) {
+                toast({ title: "خطأ", description: "فشل إنشاء النسخة الاحتياطية.", variant: "destructive" });
+            }
         } finally {
-            setIsCreating(false);
+             if (!isAuto) {
+                setIsCreating(false);
+             }
         }
-    };
+    }, [toast]);
+
+    useEffect(() => {
+        loadData();
+        
+        const handleStorageChange = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail.key === 'backupHistory' || customEvent.detail.key === 'all' || customEvent.detail.key === 'autoBackupSettings') {
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage-update', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage-update', handleStorageChange);
+        };
+    }, [loadData]);
     
+     useEffect(() => {
+        if (loading || !autoBackupSettings.enabled) return;
+
+        const lastBackupDate = backupHistory.length > 0 ? new Date(backupHistory[0].date) : null;
+        if (!lastBackupDate) {
+            // No backups yet, create one
+            createBackup(true);
+            return;
+        }
+
+        let shouldBackup = false;
+        const now = new Date();
+        if (autoBackupSettings.frequency === 'daily' && now > subDays(lastBackupDate, -1)) {
+            shouldBackup = true;
+        } else if (autoBackupSettings.frequency === 'weekly' && now > subWeeks(lastBackupDate, -1)) {
+            shouldBackup = true;
+        } else if (autoBackupSettings.frequency === 'monthly' && now > subMonths(lastBackupDate, -1)) {
+            shouldBackup = true;
+        }
+        
+        if(shouldBackup) {
+            createBackup(true);
+        }
+
+    }, [loading, autoBackupSettings, backupHistory, createBackup]);
+
+
     const handleDownload = (backup: Backup) => {
          try {
             const dataString = JSON.stringify(backup.data, null, 2);
@@ -210,6 +264,13 @@ export default function BackupPage() {
         return "تاريخ غير صالح";
     };
 
+    const handleAutoBackupSettingsChange = (key: keyof AutoBackupSettings, value: any) => {
+        const newSettings = { ...autoBackupSettings, [key]: value };
+        setAutoBackupSettings(newSettings);
+        updateLocalStorage('autoBackupSettings', newSettings);
+        toast({ title: 'تم حفظ الإعدادات', description: 'تم تحديث إعدادات النسخ الاحتياطي التلقائي.' });
+    };
+
     return (
         <div className="animate-in fade-in duration-500 space-y-6">
             <Card className="shadow-md">
@@ -225,7 +286,7 @@ export default function BackupPage() {
                         </Button>
                         <input type="file" ref={restoreInputRef} onChange={handleFileSelect} accept=".json" className="hidden" />
                         
-                        <Button onClick={handleNewBackup} disabled={isCreating}>
+                        <Button onClick={() => createBackup(false)} disabled={isCreating}>
                             {isCreating ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <PlusCircle className="ml-2 h-4 w-4" />}
                             {isCreating ? 'جاري الإنشاء...' : 'إنشاء نسخة احتياطية'}
                         </Button>
@@ -300,6 +361,41 @@ export default function BackupPage() {
                             عرض {formatArabicNumber(backupHistory.length)} من {formatArabicNumber(backupHistory.length)} نسخة احتياطية.
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+             <Card className="shadow-md">
+                <CardHeader>
+                    <CardTitle className="text-xl flex items-center gap-2"><Cog className="h-5 w-5"/>إعدادات النسخ الاحتياطي التلقائي</CardTitle>
+                    <CardDescription>يقوم النظام بإنشاء نسخة احتياطية تلقائيًا عند تشغيل التطبيق إذا حان وقتها. لن يتم تنزيل الملف، بل سيتم حفظه في السجل أعلاه.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex items-center space-x-4 rtl:space-x-reverse rounded-lg border p-4">
+                        <div className="flex-1">
+                            <Label htmlFor="auto-backup-switch" className="font-semibold">تفعيل النسخ الاحتياطي التلقائي</Label>
+                            <p className="text-xs text-muted-foreground">عند التفعيل، سيقوم النظام بإنشاء نسخة احتياطية تلقائياً حسب الفاصل الزمني المحدد.</p>
+                        </div>
+                        <Switch
+                            id="auto-backup-switch"
+                            checked={autoBackupSettings.enabled}
+                            onCheckedChange={(checked) => handleAutoBackupSettingsChange('enabled', checked)}
+                        />
+                    </div>
+                    {autoBackupSettings.enabled && (
+                        <div className="space-y-2">
+                            <Label htmlFor="frequency-select">الفاصل الزمني</Label>
+                             <Select dir="rtl" value={autoBackupSettings.frequency} onValueChange={(value) => handleAutoBackupSettingsChange('frequency', value)}>
+                                <SelectTrigger id="frequency-select" className="w-full md:w-1/2">
+                                    <SelectValue placeholder="اختر الفاصل الزمني" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="daily">يوميًا</SelectItem>
+                                    <SelectItem value="weekly">أسبوعيًا</SelectItem>
+                                    <SelectItem value="monthly">شهريًا</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
