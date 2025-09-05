@@ -120,9 +120,9 @@ export function RanksChart() {
             </ResponsiveContainer>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart accessibilityLayer data={chartData} layout="vertical">
-                 <YAxis dataKey="rank" type="category" tickLine={false} axisLine={false} tickMargin={10} width={60} tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} />
-                 <XAxis dataKey="personnel" type="number" hide />
+              <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ right: 20 }}>
+                 <XAxis type="number" hide />
+                 <YAxis dataKey="rank" type="category" tickLine={false} axisLine={false} tickMargin={10} width={60} tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} orientation="right" />
                  <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                  <Bar dataKey="personnel" layout="vertical" radius={5}>
                     {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
