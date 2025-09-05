@@ -22,7 +22,7 @@ export const getStatusDetailLabel = (status: string): string => {
         case 'مامورية': return 'اسم المأمورية';
         case 'إنتداب': return 'الجهة المنتدب إليها';
         case 'عمليات': return 'منطقة العمليات';
-        case 'عاصفة الحزم': return 'اسم المشاركة';
+        case 'عاصفة الحزم': return 'اسم اللواء/الكتيبة';
         case 'منقول': return 'الجهة المنقول إليها';
         case 'نقل و لم يبلغ': return 'الجهة المنقول إليها';
         case 'دورة تدريبية': return 'اسم الدورة';
