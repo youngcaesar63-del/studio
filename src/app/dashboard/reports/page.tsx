@@ -152,12 +152,12 @@ export default function ReportsPage() {
         } else if (format === 'word') {
             const tableHeader = new DocxTableRow({
                 children: [
-                    new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER })] }),
-                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'م', alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'رقم البطاقة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الرتبة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الاسم', alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الإدارة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                    new DocxTableCell({ children: [new Paragraph({ text: 'الحالة', alignment: AlignmentType.CENTER, bidirectional: true })] }),
                 ],
                 tableHeader: true,
             });
@@ -166,12 +166,12 @@ export default function ReportsPage() {
                 const displayRank = `${person.rank}${person.specialization && person.specialization !== 'لا يوجد' ? ' ' + person.specialization : ''}`;
                 return new DocxTableRow({
                     children: [
-                        new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER })] }),
-                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.name, alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.administration, alignment: AlignmentType.CENTER, bidirectional: true })] }),
+                        new DocxTableCell({ children: [new Paragraph({ text: person.status, alignment: AlignmentType.CENTER, bidirectional: true })] }),
                     ],
                 });
             });
@@ -186,7 +186,7 @@ export default function ReportsPage() {
             const doc = new Document({
                 sections: [{
                     children: [
-                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER }),
+                        new Paragraph({ text: 'تقرير الضباط', heading: 'Heading1', alignment: AlignmentType.CENTER, bidirectional: true }),
                         table,
                     ],
                 }],
@@ -552,8 +552,3 @@ export default function ReportsPage() {
     </div>
   );
 }
-
-    
-
-    
-
