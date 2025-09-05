@@ -23,8 +23,8 @@ export const getStatusDetailLabel = (status: string): string => {
         case 'إنتداب': return 'الجهة المنتدب إليها';
         case 'عمليات': return 'منطقة العمليات';
         case 'عاصفة الحزم': return 'اسم اللواء/الكتيبة';
-        case 'منقول': return 'الجهة المنقول إليها';
-        case 'نقل و لم يبلغ': return 'الجهة المنقول إليها';
+        case 'منقول': return 'الجهة المنقول منها';
+        case 'نقل و لم يبلغ': return 'الجهة المنقول منها';
         case 'دورة تدريبية': return 'اسم الدورة';
         default: return 'تفاصيل';
     }
