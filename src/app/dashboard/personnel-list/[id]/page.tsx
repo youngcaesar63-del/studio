@@ -257,7 +257,7 @@ export default function ViewPersonnelPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6 md:p-8 space-y-2">
-                  <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
+                  <Accordion type="multiple" defaultValue={['item-1']} className="w-full">
                     
                     <AccordionItem value="item-1">
                         <AccordionTrigger className="text-xl font-bold text-primary">المعلومات الأساسية والوظيفية</AccordionTrigger>
