@@ -172,7 +172,7 @@ export default function ReportsPage() {
                         new DocxTableCell({ children: [new Paragraph({ text: displayRank, alignment: AlignmentType.CENTER })] }),
                         new DocxTableCell({ children: [new Paragraph({ text: person.cardId, alignment: AlignmentType.CENTER })] }),
                         new DocxTableCell({ children: [new Paragraph({ text: String(index + 1), alignment: AlignmentType.CENTER })] }),
-                    ],
+                    ].reverse(), // Corrected order by reversing
                 });
             });
 
