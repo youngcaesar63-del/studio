@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Users } from 'lucide-react';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,8 +55,16 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-muted/40">
       <Card className="w-full max-w-md shadow-2xl animate-in fade-in duration-700">
         <CardHeader className="text-center">
-          <div className="mx-auto bg-primary text-primary-foreground p-4 rounded-full w-fit mb-4">
-            <Users className="h-10 w-10" />
+          <div className="mx-auto w-fit mb-4">
+             <Image 
+                src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
+                alt="شعار هيئة الاستخبارات العسكرية" 
+                width={120} 
+                height={120} 
+                data-ai-hint="military emblem"
+                priority
+                className="drop-shadow-lg"
+              />
           </div>
           <CardTitle className="text-3xl">نظام شئون ضباط هيئة الاستخبارات العسكرية</CardTitle>
           <CardDescription>الرجاء تسجيل الدخول للمتابعة</CardDescription>
