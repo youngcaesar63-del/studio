@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -80,23 +81,23 @@ export default function WelcomePage() {
   }, [router]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-full bg-background text-foreground overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-full bg-background text-foreground overflow-hidden p-4">
       {/* Background shapes */}
       <div className="absolute top-0 left-0 -translate-x-1/4 -translate-y-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl opacity-50"></div>
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
-        <div className="flex justify-around items-center w-full mb-10">
-          <GeneralStaffLogo className="w-48 h-48 md:w-56 md:h-56" />
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
+        <div className="flex justify-around items-center w-full mb-8 md:mb-12">
+          <GeneralStaffLogo className="w-40 h-40 md:w-52 md:h-52" />
+          <div className="text-center px-4">
+            <h1 className="text-2xl lg:text-4xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
             <h2 className="text-2xl lg:text-4xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-48 h-48 md:w-56 md:h-56" />
+          <MilitaryIntelligenceLogo className="w-40 h-40 md:w-52 md:h-52" />
         </div>
 
 
-        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg w-full max-w-3xl">
+        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl">
             {loading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-8 w-1/3 mx-auto" />
@@ -105,20 +106,20 @@ export default function WelcomePage() {
                 </div>
             ) : (
                 <>
-                 <div className="flex items-center justify-center gap-3 text-3xl font-medium mb-4">
-                    <User className="h-8 w-8 text-primary" />
+                 <div className="flex items-center justify-center gap-3 text-2xl md:text-3xl font-medium mb-4">
+                    <User className="h-7 w-7 md:h-8 md:w-8 text-primary" />
                     <span>{username}</span>
                 </div>
                 <div className="flex flex-col gap-2 text-muted-foreground">
-                    <div className="flex items-center justify-center gap-2 text-lg">
+                    <div className="flex items-center justify-center gap-2 text-base md:text-lg">
                         <Calendar className="h-5 w-5" />
                         <span>{date.hijri}</span>
                     </div>
-                     <div className="flex items-center justify-center gap-2 text-sm">
+                     <div className="flex items-center justify-center gap-2 text-xs md:text-sm">
                         <Calendar className="h-4 w-4 opacity-70" />
                         <span>الموافق {date.gregorian}</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 mt-2 text-lg">
+                    <div className="flex items-center justify-center gap-2 mt-2 text-base md:text-lg">
                         <Clock className="h-5 w-5" />
                         <span suppressHydrationWarning>{time}</span>
                     </div>
@@ -127,7 +128,7 @@ export default function WelcomePage() {
             )}
         </div>
 
-        <div className="w-full max-w-lg mt-8 space-y-2">
+        <div className="w-full max-w-lg mt-10 space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground animate-pulse">...جاري توجيهك إلى لوحة التحكم</p>
         </div>
