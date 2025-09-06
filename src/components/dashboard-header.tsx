@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
-import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+import { getAllPersonnel } from '@/services/personnel.service';
 
 
 type Notification = {
@@ -43,9 +43,9 @@ const formatArabicNumber = (num: number) => {
     return new Intl.NumberFormat('ar-EG').format(num);
 }
 
-const generateNotifications = (): Notification[] => {
+const generateNotifications = async (): Promise<Notification[]> => {
     let notifications: Notification[] = [];
-    const personnelData = getLocalStorage('personnelData', []);
+    const personnelData = await getAllPersonnel();
     
     // Check for incomplete data
     const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
@@ -88,13 +88,15 @@ export function DashboardHeader() {
   const router = useRouter();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
+  const [readNotifications, setReadNotifications] = useState<string[]>([]);
 
   useEffect(() => {
-    const allNotifications = generateNotifications();
-    const readNotifications: string[] = getLocalStorage('readNotifications', []);
-    const unreadNotifications = allNotifications.filter(n => !readNotifications.includes(n.id));
-    setActiveNotifications(unreadNotifications);
-  }, []);
+    const fetchNotifications = async () => {
+        const allNotifications = await generateNotifications();
+        setActiveNotifications(allNotifications.filter(n => !readNotifications.includes(n.id)));
+    }
+    fetchNotifications();
+  }, [readNotifications]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAuthenticated');
@@ -103,9 +105,10 @@ export function DashboardHeader() {
     router.push('/login');
   };
 
-  const clearNotifications = () => {
-    const allNotificationIds = generateNotifications().map(n => n.id);
-    updateLocalStorage('readNotifications', allNotificationIds);
+  const clearNotifications = async () => {
+    const allNotifications = await generateNotifications();
+    const allNotificationIds = allNotifications.map(n => n.id);
+    setReadNotifications(allNotificationIds);
     setActiveNotifications([]);
     toast({
         title: 'تم مسح الإشعارات',

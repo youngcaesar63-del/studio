@@ -3,7 +3,8 @@
 import { AlertTriangle, Clock, UserCheck, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useEffect, useState } from 'react';
-import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+import { getPersonnelById, getAllPersonnel, Personnel } from '@/services/personnel.service';
+
 
 type Alert = {
   id: string;
@@ -14,9 +15,9 @@ type Alert = {
   iconStyle: string;
 };
 
-const generateAlerts = (): Alert[] => {
+const generateAlerts = async (): Promise<Alert[]> => {
     let alerts: Alert[] = [];
-    const personnelData = getLocalStorage('personnelData', []);
+    const personnelData = await getAllPersonnel();
     
     // Check for incomplete data
     const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
@@ -56,15 +57,19 @@ const generateAlerts = (): Alert[] => {
 
 export function ImportantAlerts() {
     const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
 
     useEffect(() => {
-        const allAlerts = generateAlerts();
-        // In a real app, you'd filter out dismissed alerts from localStorage
-        setAlerts(allAlerts); 
-    }, []);
+        const fetchAlerts = async () => {
+            const allAlerts = await generateAlerts();
+            // In a real app, you'd filter out dismissed alerts from localStorage
+            setAlerts(allAlerts.filter(a => !dismissedAlerts.includes(a.id))); 
+        }
+        fetchAlerts();
+    }, [dismissedAlerts]);
 
     const dismissAlert = (alertId: string) => {
-        setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== alertId));
+        setDismissedAlerts(prev => [...prev, alertId]);
         // Here you would also update localStorage to persist dismissed alerts
     };
 

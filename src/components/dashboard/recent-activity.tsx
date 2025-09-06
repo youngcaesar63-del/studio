@@ -23,8 +23,11 @@ export function RecentActivity() {
     const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
-        const log = getActivityLog();
-        setActivities(log.slice(0, 5)); // Get latest 5 activities
+        const fetchActivities = async () => {
+            const log = await getActivityLog();
+            setActivities(log.slice(0, 5)); // Get latest 5 activities
+        };
+        fetchActivities();
     }, []);
 
     const formatTimeAgo = (timestamp: string) => {

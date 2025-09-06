@@ -6,17 +6,11 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { useEffect, useState } from 'react';
-import { getLocalStorage } from '@/lib/localStorage-helpers';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { arSA } from 'date-fns/locale';
+import { getAllPersonnel } from '@/services/personnel.service';
+import type { Personnel } from '@/services/personnel.service';
 
-type Personnel = {
-  id: number;
-  name: string;
-  status: string;
-  statusDate?: string;
-  statusDetail?: string;
-};
 
 type UpcomingEvent = {
   icon: React.ElementType;
@@ -27,25 +21,29 @@ type UpcomingEvent = {
   time: string;
 };
 
-const generateEvents = (): UpcomingEvent[] => {
+const generateEvents = async (): Promise<UpcomingEvent[]> => {
     let events: UpcomingEvent[] = [];
-    const personnelData: Personnel[] = getLocalStorage('personnelData', []);
+    const personnelData: Personnel[] = await getAllPersonnel();
     const today = new Date();
 
     // Check for leave ending soon
     personnelData.forEach(p => {
         if (p.status === 'إجازة' && p.statusDate) {
-            const endDate = parseISO(p.statusDate);
-            const daysRemaining = differenceInDays(endDate, today);
-            if (daysRemaining >= 0 && daysRemaining <= 7) {
-                events.push({
-                    icon: Plane,
-                    iconBg: 'bg-amber-100 dark:bg-amber-900',
-                    iconColor: 'text-amber-600 dark:text-amber-300',
-                    title: `انتهاء إجازة: ${p.name}`,
-                    description: `تنتهي إجازة الضابط قريبًا.`,
-                    time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
-                });
+            try {
+                const endDate = parseISO(p.statusDate);
+                const daysRemaining = differenceInDays(endDate, today);
+                if (daysRemaining >= 0 && daysRemaining <= 7) {
+                    events.push({
+                        icon: Plane,
+                        iconBg: 'bg-amber-100 dark:bg-amber-900',
+                        iconColor: 'text-amber-600 dark:text-amber-300',
+                        title: `انتهاء إجازة: ${p.name}`,
+                        description: `تنتهي إجازة الضابط قريبًا.`,
+                        time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
+                    });
+                }
+            } catch(e) {
+                console.error(`Invalid date for personnel ${p.id}: ${p.statusDate}`)
             }
         }
         
@@ -80,7 +78,11 @@ export function UpcomingEvents() {
     const [events, setEvents] = useState<UpcomingEvent[]>([]);
 
     useEffect(() => {
-        setEvents(generateEvents());
+        const fetchEvents = async () => {
+            const upcomingEvents = await generateEvents();
+            setEvents(upcomingEvents);
+        }
+        fetchEvents();
     }, []);
     
     if (events.length === 0) {
