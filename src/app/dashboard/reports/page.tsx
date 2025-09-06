@@ -18,7 +18,8 @@ import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTable
 import { administrations, ranks, rankOrder, statuses } from '@/lib/constants';
 import { logActivity } from '@/lib/activity-log';
 import { getAllPersonnel, Personnel } from '@/services/personnel.service';
-
+import { parseISO, format } from 'date-fns';
+import { arSA } from 'date-fns/locale';
 
 const reportTypes = [
   { value: 'by-administration', label: 'تقرير حسب الإدارة' },
@@ -200,6 +201,14 @@ export default function ReportsPage() {
         toast({ title: 'تم التصدير بنجاح' });
     };
 
+    const formatDateSafely = (dateString: string | undefined): string => {
+        if (!dateString) return "غير محدد";
+        try {
+            return format(parseISO(dateString), 'd MMMM yyyy', { locale: arSA });
+        } catch {
+            return "تاريخ غير صالح";
+        }
+    };
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');

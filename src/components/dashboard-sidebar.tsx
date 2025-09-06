@@ -4,14 +4,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Activity,
   Home,
   Users,
   List,
   UserPlus,
   Folder,
-  FileText,
-  File,
+  BookCopy,
   BarChart2,
   Printer,
   Settings,
@@ -25,7 +23,7 @@ import { Button } from './ui/button';
 import { PanelLeft } from 'lucide-react';
 
 const mainNav = [
-  { href: '/dashboard', label: 'لوحة التحكم', icon: Activity },
+  { href: '/dashboard', label: 'لوحة التحكم', icon: Home },
 ];
 
 const personnelNav = [
@@ -49,7 +47,7 @@ const adminNav = [
 const navSections = [
   { title: 'الرئيسية', icon: Home, items: mainNav },
   { title: 'شئون الضباط', icon: Users, items: personnelNav },
-  { title: 'التقارير', icon: FileText, items: reportsNav },
+  { title: 'التقارير', icon: BookCopy, items: reportsNav },
   { title: 'إدارة النظام', icon: Settings, items: adminNav },
 ];
 
