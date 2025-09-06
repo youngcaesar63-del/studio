@@ -59,13 +59,27 @@ export type Personnel = {
 };
 
 const subTables = [
-    'important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 
-    'service_history', 'medals', 'languages', 'children', 'brothers', 'sisters', 'mechanisms'
+    { name: 'importantJobs', tableName: 'important_jobs' },
+    { name: 'serviceOperations', tableName: 'service_operations' },
+    { name: 'decisiveStorm', tableName: 'decisive_storm' },
+    { name: 'trainingCourses', tableName: 'training_courses' },
+    { name: 'serviceHistory', tableName: 'service_history' },
+    { name: 'medals', tableName: 'medals' },
+    { name: 'languages', tableName: 'languages' },
+    { name: 'children', tableName: 'children' },
+    { name: 'brothers', tableName: 'brothers' },
+    { name: 'sisters', tableName: 'sisters' },
+    { name: 'mechanisms', tableName: 'mechanisms' },
 ];
+
 
 function getSubTableData(personnelId: number, tableName: string) {
     const stmt = db.prepare(`SELECT * FROM ${tableName} WHERE personnel_id = ?`);
-    return stmt.all(personnelId);
+    return stmt.all(personnelId).map((item: any) => {
+        delete item.id;
+        delete item.personnel_id;
+        return item;
+    });
 }
 
 function deleteSubTableData(personnelId: number, tableName: string) {
@@ -77,6 +91,8 @@ function insertSubTableData(personnelId: number, tableName: string, data: any[])
     if (!data || data.length === 0) return;
     
     const keys = Object.keys(data[0]);
+    if(keys.length === 0) return;
+
     const columns = ['personnel_id', ...keys].join(', ');
     const placeholders = ['?', ...keys.map(() => '?')].join(', ');
     
@@ -84,7 +100,7 @@ function insertSubTableData(personnelId: number, tableName: string, data: any[])
     
     const insertMany = db.transaction((items) => {
         for (const item of items) {
-            const values = [personnelId, ...Object.values(item)];
+            const values = [personnelId, ...keys.map(k => item[k])];
             stmt.run(...values);
         }
     });
@@ -94,27 +110,21 @@ function insertSubTableData(personnelId: number, tableName: string, data: any[])
 
 const mapPersonnelFromDb = (p: any): Personnel => {
     if (!p) return p;
-    return {
+    const personnel: Personnel = {
         ...p,
-        name: p.fullName || p.name,
         phoneNumbers: p.phoneNumbers ? JSON.parse(p.phoneNumbers) : {},
-        importantJobs: getSubTableData(p.id, 'important_jobs'),
-        serviceOperations: getSubTableData(p.id, 'service_operations'),
-        decisiveStorm: getSubTableData(p.id, 'decisive_storm'),
-        trainingCourses: getSubTableData(p.id, 'training_courses'),
-        serviceHistory: getSubTableData(p.id, 'service_history'),
-        medals: getSubTableData(p.id, 'medals'),
-        languages: getSubTableData(p.id, 'languages'),
-        children: getSubTableData(p.id, 'children'),
-        brothers: getSubTableData(p.id, 'brothers'),
-        sisters: getSubTableData(p.id, 'sisters'),
-        mechanisms: getSubTableData(p.id, 'mechanisms'),
     };
+
+    subTables.forEach(tableInfo => {
+        personnel[tableInfo.name as keyof Personnel] = getSubTableData(p.id, tableInfo.tableName) as any;
+    });
+    
+    return personnel;
 };
 
 // Helper to convert dates to ISO strings for DB storage
 const toISO = (date: Date | undefined | string | null): string | undefined | null => {
-    if (!date) return undefined;
+    if (!date) return null;
     if (typeof date === 'string') return date; // Already a string
     return date.toISOString();
 };
@@ -123,7 +133,7 @@ const toISO = (date: Date | undefined | string | null): string | undefined | nul
 const mapPersonnelToDb = (data: Partial<Personnel>): any => {
     const dbData: any = { ...data };
     
-    // Map name correctly
+    // Map name correctly from form
     if ('fullName' in dbData) {
         dbData.name = dbData.fullName;
         delete dbData.fullName;
@@ -141,12 +151,15 @@ const mapPersonnelToDb = (data: Partial<Personnel>): any => {
         if (dbData[field]) dbData[field] = toISO(dbData[field]);
     });
 
-    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
-    
+    const mapTimeBasedArray = (arr: any[] | undefined) => {
+      if(!arr) return [];
+      return arr.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) }))
+    }
+
     subTables.forEach(table => {
-        const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
+        const key = table.name as keyof Personnel;
         if (dbData[key]) {
-            if (['important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 'service_history', 'mechanisms'].includes(table)) {
+            if (['importantJobs', 'serviceOperations', 'decisiveStorm', 'trainingCourses', 'serviceHistory', 'mechanisms'].includes(key as string)) {
                 dbData[key] = mapTimeBasedArray(dbData[key]);
             }
         }
@@ -182,9 +195,9 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
 
   const subTableData: {[key: string]: any[]} = {};
   subTables.forEach(table => {
-      const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
+      const key = table.name;
       if (dbData[key]) {
-          subTableData[table] = dbData[key];
+          subTableData[table.tableName] = dbData[key];
           delete dbData[key];
       }
   });
@@ -213,22 +226,20 @@ export async function updatePersonnel(id: number, updatedData: Partial<Omit<Pers
 
     const subTableData: {[key: string]: any[]} = {};
     subTables.forEach(table => {
-        const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
-        if (dbData[key]) {
-            subTableData[table] = dbData[key];
+        const key = table.name;
+        if (dbData.hasOwnProperty(key)) {
+            subTableData[table.tableName] = dbData[key];
             delete dbData[key];
         }
     });
 
     const mainColumns = Object.keys(dbData).filter(k => k !== 'id');
-    const setClause = mainColumns.map(k => `${k} = ?`).join(', ');
-
-    if(setClause) {
+    if (mainColumns.length > 0) {
+      const setClause = mainColumns.map(k => `${k} = ?`).join(', ');
       const stmt = db.prepare(`UPDATE personnel SET ${setClause} WHERE id = ?`);
       stmt.run(...mainColumns.map(k => dbData[k]), id);
     }
-
-
+    
     // Update sub-tables by deleting and re-inserting
     Object.entries(subTableData).forEach(([tableName, data]) => {
       deleteSubTableData(id, tableName);

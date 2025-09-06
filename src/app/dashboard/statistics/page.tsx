@@ -84,19 +84,6 @@ export default function StatisticsPage() {
 
     useEffect(() => {
         loadData();
-
-        const handleStorageChange = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-                loadData();
-            }
-        };
-
-        window.addEventListener('storage-update', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage-update', handleStorageChange);
-        };
     }, [loadData]);
 
     const processChartData = (key: keyof Personnel) => {
@@ -152,8 +139,11 @@ export default function StatisticsPage() {
                 decisiveStorm: 'name',
                 mechanisms: 'name'
             };
+
+            const keyString = category as string;
+            
             if (Array.isArray(p[category])) {
-                 const nameKey = nameKeyMap[category as string];
+                 const nameKey = nameKeyMap[keyString];
                  if(!nameKey) return false;
                 return (p[category] as any[])?.some(item => item[nameKey] === itemName);
             }
@@ -261,5 +251,3 @@ export default function StatisticsPage() {
         </div>
     )
 }
-
-    

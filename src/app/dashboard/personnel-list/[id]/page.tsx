@@ -48,7 +48,7 @@ export default function ViewPersonnelPage() {
     const [loading, setLoading] = useState(true);
     
     const loadData = useCallback(async () => {
-        if (!id) return;
+        if (!id || isNaN(id)) return;
         setLoading(true);
         try {
             const personToView = await getPersonnelById(id);
@@ -499,5 +499,3 @@ export default function ViewPersonnelPage() {
         </div>
     );
 }
-
-    

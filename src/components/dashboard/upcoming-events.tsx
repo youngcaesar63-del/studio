@@ -5,7 +5,7 @@ import { Calendar, Award, User, Plane } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import { getAllPersonnel } from '@/services/personnel.service';
@@ -77,13 +77,14 @@ const generateEvents = async (): Promise<UpcomingEvent[]> => {
 export function UpcomingEvents() {
     const [events, setEvents] = useState<UpcomingEvent[]>([]);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            const upcomingEvents = await generateEvents();
-            setEvents(upcomingEvents);
-        }
-        fetchEvents();
+    const fetchEvents = useCallback(async () => {
+        const upcomingEvents = await generateEvents();
+        setEvents(upcomingEvents);
     }, []);
+
+    useEffect(() => {
+        fetchEvents();
+    }, [fetchEvents]);
     
     if (events.length === 0) {
         return (

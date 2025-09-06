@@ -2,7 +2,7 @@
 'use client';
 import { AlertTriangle, Clock, UserCheck, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getPersonnelById, getAllPersonnel, Personnel } from '@/services/personnel.service';
 
 
@@ -58,19 +58,18 @@ const generateAlerts = async (): Promise<Alert[]> => {
 export function ImportantAlerts() {
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [dismissedAlerts, setDismissedAlerts] = useState<string[]>([]);
+    
+    const fetchAlerts = useCallback(async () => {
+        const allAlerts = await generateAlerts();
+        setAlerts(allAlerts.filter(a => !dismissedAlerts.includes(a.id))); 
+    }, [dismissedAlerts]);
 
     useEffect(() => {
-        const fetchAlerts = async () => {
-            const allAlerts = await generateAlerts();
-            // In a real app, you'd filter out dismissed alerts from localStorage
-            setAlerts(allAlerts.filter(a => !dismissedAlerts.includes(a.id))); 
-        }
         fetchAlerts();
-    }, [dismissedAlerts]);
+    }, [fetchAlerts]);
 
     const dismissAlert = (alertId: string) => {
         setDismissedAlerts(prev => [...prev, alertId]);
-        // Here you would also update localStorage to persist dismissed alerts
     };
 
     const formatArabicNumber = (num: number) => {

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Bell, ChevronDown, LogOut, Moon, Settings, Sun, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -90,13 +90,14 @@ export function DashboardHeader() {
   const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
   const [readNotifications, setReadNotifications] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
         const allNotifications = await generateNotifications();
         setActiveNotifications(allNotifications.filter(n => !readNotifications.includes(n.id)));
-    }
-    fetchNotifications();
   }, [readNotifications]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAuthenticated');
@@ -109,7 +110,6 @@ export function DashboardHeader() {
     const allNotifications = await generateNotifications();
     const allNotificationIds = allNotifications.map(n => n.id);
     setReadNotifications(allNotificationIds);
-    setActiveNotifications([]);
     toast({
         title: 'تم مسح الإشعارات',
     });
