@@ -88,16 +88,16 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
         <div className="flex justify-around items-center w-full mb-8 md:mb-12">
-          <GeneralStaffLogo className="w-40 h-40 md:w-52 md:h-52" />
+          <GeneralStaffLogo className="w-32 h-32 md:w-44 md:h-44" />
           <div className="text-center px-4">
-            <h1 className="text-2xl lg:text-4xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
-            <h2 className="text-2xl lg:text-4xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
+            <h1 className="text-xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
+            <h2 className="text-xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-40 h-40 md:w-52 md:h-52" />
+          <MilitaryIntelligenceLogo className="w-32 h-32 md:w-44 md:h-44" />
         </div>
 
 
-        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl">
+        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl mt-4">
             {loading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-8 w-1/3 mx-auto" />
