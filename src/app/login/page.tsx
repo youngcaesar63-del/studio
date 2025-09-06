@@ -71,9 +71,9 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
-            <div className="grid grid-cols-12 items-center gap-4">
-              <Label htmlFor="username" className="col-span-3 text-right">اسم المستخدم</Label>
-              <div className="relative col-span-9">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-right">اسم المستخدم</Label>
+              <div className="relative">
                 <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                  <Input
                   id="username"
@@ -86,9 +86,9 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-12 items-center gap-4">
-               <Label htmlFor="password" className="col-span-3 text-right">كلمة المرور</Label>
-               <div className="relative col-span-9">
+            <div className="space-y-2">
+               <Label htmlFor="password" className="text-right">كلمة المرور</Label>
+               <div className="relative">
                 <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   id="password"
