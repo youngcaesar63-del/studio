@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAllUsers } from '@/services/users.service';
 import type { User as UserData } from '@/services/users.service';
 
@@ -21,44 +20,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [users, setUsers] = useState<UserData[]>([]);
-
-  useEffect(() => {
-    async function fetchUsers() {
-        try {
-            const usersData = await getAllUsers();
-            setUsers(usersData);
-        } catch (error) {
-            toast({
-                title: 'خطأ',
-                description: 'فشل تحميل قائمة المستخدمين.',
-                variant: 'destructive',
-            });
-        }
-    }
-    fetchUsers();
-  }, [toast]);
   
-  const userOptions = users.map(user => ({
-      value: user.name,
-      label: user.name
-  }));
-
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
-      // In a real app, you'd verify against the selected user
-      if (password === 'password') {
+      // In a real app, you'd verify against a database
+      if (password === 'password' && username) {
         
         sessionStorage.setItem('isAuthenticated', 'true');
 
         toast({
           title: 'تم تسجيل الدخول بنجاح',
-          description: `مرحباً بعودتك، ${username || 'مسؤول'}!`,
+          description: `مرحباً بعودتك، ${username}!`,
         });
         router.push('/dashboard/welcome');
       } else {
@@ -99,18 +75,15 @@ export default function LoginPage() {
               <Label htmlFor="username" className="col-span-3 text-right">اسم المستخدم</Label>
               <div className="relative col-span-9">
                 <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                 <Select dir="rtl" value={username} onValueChange={setUsername}>
-                    <SelectTrigger id="username" className="pr-10">
-                        <SelectValue placeholder="اختر اسم المستخدم" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {userOptions.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                 <Input
+                  id="username"
+                  type="text"
+                  placeholder="ادخل اسم المستخدم"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="pr-10"
+                />
               </div>
             </div>
             <div className="grid grid-cols-12 items-center gap-4">
