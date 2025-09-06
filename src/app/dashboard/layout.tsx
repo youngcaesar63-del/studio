@@ -4,18 +4,11 @@
 import type { ReactNode } from 'react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
-import { ThemeProvider } from '@/components/theme-provider';
 import { AuthGuard } from '@/components/auth-guard';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
         <div className="min-h-screen w-full bg-muted/40">
           <DashboardHeader />
           <div className="container mx-auto py-6 px-4 flex rtl:space-x-reverse space-x-6 relative">
@@ -25,7 +18,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </main>
           </div>
         </div>
-      </ThemeProvider>
     </AuthGuard>
   );
 }
