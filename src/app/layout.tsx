@@ -28,7 +28,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 const theme = localStorage.getItem('app-theme-name') || 'افتراضي';
-                document.body.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-theme', theme);
               })();
             `,
           }}

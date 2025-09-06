@@ -29,21 +29,19 @@ export default function SettingsPage() {
 
     useEffect(() => {
         const savedThemeName = localStorage.getItem('app-theme-name') || themes[0];
-        document.body.dataset.theme = savedThemeName;
+        document.documentElement.dataset.theme = savedThemeName;
         setActiveThemeName(savedThemeName);
     }, []);
 
     const handleSetTheme = (themeName: string) => {
         localStorage.setItem('app-theme-name', themeName);
-        document.body.dataset.theme = themeName;
-        setActiveThemeName(themeName);
         
         toast({
             title: 'تم تغيير السمة',
-            description: `تم تطبيق سمة "${themeName}" بنجاح. قد تحتاج إلى إعادة تحميل الصفحة لتطبيق التغييرات بالكامل.`,
+            description: `تم تطبيق سمة "${themeName}" بنجاح.`,
         });
         
-        // Reload to apply tailwind theme changes
+        // Reload to apply theme changes from root layout script
         window.location.reload();
     };
 
@@ -180,15 +178,15 @@ export default function SettingsPage() {
                                 <Label className="mb-4 block font-semibold">سمات الألوان</Label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                     {themes.map((themeName) => (
-                                        <div key={themeName}>
+                                        <div key={themeName} data-theme={themeName}>
                                             <Button
                                                 variant={activeThemeName === themeName ? 'secondary' : 'outline'}
                                                 className="w-full h-auto flex flex-col items-center justify-center p-2 gap-2"
                                                 onClick={() => handleSetTheme(themeName)}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <div className={`w-5 h-5 rounded-full bg-primary data-theme-${themeName}`}></div>
-                                                    <div className={`w-5 h-5 rounded-full bg-accent data-theme-${themeName}`}></div>
+                                                    <div className="w-5 h-5 rounded-full bg-primary"></div>
+                                                    <div className="w-5 h-5 rounded-full bg-accent"></div>
                                                 </div>
                                                 <span className="text-sm">{themeName}</span>
                                             </Button>
