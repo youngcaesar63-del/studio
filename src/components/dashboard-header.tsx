@@ -156,16 +156,16 @@ export function DashboardHeader() {
             <DropdownMenuContent className="w-80" align="end">
               <div className="p-2">
                 <div className="flex justify-between items-center mb-3 px-2">
-                  <h4 className="font-bold text-foreground text-right">الإشعارات</h4>
+                  <h4 className="font-bold text-foreground">الإشعارات</h4>
                   {activeNotifications.length > 0 &&
                     <Button variant="link" className="text-xs h-auto p-0" onClick={clearNotifications}>تعيين الكل كمقروء</Button>
                   }
                 </div>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
-                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3 text-right">
+                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3">
                            <notification.icon className="h-5 w-5 mt-1 flex-shrink-0" />
-                           <div className="flex-grow">
+                           <div className="flex-grow text-right">
                                <p className="text-sm font-medium">{notification.title}</p>
                                <p className="text-xs text-muted-foreground">{notification.description}</p>
                                <p className="text-xs text-muted-foreground/80 mt-1">{notification.time}</p>
@@ -195,22 +195,22 @@ export function DashboardHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuItem asChild className="justify-end">
-                <Link href="/dashboard/settings" className="flex items-center w-full justify-end">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الملف الشخصي</span>
-                  <UserIcon className="mr-2 h-4 w-4"/>
+                  <UserIcon className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="justify-end">
-                <Link href="/dashboard/settings" className="flex items-center w-full justify-end">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الإعدادات</span>
-                  <Settings className="mr-2 h-4 w-4"/>
+                  <Settings className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end">
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end gap-2">
                   <span>تسجيل الخروج</span>
-                  <LogOut className="mr-2 h-4 w-4"/>
+                  <LogOut className="h-4 w-4"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -225,8 +225,8 @@ export function DashboardHeader() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
