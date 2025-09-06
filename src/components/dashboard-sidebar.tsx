@@ -1,9 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home,
+  LayoutDashboard,
   Users,
   List,
   UserPlus,
@@ -25,7 +26,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useState } from 'react';
 
 const mainNav = [
-  { href: '/dashboard', label: 'لوحة التحكم', icon: Home },
+  { href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
 ];
 
 const personnelNav = [
@@ -47,7 +48,7 @@ const adminNav = [
 ];
 
 const navSections = [
-  { title: 'الرئيسية', icon: Home, items: mainNav },
+  { title: 'الرئيسية', icon: LayoutDashboard, items: mainNav },
   { title: 'شئون الضباط', icon: Users, items: personnelNav },
   { title: 'التقارير والإحصاءات', icon: BookCopy, items: reportsNav },
   { title: 'إدارة النظام', icon: Settings, items: adminNav },
