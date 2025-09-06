@@ -198,19 +198,19 @@ export function DashboardHeader() {
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الملف الشخصي</span>
-                  <UserIcon className="h-4 w-4"/>
+                  <UserIcon className="h-4 w-4 ml-2"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الإعدادات</span>
-                  <Settings className="h-4 w-4"/>
+                  <Settings className="h-4 w-4 ml-2"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end gap-2">
                   <span>تسجيل الخروج</span>
-                  <LogOut className="h-4 w-4"/>
+                  <LogOut className="h-4 w-4 ml-2"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
