@@ -25,7 +25,7 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
 const GeneralStaffLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
     <div {...props}>
       <Image 
-        src="https://i.postimg.cc/9FpBzkYc/16516616-removebg-preview.png" 
+        src="https://i.postimg.cc/s2qS0JsR/86bed723-4023-4a33-b9eb-0adca9006dfd-removebg-preview.png" 
         alt="شعار رئاسة هيئة الأركان" 
         width={220} 
         height={220} 
@@ -88,12 +88,12 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
         <div className="flex justify-around items-center w-full mb-10">
-          <MilitaryIntelligenceLogo className="w-48 h-48 md:w-56 md:h-56" />
+          <GeneralStaffLogo className="w-48 h-48 md:w-56 md:h-56" />
           <div className="text-center">
             <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
             <h2 className="text-5xl lg:text-7xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <GeneralStaffLogo className="w-48 h-48 md:w-56 md:h-56" />
+          <MilitaryIntelligenceLogo className="w-48 h-48 md:w-56 md:h-56" />
         </div>
 
 
@@ -136,3 +136,4 @@ export default function WelcomePage() {
     </div>
   );
 }
+
