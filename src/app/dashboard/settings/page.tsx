@@ -12,188 +12,7 @@ import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
 
-type ThemeColor = { h: number; s: number; l: number };
-
-type Theme = {
-  name: string;
-  light: {
-    background: ThemeColor;
-    foreground: ThemeColor;
-    primary: ThemeColor;
-    secondary: ThemeColor;
-    muted: ThemeColor;
-    accent: ThemeColor;
-    card: ThemeColor;
-    border: ThemeColor;
-  };
-  dark: {
-    background: ThemeColor;
-    foreground: ThemeColor;
-    primary: ThemeColor;
-    secondary: ThemeColor;
-    muted: ThemeColor;
-    accent: ThemeColor;
-    card: ThemeColor;
-    border: ThemeColor;
-  };
-};
-
-
-const themes: Theme[] = [
-    { 
-        name: 'افتراضي', 
-        light: {
-            background: { h: 220, s: 20, l: 96 },
-            foreground: { h: 224, s: 71, l: 4 },
-            primary: { h: 216, s: 83, l: 53 },
-            secondary: { h: 220, s: 15, l: 90 },
-            muted: { h: 220, s: 15, l: 90 },
-            accent: { h: 190, s: 80, l: 45 },
-            card: { h: 0, s: 0, l: 100 },
-            border: { h: 220, s: 13, l: 89 },
-        },
-        dark: {
-            background: { h: 224, s: 71, l: 4 },
-            foreground: { h: 210, s: 20, l: 98 },
-            primary: { h: 216, s: 83, l: 53 },
-            secondary: { h: 220, s: 20, l: 20 },
-            muted: { h: 220, s: 20, l: 20 },
-            accent: { h: 190, s: 80, l: 45 },
-            card: { h: 224, s: 71, l: 4 },
-            border: { h: 220, s: 20, l: 25 },
-        }
-    },
-    { 
-        name: 'أخضر غابي', 
-        light: {
-            background: { h: 145, s: 15, l: 96 },
-            foreground: { h: 140, s: 25, l: 10 },
-            primary: { h: 142, s: 76, l: 36 },
-            secondary: { h: 145, s: 18, l: 90 },
-            muted: { h: 145, s: 18, l: 90 },
-            accent: { h: 142, s: 66, l: 46 },
-            card: { h: 145, s: 15, l: 100 },
-            border: { h: 145, s: 15, l: 89 },
-        },
-        dark: {
-            background: { h: 142, s: 20, l: 10 },
-            foreground: { h: 145, s: 15, l: 96 },
-            primary: { h: 142, s: 76, l: 36 },
-            secondary: { h: 142, s: 15, l: 20 },
-            muted: { h: 142, s: 15, l: 20 },
-            accent: { h: 142, s: 66, l: 46 },
-            card: { h: 142, s: 20, l: 12 },
-            border: { h: 142, s: 15, l: 25 },
-        }
-    },
-     { 
-        name: 'رمادي حجري', 
-        light: {
-            background: { h: 210, s: 15, l: 96 },
-            foreground: { h: 215, s: 25, l: 10 },
-            primary: { h: 215, s: 28, l: 48 },
-            secondary: { h: 210, s: 18, l: 90 },
-            muted: { h: 210, s: 18, l: 90 },
-            accent: { h: 215, s: 20, l: 65 },
-            card: { h: 210, s: 15, l: 100 },
-            border: { h: 210, s: 15, l: 89 },
-        },
-        dark: {
-            background: { h: 220, s: 13, l: 12 },
-            foreground: { h: 210, s: 15, l: 96 },
-            primary: { h: 215, s: 28, l: 48 },
-            secondary: { h: 220, s: 10, l: 20 },
-            muted: { h: 220, s: 10, l: 20 },
-            accent: { h: 215, s: 20, l: 65 },
-            card: { h: 220, s: 13, l: 15 },
-            border: { h: 220, s: 10, l: 25 },
-        }
-    },
-     { 
-        name: 'برتقالي مشمس', 
-        light: {
-            background: { h: 30, s: 60, l: 97 },
-            foreground: { h: 25, s: 50, l: 15 },
-            primary: { h: 25, s: 95, l: 53 },
-            secondary: { h: 30, s: 50, l: 90 },
-            muted: { h: 30, s: 50, l: 90 },
-            accent: { h: 22, s: 90, l: 60 },
-            card: { h: 30, s: 60, l: 100 },
-            border: { h: 30, s: 50, l: 89 },
-        },
-        dark: {
-            background: { h: 25, s: 25, l: 10 },
-            foreground: { h: 30, s: 60, l: 97 },
-            primary: { h: 25, s: 95, l: 53 },
-            secondary: { h: 25, s: 20, l: 20 },
-            muted: { h: 25, s: 20, l: 20 },
-            accent: { h: 22, s: 90, l: 60 },
-            card: { h: 25, s: 25, l: 12 },
-            border: { h: 25, s: 20, l: 25 },
-        }
-    },
-];
-
-const toHslString = (color: ThemeColor) => `${color.h} ${color.s}% ${color.l}%`;
-
-const applyTheme = (theme: Theme) => {
-    const styleId = 'dynamic-theme-style';
-    let styleTag = document.getElementById(styleId) as HTMLStyleElement;
-    if (!styleTag) {
-        styleTag = document.createElement('style');
-        styleTag.id = styleId;
-        document.head.appendChild(styleTag);
-    }
-
-    const lightVars = `
-        --background: ${toHslString(theme.light.background)};
-        --foreground: ${toHslString(theme.light.foreground)};
-        --card: ${toHslString(theme.light.card)};
-        --card-foreground: ${toHslString(theme.light.foreground)};
-        --popover: ${toHslString(theme.light.card)};
-        --popover-foreground: ${toHslString(theme.light.foreground)};
-        --primary: ${toHslString(theme.light.primary)};
-        --primary-foreground: ${toHslString(theme.light.background.l > 50 ? theme.dark.foreground : theme.light.foreground)};
-        --secondary: ${toHslString(theme.light.secondary)};
-        --secondary-foreground: ${toHslString(theme.light.foreground)};
-        --muted: ${toHslString(theme.light.muted)};
-        --muted-foreground: ${toHslString(theme.light.foreground)} / 0.6;
-        --accent: ${toHslString(theme.light.accent)};
-        --accent-foreground: ${toHslString(theme.light.background.l > 50 ? theme.dark.foreground : theme.light.foreground)};
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 100%;
-        --border: ${toHslString(theme.light.border)};
-        --input: ${toHslString(theme.light.border)};
-        --ring: ${toHslString(theme.light.primary)};
-    `;
-    
-    const darkVars = `
-        --background: ${toHslString(theme.dark.background)};
-        --foreground: ${toHslString(theme.dark.foreground)};
-        --card: ${toHslString(theme.dark.card)};
-        --card-foreground: ${toHslString(theme.dark.foreground)};
-        --popover: ${toHslString(theme.dark.card)};
-        --popover-foreground: ${toHslString(theme.dark.foreground)};
-        --primary: ${toHslString(theme.dark.primary)};
-        --primary-foreground: ${toHslString(theme.dark.background.l < 50 ? theme.light.foreground : theme.dark.foreground)};
-        --secondary: ${toHslString(theme.dark.secondary)};
-        --secondary-foreground: ${toHslString(theme.dark.foreground)};
-        --muted: ${toHslString(theme.dark.muted)};
-        --muted-foreground: ${toHslString(theme.dark.foreground)} / 0.6;
-        --accent: ${toHslString(theme.dark.accent)};
-        --accent-foreground: ${toHslString(theme.dark.background.l < 50 ? theme.light.foreground : theme.dark.foreground)};
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 100%;
-        --border: ${toHslString(theme.dark.border)};
-        --input: ${toHslString(theme.dark.border)};
-        --ring: ${toHslString(theme.dark.primary)};
-    `;
-
-    styleTag.innerHTML = `
-      :root { ${lightVars} }
-      .dark { ${darkVars} }
-    `;
-};
+const themes = [ 'افتراضي', 'أخضر غابي', 'رمادي حجري', 'برتقالي مشمس' ];
 
 
 export default function SettingsPage() {
@@ -206,26 +25,26 @@ export default function SettingsPage() {
         newPersonnel: true,
     });
     
-    const [activeThemeName, setActiveThemeName] = useState<string>(themes[0].name);
+    const [activeThemeName, setActiveThemeName] = useState<string>(themes[0]);
 
     useEffect(() => {
-        const savedThemeName = localStorage.getItem('app-theme-name') || themes[0].name;
-        const newTheme = themes.find(t => t.name === savedThemeName) || themes[0];
-        if (newTheme) {
-            setActiveThemeName(newTheme.name);
-            applyTheme(newTheme);
-        }
+        const savedThemeName = localStorage.getItem('app-theme-name') || themes[0];
+        document.body.dataset.theme = savedThemeName;
+        setActiveThemeName(savedThemeName);
     }, []);
 
-    const handleSetTheme = (theme: Theme) => {
-        localStorage.setItem('app-theme-name', theme.name);
-        setActiveThemeName(theme.name);
-        applyTheme(theme);
+    const handleSetTheme = (themeName: string) => {
+        localStorage.setItem('app-theme-name', themeName);
+        document.body.dataset.theme = themeName;
+        setActiveThemeName(themeName);
         
         toast({
             title: 'تم تغيير السمة',
-            description: `تم تطبيق سمة "${theme.name}" بنجاح.`,
+            description: `تم تطبيق سمة "${themeName}" بنجاح. قد تحتاج إلى إعادة تحميل الصفحة لتطبيق التغييرات بالكامل.`,
         });
+        
+        // Reload to apply tailwind theme changes
+        window.location.reload();
     };
 
 
@@ -360,18 +179,18 @@ export default function SettingsPage() {
                             <div>
                                 <Label className="mb-4 block font-semibold">سمات الألوان</Label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                    {themes.map((theme) => (
-                                        <div key={theme.name}>
+                                    {themes.map((themeName) => (
+                                        <div key={themeName}>
                                             <Button
-                                                variant={activeThemeName === theme.name ? 'secondary' : 'outline'}
+                                                variant={activeThemeName === themeName ? 'secondary' : 'outline'}
                                                 className="w-full h-auto flex flex-col items-center justify-center p-2 gap-2"
-                                                onClick={() => handleSetTheme(theme)}
+                                                onClick={() => handleSetTheme(themeName)}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: `hsl(${theme.light.primary.h}, ${theme.light.primary.s}%, ${theme.light.primary.l}%)` }}></div>
-                                                    <div className="w-5 h-5 rounded-full" style={{ backgroundColor: `hsl(${theme.light.accent.h}, ${theme.light.accent.s}%, ${theme.light.accent.l}%)` }}></div>
+                                                    <div className={`w-5 h-5 rounded-full bg-primary data-theme-${themeName}`}></div>
+                                                    <div className={`w-5 h-5 rounded-full bg-accent data-theme-${themeName}`}></div>
                                                 </div>
-                                                <span className="text-sm">{theme.name}</span>
+                                                <span className="text-sm">{themeName}</span>
                                             </Button>
                                         </div>
                                     ))}

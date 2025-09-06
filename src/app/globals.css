@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, [data-theme='افتراضي'] {
     --background: 220 20% 96%;
     --foreground: 224 71% 4%;
     --card: 0 0% 100%;
@@ -33,7 +33,7 @@
     --chart-5: 340 90% 65%;
   }
 
-  .dark {
+  .dark:root, .dark[data-theme='افتراضي'] {
     --background: 224 71% 4%;
     --foreground: 210 20% 98%;
     --card: 224 71% 4%;
@@ -54,6 +54,72 @@
     --input: 220 20% 25%;
     --ring: 216 83% 53%;
   }
+
+  [data-theme='أخضر غابي'] {
+    --background: 145 15% 96%;
+    --foreground: 140 25% 10%;
+    --primary: 142 76% 36%;
+    --secondary: 145 18% 90%;
+    --muted: 145 18% 90%;
+    --accent: 142 66% 46%;
+    --card: 145 15% 100%;
+    --border: 145 15% 89%;
+    --ring: 142 76% 36%;
+  }
+  .dark[data-theme='أخضر غابي'] {
+    --background: 142 20% 10%;
+    --foreground: 145 15% 96%;
+    --primary: 142 76% 36%;
+    --secondary: 142 15% 20%;
+    --muted: 142 15% 20%;
+    --accent: 142 66% 46%;
+    --card: 142 20% 12%;
+    --border: 142 15% 25%;
+  }
+
+  [data-theme='رمادي حجري'] {
+    --background: 210 15% 96%;
+    --foreground: 215 25% 10%;
+    --primary: 215 28% 48%;
+    --secondary: 210 18% 90%;
+    --muted: 210 18% 90%;
+    --accent: 215 20% 65%;
+    --card: 210 15% 100%;
+    --border: 210 15% 89%;
+    --ring: 215 28% 48%;
+  }
+  .dark[data-theme='رمادي حجري'] {
+    --background: 220 13% 12%;
+    --foreground: 210 15% 96%;
+    --primary: 215 28% 48%;
+    --secondary: 220 10% 20%;
+    --muted: 220 10% 20%;
+    --accent: 215 20% 65%;
+    --card: 220 13% 15%;
+    --border: 220 10% 25%;
+  }
+  
+  [data-theme='برتقالي مشمس'] {
+    --background: 30 60% 97%;
+    --foreground: 25 50% 15%;
+    --primary: 25 95% 53%;
+    --secondary: 30 50% 90%;
+    --muted: 30 50% 90%;
+    --accent: 22 90% 60%;
+    --card: 30 60% 100%;
+    --border: 30 50% 89%;
+    --ring: 25 95% 53%;
+  }
+  .dark[data-theme='برتقالي مشمس'] {
+    --background: 25 25% 10%;
+    --foreground: 30 60% 97%;
+    --primary: 25 95% 53%;
+    --secondary: 25 20% 20%;
+    --muted: 25 20% 20%;
+    --accent: 22 90% 60%;
+    --card: 25 25% 12%;
+    --border: 25 20% 25%;
+  }
 }
 
 @layer base {
@@ -68,5 +134,3 @@
     color: hsl(var(--foreground));
   }
 }
-
-    
