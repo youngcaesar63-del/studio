@@ -145,7 +145,7 @@ export default function PermissionsPage() {
         return;
     }
 
-    const currentRoles = getLocalStorage('rolesData', []) as Role[];
+    let currentRoles = getLocalStorage('rolesData', []) as Role[];
     let updatedRoles;
 
     const newPermissions = allAvailablePermissions.map(p => ({
@@ -155,7 +155,7 @@ export default function PermissionsPage() {
 
     if (editingRole) { // Editing existing role
         updatedRoles = currentRoles.map((r: Role) => 
-            r.name === editingRole.name ? { name: roleName, description: roleDescription, permissions: newPermissions } : r
+            r.name === editingRole.name ? { ...r, name: roleName, description: roleDescription, permissions: newPermissions } : r
         );
         toast({ title: 'تم التحديث', description: `تم تحديث دور "${roleName}" بنجاح.` });
     } else { // Adding new role
