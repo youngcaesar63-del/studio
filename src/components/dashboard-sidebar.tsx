@@ -17,6 +17,7 @@ import {
   Shield,
   Database,
   ChevronDown,
+  Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from './ui/sheet';
@@ -48,7 +49,7 @@ const adminNav = [
 ];
 
 const navSections = [
-  { title: 'الرئيسية', icon: LayoutDashboard, items: mainNav },
+  { title: 'الرئيسية', icon: Home, items: mainNav },
   { title: 'شئون الضباط', icon: Users, items: personnelNav },
   { title: 'التقارير والإحصاءات', icon: BookCopy, items: reportsNav },
   { title: 'إدارة النظام', icon: Settings, items: adminNav },
