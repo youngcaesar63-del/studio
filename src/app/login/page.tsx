@@ -58,8 +58,11 @@ export default function LoginPage() {
                 className="drop-shadow-lg"
               />
           </div>
-          <CardTitle className="text-3xl">نظام شئون ضباط هيئة الاستخبارات العسكرية</CardTitle>
-          <CardDescription>الرجاء تسجيل الدخول للمتابعة</CardDescription>
+          <div>
+            <CardTitle className="text-3xl">هيئة الاستخبارات العسكرية</CardTitle>
+            <CardDescription className="text-xl mt-1">نظام شئون الضباط</CardDescription>
+          </div>
+          <CardDescription className="pt-4">الرجاء تسجيل الدخول للمتابعة</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
