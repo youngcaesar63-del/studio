@@ -163,9 +163,9 @@ export function DashboardHeader() {
                 </div>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
-                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3">
+                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3 text-right">
                            <notification.icon className="h-5 w-5 mt-1 flex-shrink-0" />
-                           <div className="flex-grow text-right">
+                           <div className="flex-grow">
                                <p className="text-sm font-medium">{notification.title}</p>
                                <p className="text-xs text-muted-foreground">{notification.description}</p>
                                <p className="text-xs text-muted-foreground/80 mt-1">{notification.time}</p>
@@ -198,19 +198,19 @@ export function DashboardHeader() {
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الملف الشخصي</span>
-                  <UserIcon className="h-4 w-4 ml-2"/>
+                  <UserIcon className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
                   <span>الإعدادات</span>
-                  <Settings className="h-4 w-4 ml-2"/>
+                  <Settings className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end gap-2">
                   <span>تسجيل الخروج</span>
-                  <LogOut className="h-4 w-4 ml-2"/>
+                  <LogOut className="h-4 w-4"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -225,8 +225,8 @@ export function DashboardHeader() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
