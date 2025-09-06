@@ -1,5 +1,5 @@
 
-'use client';
+'use server';
 
 import db from '@/lib/db';
 import { rankOrder } from "@/lib/constants";
@@ -96,6 +96,7 @@ const mapPersonnelFromDb = (p: any): Personnel => {
     if (!p) return p;
     return {
         ...p,
+        name: p.fullName || p.name,
         phoneNumbers: p.phoneNumbers ? JSON.parse(p.phoneNumbers) : {},
         importantJobs: getSubTableData(p.id, 'important_jobs'),
         serviceOperations: getSubTableData(p.id, 'service_operations'),
@@ -179,7 +180,16 @@ export async function getPersonnelById(id: number): Promise<Personnel | undefine
 export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Promise<Personnel> {
   const dbData = mapPersonnelToDb(newPersonnelData);
 
-  const mainColumns = Object.keys(dbData).filter(k => !subTables.map(st => st.replace(/_([a-z])/g, g => g[1].toUpperCase())).includes(k) && k !== 'id');
+  const subTableData: {[key: string]: any[]} = {};
+  subTables.forEach(table => {
+      const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
+      if (dbData[key]) {
+          subTableData[table] = dbData[key];
+          delete dbData[key];
+      }
+  });
+  
+  const mainColumns = Object.keys(dbData).filter(k => k !== 'id');
   const mainPlaceholders = mainColumns.map(() => '?').join(', ');
   
   const stmt = db.prepare(`
@@ -190,12 +200,10 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
   const result = stmt.run(...mainColumns.map(k => dbData[k]));
   const newId = result.lastInsertRowid as number;
 
-  subTables.forEach(table => {
-    const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
-    if (dbData[key]) {
-        insertSubTableData(newId, table, dbData[key]);
-    }
+  Object.entries(subTableData).forEach(([tableName, data]) => {
+    insertSubTableData(newId, tableName, data);
   });
+
 
   return (await getPersonnelById(newId))!;
 }
@@ -203,19 +211,28 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
 export async function updatePersonnel(id: number, updatedData: Partial<Omit<Personnel, 'id'>>): Promise<Personnel> {
     const dbData = mapPersonnelToDb(updatedData);
 
-    const mainColumns = Object.keys(dbData).filter(k => !subTables.map(st => st.replace(/_([a-z])/g, g => g[1].toUpperCase())).includes(k) && k !== 'id');
-    const setClause = mainColumns.map(k => `${k} = ?`).join(', ');
-
-    const stmt = db.prepare(`UPDATE personnel SET ${setClause} WHERE id = ?`);
-    stmt.run(...mainColumns.map(k => dbData[k]), id);
-
-    // Update sub-tables by deleting and re-inserting
+    const subTableData: {[key: string]: any[]} = {};
     subTables.forEach(table => {
-        deleteSubTableData(id, table);
         const key = table.replace(/_([a-z])/g, g => g[1].toUpperCase());
         if (dbData[key]) {
-            insertSubTableData(id, table, dbData[key]);
+            subTableData[table] = dbData[key];
+            delete dbData[key];
         }
+    });
+
+    const mainColumns = Object.keys(dbData).filter(k => k !== 'id');
+    const setClause = mainColumns.map(k => `${k} = ?`).join(', ');
+
+    if(setClause) {
+      const stmt = db.prepare(`UPDATE personnel SET ${setClause} WHERE id = ?`);
+      stmt.run(...mainColumns.map(k => dbData[k]), id);
+    }
+
+
+    // Update sub-tables by deleting and re-inserting
+    Object.entries(subTableData).forEach(([tableName, data]) => {
+      deleteSubTableData(id, tableName);
+      insertSubTableData(id, tableName, data);
     });
 
     return (await getPersonnelById(id))!;

@@ -1,5 +1,5 @@
 
-'use client';
+'use server';
 
 import db from './db';
 
@@ -21,7 +21,7 @@ const typeToTitleMap: Record<ActivityType, string> = {
     promotion: 'ترقية ضابط',
 };
 
-export function logActivity(type: ActivityType, description: string, details?: string) {
+export async function logActivity(type: ActivityType, description: string, details?: string) {
     const newActivity: Activity = {
         id: `activity-${Date.now()}`,
         type,
@@ -42,7 +42,7 @@ export function logActivity(type: ActivityType, description: string, details?: s
     pruneStmt.run();
 }
 
-export function getActivityLog(): Activity[] {
+export async function getActivityLog(): Promise<Activity[]> {
     const stmt = db.prepare('SELECT * FROM activity_log ORDER BY timestamp DESC');
     return stmt.all() as Activity[];
 }
