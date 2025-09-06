@@ -9,10 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAllUsers } from '@/services/users.service';
-import type { User } from '@/services/users.service';
+import type { User as UserData } from '@/services/users.service';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -89,22 +89,26 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="username">اسم المستخدم</Label>
-              <Select dir="rtl" onValueChange={setUsername} value={username} required>
-                <SelectTrigger id="username">
-                  <SelectValue placeholder="اختر اسم المستخدم" />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map(user => (
-                    <SelectItem key={user.id} value={user.name}>{user.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-12 items-center gap-4">
+              <Label htmlFor="username" className="col-span-3 text-right">اسم المستخدم</Label>
+              <div className="relative col-span-9">
+                <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+                <Select dir="rtl" onValueChange={setUsername} value={username} required>
+                    <SelectTrigger id="username" className="pr-10">
+                        <SelectValue placeholder="اختر اسم المستخدم" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {users.map(user => (
+                        <SelectItem key={user.id} value={user.name}>{user.name}</SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
-              <div className="relative">
+            <div className="grid grid-cols-12 items-center gap-4">
+               <Label htmlFor="password" className="col-span-3 text-right">كلمة المرور</Label>
+               <div className="relative col-span-9">
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -112,7 +116,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="pl-10"
+                  className="pr-10"
                 />
                 <Button
                   type="button"
