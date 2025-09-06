@@ -67,7 +67,7 @@ export default function WelcomePage() {
   }, [router]);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-background text-foreground overflow-hidden p-4">
+    <div className="relative flex flex-col items-center justify-center min-h-full bg-background text-foreground overflow-hidden">
       {/* Background shapes */}
       <div className="absolute top-0 left-0 -translate-x-1/4 -translate-y-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl opacity-50"></div>
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
