@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -56,7 +55,7 @@ const navSections = [
 
 const NavContent = () => {
   const pathname = usePathname();
-  const [openSections, setOpenSections] = useState<string[]>(['الرئيسية', 'شئون الضباط', 'التقارير والإحصاءات', 'إدارة النظام']);
+  const [openSections, setOpenSections] = useState<string[]>(['الرئيسية']);
 
   const toggleSection = (title: string) => {
     setOpenSections(prev => 
