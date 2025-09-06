@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -91,7 +90,7 @@ export default function WelcomePage() {
           <GeneralStaffLogo className="w-48 h-48 md:w-56 md:h-56" />
           <div className="text-center">
             <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
-            <h2 className="text-5xl lg:text-7xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
+            <h2 className="text-4xl lg:text-6xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
           <MilitaryIntelligenceLogo className="w-48 h-48 md:w-56 md:h-56" />
         </div>
@@ -136,4 +135,3 @@ export default function WelcomePage() {
     </div>
   );
 }
-
