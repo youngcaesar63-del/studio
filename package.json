@@ -5,12 +5,12 @@
   "private": true,
   "main": "electron/main.js",
   "scripts": {
-    "dev": "next dev -p 9002",
+    "dev": "electron .",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "electron:dev": "concurrently \"npm:dev\" \"wait-on http://localhost:9002 && electron .\"",
+    "electron:dev": "electron .",
     "electron:build": "npm run build && electron-builder"
   },
   "build": {
@@ -19,7 +19,7 @@
     "files": [
       "electron/**/*",
       "node_modules/**/*",
-      "out/**/*",
+      ".next/**/*",
       "public/**/*",
       "package.json",
       "db.sqlite"
