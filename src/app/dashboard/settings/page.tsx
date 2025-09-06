@@ -188,7 +188,7 @@ export default function SettingsPage() {
                                                     <div className="w-5 h-5 rounded-full bg-primary"></div>
                                                     <div className="w-5 h-5 rounded-full bg-accent"></div>
                                                 </div>
-                                                <span className="text-sm">{themeName}</span>
+                                                <span className="text-sm text-foreground">{themeName}</span>
                                             </Button>
                                         </div>
                                     ))}
