@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Shield, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
+import db from "@/lib/db";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,8 +34,6 @@ const allAvailablePermissions: Omit<Permission, 'enabled'>[] = [
     { id: 'p5', name: 'الوصول للإعدادات المتقدمة' },
 ];
 
-const initialRoles: Role[] = [];
-
 export default function PermissionsPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,78 +47,60 @@ export default function PermissionsPage() {
 
   const loadData = useCallback(() => {
     setLoading(true);
-    let data = getLocalStorage('rolesData', null);
-    
-    let dataWasUpdated = false;
-    if (data) {
-        data.forEach((role: Role) => {
-            role.permissions.forEach(permission => {
-                if (permission.id === 'p2' && permission.name === 'إدارة الأفراد') {
-                    permission.name = 'إدارة الضباط';
-                    dataWasUpdated = true;
-                }
-            });
-        });
-    }
+    try {
+        let rolesFromDb = db.prepare('SELECT * FROM roles').all() as any[];
 
-    if (dataWasUpdated) {
-        updateLocalStorage('rolesData', data);
-    }
+        if (rolesFromDb.length === 0) {
+            // Initialize with a default 'مدير' role if no roles exist
+            const defaultManagerRole: Role = {
+                name: 'مدير',
+                description: 'يمتلك جميع صلاحيات الوصول للنظام.',
+                permissions: allAvailablePermissions.map(p => ({ ...p, enabled: true }))
+            };
+            const stmt = db.prepare('INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)');
+            stmt.run(defaultManagerRole.name, defaultManagerRole.description, JSON.stringify(defaultManagerRole.permissions));
+            rolesFromDb = [defaultManagerRole];
+        }
 
-    if (data === null || data.length === 0) {
-        // Initialize with a default 'مدير' role if no roles exist
-        const defaultManagerRole: Role = {
-            name: 'مدير',
-            description: 'يمتلك جميع صلاحيات الوصول للنظام.',
-            permissions: allAvailablePermissions.map(p => ({ ...p, enabled: true }))
-        };
-        data = [defaultManagerRole];
-        updateLocalStorage('rolesData', data);
+        const parsedRoles = rolesFromDb.map(role => ({
+            ...role,
+            permissions: typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions
+        }));
+
+        setRoles(parsedRoles);
+    } catch(error) {
+        console.error("Failed to load roles", error);
+        toast({ title: "خطأ", description: "فشل تحميل الأدوار والصلاحيات.", variant: "destructive" });
     }
-    setRoles(data);
     setLoading(false);
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     loadData();
-    
-    const handleStorageChange = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'rolesData' || customEvent.detail.key === 'all') {
-            loadData();
-        }
-    };
-    
-    window.addEventListener('storage-update', handleStorageChange);
-
-    return () => {
-        window.removeEventListener('storage-update', handleStorageChange);
-    };
   }, [loadData]);
 
   const handlePermissionChange = (roleName: string, permissionId: string, newEnabledState: boolean) => {
-    const currentRoles = getLocalStorage('rolesData', []);
-    const updatedRoles = currentRoles.map((role: Role) => 
-      role.name === roleName
-        ? {
-            ...role,
-            permissions: role.permissions.map(permission => 
-              permission.id === permissionId 
-                ? { ...permission, enabled: newEnabledState } 
-                : permission
-            ),
-          }
-        : role
-    );
-    
-    updateLocalStorage('rolesData', updatedRoles);
+    try {
+        const roleToUpdate = roles.find(r => r.name === roleName);
+        if (!roleToUpdate) return;
 
-    const role = roles.find(r => r.name === roleName);
-    const permission = role?.permissions.find(p => p.id === permissionId);
-    toast({
-      title: 'تم تحديث الصلاحية',
-      description: `تم ${newEnabledState ? 'تفعيل' : 'تعطيل'} صلاحية "${permission?.name}" لدور "${roleName}".`,
-    });
+        const updatedPermissions = roleToUpdate.permissions.map(p => 
+            p.id === permissionId ? { ...p, enabled: newEnabledState } : p
+        );
+
+        const stmt = db.prepare('UPDATE roles SET permissions = ? WHERE name = ?');
+        stmt.run(JSON.stringify(updatedPermissions), roleName);
+
+        const permission = roleToUpdate.permissions.find(p => p.id === permissionId);
+        toast({
+            title: 'تم تحديث الصلاحية',
+            description: `تم ${newEnabledState ? 'تفعيل' : 'تعطيل'} صلاحية "${permission?.name}" لدور "${roleName}".`,
+        });
+        loadData(); // Reload from DB
+    } catch (error) {
+        console.error("Failed to update permission", error);
+        toast({ title: "خطأ", description: "فشل تحديث الصلاحية.", variant: "destructive" });
+    }
   };
 
   const openAddDialog = () => {
@@ -144,36 +124,34 @@ export default function PermissionsPage() {
         toast({ title: 'خطأ', description: 'الرجاء إدخال اسم ووصف الدور.', variant: 'destructive' });
         return;
     }
-
-    let currentRoles = getLocalStorage('rolesData', []) as Role[];
-    let updatedRoles;
-
-    const newPermissions = allAvailablePermissions.map(p => ({
-        ...p,
-        enabled: !!rolePermissions[p.id]
-    }));
-
-    if (editingRole) { // Editing existing role
-        updatedRoles = currentRoles.map((r: Role) => 
-            r.name === editingRole.name ? { ...r, name: roleName, description: roleDescription, permissions: newPermissions } : r
-        );
-        toast({ title: 'تم التحديث', description: `تم تحديث دور "${roleName}" بنجاح.` });
-    } else { // Adding new role
-        if (currentRoles.some((r: Role) => r.name === roleName)) {
-            toast({ title: 'خطأ', description: 'هذا الدور موجود بالفعل.', variant: 'destructive' });
-            return;
-        }
-        const newRole: Role = {
-            name: roleName,
-            description: roleDescription,
-            permissions: newPermissions
-        };
-        updatedRoles = [...currentRoles, newRole];
-        toast({ title: 'تمت الإضافة', description: `تم إضافة دور "${roleName}" بنجاح.` });
-    }
     
-    updateLocalStorage('rolesData', updatedRoles);
-    setDialogOpen(false);
+    try {
+      const newPermissions = allAvailablePermissions.map(p => ({
+          ...p,
+          enabled: !!rolePermissions[p.id]
+      }));
+      const permissionsJson = JSON.stringify(newPermissions);
+
+      if (editingRole) { // Editing existing role
+          const stmt = db.prepare('UPDATE roles SET description = ?, permissions = ? WHERE name = ?');
+          stmt.run(roleDescription, permissionsJson, editingRole.name);
+          toast({ title: 'تم التحديث', description: `تم تحديث دور "${editingRole.name}" بنجاح.` });
+      } else { // Adding new role
+          const existingRole = db.prepare('SELECT * FROM roles WHERE name = ?').get(roleName);
+          if (existingRole) {
+              toast({ title: 'خطأ', description: 'هذا الدور موجود بالفعل.', variant: 'destructive' });
+              return;
+          }
+          const stmt = db.prepare('INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)');
+          stmt.run(roleName, roleDescription, permissionsJson);
+          toast({ title: 'تمت الإضافة', description: `تم إضافة دور "${roleName}" بنجاح.` });
+      }
+      loadData();
+      setDialogOpen(false);
+    } catch(error) {
+       console.error("Failed to save role", error);
+       toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ الدور.', variant: 'destructive'});
+    }
   }
 
   return (

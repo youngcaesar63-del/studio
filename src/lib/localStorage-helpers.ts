@@ -1,24 +1,17 @@
 
 'use client';
 
-// A naive cache to store the most recently fetched data.
-const cache = new Map<string, any>();
+// This file is being kept for potential future use with client-side settings,
+// but data persistence is now handled by src/lib/db.ts (SQLite).
 
 export function getLocalStorage(key: string, defaultValue: any) {
     if (typeof window === 'undefined') {
         return defaultValue;
     }
     
-    // Return from cache if available
-    if (cache.has(key)) {
-        return JSON.parse(JSON.stringify(cache.get(key))); // Return a deep copy to prevent mutation
-    }
-
     try {
         const storedData = window.localStorage.getItem(key);
-        const parsedData = storedData ? JSON.parse(storedData) : defaultValue;
-        cache.set(key, parsedData); // Cache the data after fetching
-        return JSON.parse(JSON.stringify(parsedData)); // Return a deep copy
+        return storedData ? JSON.parse(storedData) : defaultValue;
     } catch (error) {
         console.error(`Error reading from localStorage key “${key}”:`, error);
         return defaultValue;
@@ -30,14 +23,12 @@ export function updateLocalStorage(key: string, data: any) {
         return;
     }
     try {
-        const deepCopiedData = JSON.parse(JSON.stringify(data));
-        const serializedData = JSON.stringify(deepCopiedData);
+        const serializedData = JSON.stringify(data);
         window.localStorage.setItem(key, serializedData);
-        cache.set(key, deepCopiedData); // Update cache
         
-        // Dispatch a custom event to notify all tabs/components of the change
+        // Dispatch a custom event to notify other tabs/components of the change
         window.dispatchEvent(new CustomEvent('storage-update', {
-            detail: { key } // Only notify about the key change
+            detail: { key }
         }));
     } catch (error) {
         console.error(`Error writing to localStorage key “${key}”:`, error);

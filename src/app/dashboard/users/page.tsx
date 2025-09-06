@@ -7,7 +7,7 @@ import { UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useCallback } from 'react';
-import { getLocalStorage, updateLocalStorage } from '@/lib/localStorage-helpers';
+import db from '@/lib/db';
 import {
   Dialog,
   DialogContent,
@@ -22,10 +22,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
-const initialUsersData = [
-  { id: 1, name: 'مدير النظام', role: 'مسؤول', lastLogin: '2024-05-20 10:30 ص', status: 'نشط' as const },
-];
-
 type User = {
     id: number;
     name: string;
@@ -33,6 +29,12 @@ type User = {
     lastLogin: string;
     status: 'نشط' | 'غير نشط';
 };
+
+type Role = {
+    name: string;
+    description: string;
+    permissions: any[];
+}
 
 
 export default function UsersPage() {
@@ -45,33 +47,20 @@ export default function UsersPage() {
   const [userRole, setUserRole] = useState('');
 
   const loadData = useCallback(() => {
-    const storedUsers = getLocalStorage('usersData', null);
-    if(storedUsers === null) {
-        updateLocalStorage('usersData', initialUsersData);
-        setUsers(initialUsersData);
-    } else {
-        setUsers(storedUsers);
-    }
+    try {
+        const usersData = db.prepare('SELECT * FROM users').all() as User[];
+        setUsers(usersData);
 
-    const storedRoles = getLocalStorage('rolesData', []);
-    setRoles(storedRoles.map((r: any) => r.name));
-  }, []);
+        const rolesData = db.prepare('SELECT name FROM roles').all() as { name: string }[];
+        setRoles(rolesData.map(r => r.name));
+    } catch (error) {
+        console.error("Failed to load users/roles data", error);
+        toast({ title: "خطأ", description: "فشل تحميل بيانات المستخدمين أو الأدوار.", variant: "destructive" });
+    }
+  }, [toast]);
 
   useEffect(() => {
     loadData();
-
-    const handleStorageChange = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'usersData' || customEvent.detail.key === 'rolesData' || customEvent.detail.key === 'all') {
-            loadData();
-        }
-    };
-
-    window.addEventListener('storage-update', handleStorageChange);
-
-    return () => {
-        window.removeEventListener('storage-update', handleStorageChange);
-    };
   }, [loadData]);
 
   const handleAddUser = () => {
@@ -94,28 +83,29 @@ export default function UsersPage() {
         return;
     }
 
-    let updatedUsers;
-    const currentUsers = getLocalStorage('usersData', []);
-
-    if (editingUser) {
-        // Edit existing user
-        updatedUsers = currentUsers.map((u: User) => u.id === editingUser.id ? { ...u, name: userName, role: userRole } : u);
-        toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
-    } else {
-        // Add new user
-        const newUser: User = {
-            id: Date.now(),
-            name: userName,
-            role: userRole,
-            lastLogin: 'لم يسجل دخول بعد',
-            status: 'نشط',
-        };
-        updatedUsers = [...currentUsers, newUser];
-        toast({ title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
+    try {
+      if (editingUser) {
+          // Edit existing user
+          const stmt = db.prepare('UPDATE users SET name = ?, role = ? WHERE id = ?');
+          stmt.run(userName, userRole, editingUser.id);
+          toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
+      } else {
+          // Add new user
+          const newUser: Omit<User, 'id' | 'lastLogin'> = {
+              name: userName,
+              role: userRole,
+              status: 'نشط',
+          };
+          const stmt = db.prepare('INSERT INTO users (name, role, status, lastLogin) VALUES (?, ?, ?, ?)');
+          stmt.run(newUser.name, newUser.role, newUser.status, 'لم يسجل دخول بعد');
+          toast({ title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
+      }
+      loadData(); // Reload data from DB
+      setDialogOpen(false);
+    } catch(error) {
+      console.error("Failed to save user", error);
+      toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
     }
-    
-    updateLocalStorage('usersData', updatedUsers);
-    setDialogOpen(false);
   };
 
 
@@ -124,15 +114,20 @@ export default function UsersPage() {
         toast({ title: "غير مسموح", description: "لا يمكن حذف حساب مدير النظام الافتراضي.", variant: "destructive" });
         return;
     }
-    const currentUsers = getLocalStorage('usersData', []) as User[];
-    const user = currentUsers.find(u => u.id === userId);
-    const updatedUsers = currentUsers.filter(u => u.id !== userId);
-    updateLocalStorage('usersData', updatedUsers);
-     toast({
-        title: 'تم الحذف',
-        description: `تم حذف المستخدم: ${user?.name}`,
-        variant: 'destructive'
-    });
+    try {
+        const user = users.find(u => u.id === userId);
+        const stmt = db.prepare('DELETE FROM users WHERE id = ?');
+        stmt.run(userId);
+        toast({
+            title: 'تم الحذف',
+            description: `تم حذف المستخدم: ${user?.name}`,
+            variant: 'destructive'
+        });
+        loadData();
+    } catch(error) {
+       console.error("Failed to delete user", error);
+       toast({ title: "خطأ", description: "فشل حذف المستخدم.", variant: "destructive" });
+    }
   }
 
   const handleToggleStatus = (userId: number) => {
@@ -140,14 +135,22 @@ export default function UsersPage() {
           toast({ title: "غير مسموح", description: "لا يمكن تغيير حالة مدير النظام الافتراضي.", variant: "destructive" });
           return;
       }
-      const currentUsers = getLocalStorage('usersData', []) as User[];
-      const user = currentUsers.find(u => u.id === userId);
-      const updatedUsers = currentUsers.map(u => u.id === userId ? {...u, status: u.status === 'نشط' ? 'غير نشط' : 'نشط'} : u)
-      updateLocalStorage('usersData', updatedUsers);
-      toast({
-          title: 'تم تغيير الحالة',
-          description: `تم تغيير حالة المستخدم: ${user?.name}`,
-      });
+      try {
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            const newStatus = user.status === 'نشط' ? 'غير نشط' : 'نشط';
+            const stmt = db.prepare('UPDATE users SET status = ? WHERE id = ?');
+            stmt.run(newStatus, userId);
+            toast({
+                title: 'تم تغيير الحالة',
+                description: `تم تغيير حالة المستخدم: ${user.name}`,
+            });
+            loadData();
+        }
+      } catch (error) {
+        console.error("Failed to toggle user status", error);
+        toast({ title: "خطأ", description: "فشل تغيير حالة المستخدم.", variant: "destructive" });
+      }
   }
   
   return (
@@ -213,5 +216,3 @@ export default function UsersPage() {
     </div>
   );
 }
-
-    

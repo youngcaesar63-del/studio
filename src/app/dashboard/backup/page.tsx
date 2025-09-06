@@ -9,6 +9,7 @@ import { Database, Download, RefreshCw, Trash2, PlusCircle, Loader2, Upload, Cog
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
+import db from '@/lib/db';
 import { saveAs } from 'file-saver';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
@@ -16,14 +17,13 @@ import { arSA } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
 type Backup = {
   id: string;
   date: string; // ISO Date string
   size: string;
   status: 'مكتمل' | 'فشل';
-  data: any; 
+  // Backup data is not stored in state anymore, it's read from the DB
 };
 
 type AutoBackupSettings = {
@@ -31,7 +31,13 @@ type AutoBackupSettings = {
     frequency: 'daily' | 'weekly' | 'monthly';
 };
 
-const initialBackupHistory: Backup[] = [];
+const getBackups = () => db.prepare("SELECT id, date, size, status FROM settings WHERE key LIKE 'backup-%' ORDER BY date DESC").all() as Backup[];
+
+const getBackupData = (backupId: string) => {
+    const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(`backup-${backupId}`) as { value: string };
+    return row ? JSON.parse(row.value) : null;
+};
+
 
 export default function BackupPage() {
     const { toast } = useToast();
@@ -52,14 +58,15 @@ export default function BackupPage() {
     
     const loadData = useCallback(() => {
         setLoading(true);
-        let data = getLocalStorage('backupHistory', null);
-        if (data === null) {
-            data = initialBackupHistory;
-            updateLocalStorage('backupHistory', initialBackupHistory);
+        try {
+            const settingsRow = db.prepare("SELECT value FROM settings WHERE key = 'autoBackupSettings'").get() as {value: string} | undefined;
+            const settings = settingsRow ? JSON.parse(settingsRow.value) : { enabled: false, frequency: 'weekly' };
+            
+            setAutoBackupSettings(settings);
+            setBackupHistory(getBackups());
+        } catch (error) {
+            console.error("Failed to load backup data", error);
         }
-        const settings = getLocalStorage('autoBackupSettings', { enabled: false, frequency: 'weekly' });
-        setAutoBackupSettings(settings);
-        setBackupHistory(data);
         setLoading(false);
     }, []);
 
@@ -73,30 +80,42 @@ export default function BackupPage() {
         }
         
         try {
-            const allData = {
-                personnelData: getLocalStorage('personnelData', []),
-                rolesData: getLocalStorage('rolesData', []),
-                usersData: getLocalStorage('usersData', []),
-                attachmentsData: getLocalStorage('attachmentsData', []),
-                activityLog: getLocalStorage('activityLog', []),
-                'app-theme-name': localStorage.getItem('app-theme-name') || 'افتراضي',
-            };
+            // Get all data from the database
+            const allData: {[key: string]: any} = {};
+            const tables = ['personnel', 'important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 'service_history', 'medals', 'languages', 'children', 'brothers', 'sisters', 'mechanisms', 'attachments', 'users', 'roles', 'activity_log'];
+            tables.forEach(table => {
+                allData[table] = db.prepare(`SELECT * FROM ${table}`).all();
+            });
+            allData['settings'] = db.prepare("SELECT * FROM settings WHERE key NOT LIKE 'backup-%'").all();
+
 
             const dataString = JSON.stringify(allData, null, 2);
             const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
             const sizeInMB = (blob.size / (1024 * 1024)).toFixed(2);
             
-            const newBackup: Backup = {
-                id: `backup-${Date.now()}`,
+            const backupId = `backup-${Date.now()}`;
+            const newBackup: Omit<Backup, 'data'> & {key: string; value: string} = {
+                id: Date.now().toString(),
+                key: backupId,
                 date: new Date().toISOString(),
                 size: `${sizeInMB} MB`,
                 status: 'مكتمل',
-                data: allData,
+                value: dataString
             };
 
-            const currentHistory = getLocalStorage('backupHistory', []);
-            const updatedHistory = [newBackup, ...currentHistory];
-            updateLocalStorage('backupHistory', updatedHistory);
+            const stmt = db.prepare("INSERT INTO settings (key, value) VALUES (@key, @value)");
+            stmt.run({
+                key: newBackup.key,
+                value: JSON.stringify({
+                   date: newBackup.date,
+                   size: newBackup.size,
+                   status: newBackup.status,
+                   id: newBackup.id,
+                   data: allData
+                })
+            });
+
+            loadData(); // Refresh history
 
             if (!isAuto) {
                 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -122,23 +141,10 @@ export default function BackupPage() {
                 setIsCreating(false);
              }
         }
-    }, [toast]);
+    }, [toast, loadData]);
 
     useEffect(() => {
         loadData();
-        
-        const handleStorageChange = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'backupHistory' || customEvent.detail.key === 'all' || customEvent.detail.key === 'autoBackupSettings') {
-                loadData();
-            }
-        };
-
-        window.addEventListener('storage-update', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage-update', handleStorageChange);
-        };
     }, [loadData]);
     
      useEffect(() => {
@@ -146,7 +152,6 @@ export default function BackupPage() {
 
         const lastBackupDate = backupHistory.length > 0 ? new Date(backupHistory[0].date) : null;
         if (!lastBackupDate) {
-            // No backups yet, create one
             createBackup(true);
             return;
         }
@@ -168,13 +173,14 @@ export default function BackupPage() {
     }, [loading, autoBackupSettings, backupHistory, createBackup]);
 
 
-    const handleDownload = (backup: Backup) => {
+    const handleDownload = (backupId: string) => {
          try {
-            const dataString = JSON.stringify(backup.data, null, 2);
+            const backupData = getBackupData(backupId);
+            if (!backupData) throw new Error("Backup data not found");
+            const dataString = JSON.stringify(backupData, null, 2);
             const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
-            const backupDate = new Date(backup.date);
-            // Check if the date is valid before using it
-            const timestamp = !isNaN(backupDate.getTime()) ? backupDate.toISOString().replace(/[:.]/g, '-') : `invalid-date-${backup.id}`;
+            const backupDate = new Date(backupHistory.find(b => b.id === backupId)!.date);
+            const timestamp = !isNaN(backupDate.getTime()) ? backupDate.toISOString().replace(/[:.]/g, '-') : `invalid-date-${backupId}`;
             saveAs(blob, `backup-data-${timestamp}.json`);
             toast({ title: 'تم التحميل بنجاح' });
         } catch (error) {
@@ -204,29 +210,36 @@ export default function BackupPage() {
                 const restoredData = JSON.parse(text as string);
 
                 // Basic validation
-                if (!restoredData.personnelData || !restoredData.rolesData) {
+                if (!restoredData.personnel || !restoredData.roles) {
                     throw new Error("Invalid backup file structure.");
                 }
-
-                // Restore all data
-                updateLocalStorage('personnelData', restoredData.personnelData || []);
-                updateLocalStorage('rolesData', restoredData.rolesData || []);
-                updateLocalStorage('usersData', restoredData.usersData || []);
-                updateLocalStorage('attachmentsData', restoredData.attachmentsData || []);
-                updateLocalStorage('activityLog', restoredData.activityLog || []);
-                updateLocalStorage('readNotifications', []);
-
-
-                toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
                 
-                if (restoredData['app-theme-name']) {
-                    localStorage.setItem('app-theme-name', restoredData['app-theme-name']);
-                    // We need to reload to apply theme correctly and ensure all components get new data
-                    window.location.reload();
-                } else {
-                    // Force reload of other pages' data
-                    window.dispatchEvent(new CustomEvent('storage-update', { detail: { key: 'all' } }));
-                }
+                db.transaction(() => {
+                    // Clear existing data
+                    const tables = ['personnel', 'important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 'service_history', 'medals', 'languages', 'children', 'brothers', 'sisters', 'mechanisms', 'attachments', 'users', 'roles', 'activity_log', 'settings'];
+                    tables.forEach(table => {
+                        db.prepare(`DELETE FROM ${table}`).run();
+                    });
+
+                    // Restore all data
+                    tables.forEach(table => {
+                        if (restoredData[table]) {
+                            const data = restoredData[table];
+                            if (data.length > 0) {
+                                const columns = Object.keys(data[0]);
+                                const placeholders = columns.map(() => '?').join(', ');
+                                const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`);
+                                data.forEach((row: any) => {
+                                    stmt.run(...Object.values(row));
+                                });
+                            }
+                        }
+                    });
+                })();
+                
+                toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
+                window.location.reload();
+
 
             } catch (error) {
                 console.error("Restore failed:", error);
@@ -243,10 +256,14 @@ export default function BackupPage() {
     }
     
     const handleDelete = (backupId: string) => {
-        const currentHistory = getLocalStorage('backupHistory', []);
-        const updatedHistory = currentHistory.filter((b: Backup) => b.id !== backupId);
-        updateLocalStorage('backupHistory', updatedHistory);
-        toast({ title: 'تم الحذف', description: 'تم حذف النسخة الاحتياطية بنجاح.', variant: 'destructive'});
+        try {
+            db.prepare("DELETE FROM settings WHERE key = ?").run(`backup-${backupId}`);
+            loadData();
+            toast({ title: 'تم الحذف', description: 'تم حذف النسخة الاحتياطية بنجاح.', variant: 'destructive'});
+        } catch (error) {
+            console.error("Failed to delete backup", error);
+            toast({ title: 'خطأ', description: 'فشل حذف النسخة الاحتياطية.', variant: 'destructive'});
+        }
     };
 
     const getStatusVariant = (status: Backup['status']) => {
@@ -268,8 +285,14 @@ export default function BackupPage() {
     const handleAutoBackupSettingsChange = (key: keyof AutoBackupSettings, value: any) => {
         const newSettings = { ...autoBackupSettings, [key]: value };
         setAutoBackupSettings(newSettings);
-        updateLocalStorage('autoBackupSettings', newSettings);
-        toast({ title: 'تم حفظ الإعدادات', description: 'تم تحديث إعدادات النسخ الاحتياطي التلقائي.' });
+        try {
+            const stmt = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('autoBackupSettings', ?)");
+            stmt.run(JSON.stringify(newSettings));
+            toast({ title: 'تم حفظ الإعدادات', description: 'تم تحديث إعدادات النسخ الاحتياطي التلقائي.' });
+        } catch (error) {
+            console.error("Failed to save settings", error);
+            toast({ title: 'خطأ', description: 'فشل حفظ الإعدادات.', variant: 'destructive' });
+        }
     };
 
     return (
@@ -323,7 +346,7 @@ export default function BackupPage() {
                                         </TableCell>
                                         <TableCell className="text-center border-r">
                                              <div className="flex justify-center items-center gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(backup)}><Download className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(backup.id)}><Download className="h-4 w-4" /></Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
                                                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">

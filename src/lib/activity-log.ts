@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getLocalStorage, updateLocalStorage } from './localStorage-helpers';
+import db from './db';
 
 export type ActivityType = 'add_personnel' | 'edit_personnel' | 'delete_personnel' | 'create_report' | 'promotion';
 
@@ -22,8 +22,6 @@ const typeToTitleMap: Record<ActivityType, string> = {
 };
 
 export function logActivity(type: ActivityType, description: string, details?: string) {
-    if (typeof window === 'undefined') return;
-
     const newActivity: Activity = {
         id: `activity-${Date.now()}`,
         type,
@@ -32,11 +30,19 @@ export function logActivity(type: ActivityType, description: string, details?: s
         timestamp: new Date().toISOString(),
     };
 
-    const activityLog = getLocalStorage('activityLog', []);
-    const updatedLog = [newActivity, ...activityLog].slice(0, 50); // Keep last 50 activities
-    updateLocalStorage('activityLog', updatedLog);
+    const stmt = db.prepare('INSERT INTO activity_log (id, type, title, description, timestamp) VALUES (?, ?, ?, ?, ?)');
+    stmt.run(newActivity.id, newActivity.type, newActivity.title, newActivity.description, newActivity.timestamp);
+
+    // Optional: Prune old logs to keep the table size manageable
+    const pruneStmt = db.prepare(`
+        DELETE FROM activity_log WHERE id NOT IN (
+            SELECT id FROM activity_log ORDER BY timestamp DESC LIMIT 50
+        )
+    `);
+    pruneStmt.run();
 }
 
 export function getActivityLog(): Activity[] {
-    return getLocalStorage('activityLog', []);
+    const stmt = db.prepare('SELECT * FROM activity_log ORDER BY timestamp DESC');
+    return stmt.all() as Activity[];
 }
