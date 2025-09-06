@@ -5,7 +5,7 @@
   "private": true,
   "main": "electron/main.js",
   "scripts": {
-    "dev": "electron .",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
