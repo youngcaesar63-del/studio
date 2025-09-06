@@ -13,8 +13,8 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
       <Image 
         src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={180} 
-        height={180} 
+        width={220} 
+        height={220} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg"
@@ -72,14 +72,14 @@ export default function WelcomePage() {
       <div className="absolute top-0 left-0 -translate-x-1/4 -translate-y-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl opacity-50"></div>
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-2xl">
-        <div className="mb-6">
-           <MilitaryIntelligenceLogo className="w-[180px] h-[180px]" />
+      <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-4xl">
+        <div className="mb-8">
+           <MilitaryIntelligenceLogo className="w-[220px] h-[220px]" />
         </div>
 
-        <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
-            <h2 className="text-4xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
+        <div className="mb-10">
+            <h1 className="text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
+            <h2 className="text-5xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
         </div>
 
         <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg w-full">
