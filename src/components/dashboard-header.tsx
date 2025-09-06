@@ -195,11 +195,11 @@ export function DashboardHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" dir="rtl">
-              <DropdownMenuItem asChild className="justify-end"><Link href="/dashboard/settings">الملف الشخصي<UserIcon className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
-              <DropdownMenuItem asChild className="justify-end"><Link href="/dashboard/settings">الإعدادات<Settings className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center justify-end w-full"><span>الملف الشخصي</span><UserIcon className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center justify-end w-full"><span>الإعدادات</span><Settings className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end">
-                  تسجيل الخروج
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center justify-end w-full">
+                  <span>تسجيل الخروج</span>
                   <LogOut className="mr-2 h-4 w-4"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
