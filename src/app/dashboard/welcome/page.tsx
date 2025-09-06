@@ -90,7 +90,7 @@ export default function WelcomePage() {
           <GeneralStaffLogo className="w-48 h-48 md:w-56 md:h-56" />
           <div className="text-center">
             <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
-            <h2 className="text-3xl lg:text-5xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
+            <h2 className="text-2xl lg:text-4xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
           <MilitaryIntelligenceLogo className="w-48 h-48 md:w-56 md:h-56" />
         </div>
