@@ -164,12 +164,12 @@ export function DashboardHeader() {
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
                        <DropdownMenuItem key={notification.id} className={`p-2 rounded-lg cursor-pointer flex items-start gap-3 ${notification.style}`}>
+                           <notification.icon className="h-5 w-5 mt-1 flex-shrink-0" />
                            <div className="flex-grow text-right">
                                <p className="text-sm font-medium">{notification.title}</p>
                                <p className="text-xs text-muted-foreground">{notification.description}</p>
                                <p className="text-xs text-muted-foreground/80 mt-1">{notification.time}</p>
                            </div>
-                           <notification.icon className="h-5 w-5 mt-1" />
                        </DropdownMenuItem>
                     )) : (
                         <div className="text-center text-sm text-muted-foreground py-8">
@@ -196,21 +196,21 @@ export function DashboardHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center justify-end w-full">
+                <Link href="/dashboard/settings">
+                  <UserIcon className="ml-2 h-4 w-4"/>
                   <span>الملف الشخصي</span>
-                  <UserIcon className="mr-2 h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center justify-end w-full">
+                <Link href="/dashboard/settings">
+                  <Settings className="ml-2 h-4 w-4"/>
                   <span>الإعدادات</span>
-                  <Settings className="mr-2 h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center justify-end w-full">
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                  <LogOut className="ml-2 h-4 w-4"/>
                   <span>تسجيل الخروج</span>
-                  <LogOut className="mr-2 h-4 w-4"/>
                 </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -225,8 +225,8 @@ export function DashboardHeader() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -87,13 +87,13 @@ export default function WelcomePage() {
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
-        <div className="flex justify-around items-center w-full mb-8 md:mb-12">
-          <GeneralStaffLogo className="w-32 h-32 md:w-44 md:h-44" />
-          <div className="text-center px-4">
-            <h1 className="text-xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
-            <h2 className="text-xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
+        <div className="flex justify-around items-center w-full mb-8 md:mb-16">
+          <GeneralStaffLogo className="w-28 h-28 md:w-44 md:h-44" />
+          <div className="text-center px-2">
+            <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
+            <h2 className="text-2xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-32 h-32 md:w-44 md:h-44" />
+          <MilitaryIntelligenceLogo className="w-28 h-28 md:w-44 md:h-44" />
         </div>
 
 
@@ -110,7 +110,7 @@ export default function WelcomePage() {
                     <User className="h-7 w-7 md:h-8 md:w-8 text-primary" />
                     <span>{username}</span>
                 </div>
-                <div className="flex flex-col gap-2 text-muted-foreground">
+                <div className="flex flex-col gap-3 text-muted-foreground">
                     <div className="flex items-center justify-center gap-2 text-base md:text-lg">
                         <Calendar className="h-5 w-5" />
                         <span>{date.hijri}</span>
