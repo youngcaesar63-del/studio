@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { getAllUsers } from '@/services/users.service';
 import type { User as UserData } from '@/services/users.service';
 
@@ -28,9 +28,6 @@ export default function LoginPage() {
         try {
             const usersData = await getAllUsers();
             setUsers(usersData);
-            if (usersData.length > 0 && !username) {
-                // setUsername(usersData[0].name); // Optionally default to the first user
-            }
         } catch (error) {
             toast({
                 title: 'خطأ',
@@ -41,6 +38,12 @@ export default function LoginPage() {
     }
     fetchUsers();
   }, [toast]);
+  
+  const userOptions = users.map(user => ({
+      value: user.name,
+      label: user.name
+  }));
+
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,16 +99,13 @@ export default function LoginPage() {
               <Label htmlFor="username" className="col-span-3 text-right">اسم المستخدم</Label>
               <div className="relative col-span-9">
                 <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                <Select dir="rtl" onValueChange={setUsername} value={username} required>
-                    <SelectTrigger id="username" className="pr-10">
-                        <SelectValue placeholder="اختر اسم المستخدم" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {users.map(user => (
-                        <SelectItem key={user.id} value={user.name}>{user.name}</SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
+                 <Combobox
+                    options={userOptions}
+                    value={username}
+                    onChange={setUsername}
+                    placeholder="اختر اسم المستخدم"
+                    filterPlaceholder="ابحث عن مستخدم..."
+                  />
               </div>
             </div>
             <div className="grid grid-cols-12 items-center gap-4">
