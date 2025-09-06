@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,14 +16,6 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // If the user is already authenticated, redirect to the dashboard
-    if (sessionStorage.getItem('isAuthenticated') === 'true') {
-      router.replace('/dashboard');
-    }
-  }, [router]);
-
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

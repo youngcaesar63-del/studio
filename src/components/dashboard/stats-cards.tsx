@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserPlus, Briefcase, Minus, ShieldAlert, BookOpen, Plane, UserMinus, Footprints, LandPlot } from 'lucide-react';
+import { Users, UserPlus, Briefcase, Plane, ShieldAlert, BookOpen, UserMinus, Footprints, LandPlot } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { getAllPersonnel, Personnel } from '@/services/personnel.service';
 import { toast } from '@/hooks/use-toast';
@@ -83,7 +83,7 @@ export function StatsCards() {
       {stats.map((stat, index) => (
         <Card key={index} className="shadow-md transition-transform duration-300 hover:-translate-y-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
             <div className={`p-3 rounded-lg ${stat.iconBg}`}>
               <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
             </div>

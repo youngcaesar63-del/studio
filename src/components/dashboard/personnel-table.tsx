@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter } from 'next/navigation';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { arSA } from 'date-fns/locale';
 import type { Personnel } from '@/services/personnel.service';
 
@@ -48,7 +48,11 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
       if (person.statusDetail) {
           text = `${person.status} (${person.statusDetail})`;
       } else if (person.statusDate) {
-           text = `${person.status} (حتى: ${format(new Date(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
+          try {
+            text = `${person.status} (حتى: ${format(parseISO(person.statusDate), 'd MMMM yyyy', { locale: arSA })})`;
+          } catch(e) {
+            // Ignore invalid date
+          }
       }
       return text;
   }

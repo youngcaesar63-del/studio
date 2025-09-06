@@ -47,7 +47,7 @@ const adminNav = [
 const navSections = [
   { title: 'الرئيسية', icon: Home, items: mainNav },
   { title: 'شئون الضباط', icon: Users, items: personnelNav },
-  { title: 'التقارير', icon: BookCopy, items: reportsNav },
+  { title: 'التقارير والإحصاءات', icon: BookCopy, items: reportsNav },
   { title: 'إدارة النظام', icon: Settings, items: adminNav },
 ];
 
