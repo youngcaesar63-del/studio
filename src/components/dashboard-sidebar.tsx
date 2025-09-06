@@ -63,7 +63,7 @@ const NavContent = () => {
           </h3>
           <ul className="space-y-2">
             {section.items.map((item) => {
-              const isActive = (item.href === '/dashboard' && pathname === item.href) || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+              const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
               return (
                 <li key={item.href}>
                   <Link
@@ -100,7 +100,7 @@ export function DashboardSidebar() {
             <span className="sr-only">Toggle Menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="lg:hidden w-72 p-0 no-print">
+        <SheetContent side="right" className="lg:hidden w-72 p-0 no-print overflow-y-auto">
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <SheetDescription className="sr-only">Navigate through the app sections.</SheetDescription>
           <NavContent />

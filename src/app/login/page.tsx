@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // If the user is already authenticated, redirect to the dashboard
+    if (sessionStorage.getItem('isAuthenticated') === 'true') {
+      router.replace('/dashboard');
+    }
+  }, [router]);
+
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -24,11 +32,14 @@ export default function LoginPage() {
     // Simulate API call
     setTimeout(() => {
       if (username === 'admin' && password === 'password') {
+        
+        sessionStorage.setItem('isAuthenticated', 'true');
+
         toast({
           title: 'تم تسجيل الدخول بنجاح',
           description: 'مرحباً بعودتك!',
         });
-        router.push('/dashboard/welcome');
+        router.push('/dashboard');
       } else {
         toast({
           title: 'خطأ في تسجيل الدخول',

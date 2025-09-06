@@ -10,14 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { cn } from '@/lib/utils';
 import { CalendarIcon, User, PlusCircle, Trash2, Upload } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Combobox } from '@/components/ui/combobox';
 import { Separator } from '../ui/separator';
@@ -40,7 +40,8 @@ import {
 } from '@/lib/constants';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { logActivity } from '@/lib/activity-log';
-import { addPersonnel } from '@/services/personnel.service';
+import { addPersonnel, updatePersonnel, getPersonnelById, Personnel as PersonnelData } from '@/services/personnel.service';
+import { Skeleton } from '../ui/skeleton';
 
 const importantJobSchema = z.object({
   jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
@@ -161,114 +162,96 @@ const formSchema = z.object({
 
 
 const batches = generateBatches();
+const parseDate = (dateString: string | undefined | null): Date | undefined => {
+    return dateString ? new Date(dateString) : undefined;
+};
+
 
 export function AddPersonnelForm() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id ? Number(params.id) : null;
+  const isEditMode = id !== null;
+
+  const [loading, setLoading] = useState(isEditMode);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [dateFieldOpen, setDateFieldOpen] = useState<{ [key: string]: boolean }>({});
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: '',
-      cardId: '',
-      rank: '',
-      specialization: 'لا يوجد',
-      academicQualification: 'لا يوجد',
-      major: '',
-      batch: 'لا يوجد',
-      administration: '',
-      certificateType: '',
-      status: 'بالطابور',
-      statusDetail: '',
-      bloodType: '',
-      maritalStatus: '',
-      religion: 'مسلم',
-      notes: '',
-      photo: '',
-      nationalId: '',
-      phoneNumbers: { sudani: '', zain: '', mtn: '' },
-      state: '',
-      city: '',
-      locality: '',
-      address: '',
-      nextOfKinName: '',
-      nextOfKinPhone: '',
-      nextOfKinAddress: '',
-      importantJobs: [],
-      serviceOperations: [],
-      decisiveStorm: [],
-      trainingCourses: [],
-      serviceHistory: [],
-      medals: [],
-      languages: [],
-      fatherName: '',
-      fatherAddress: '',
-      motherName: '',
-      wifeName: '',
-      children: [],
-      brothers: [],
-      sisters: [],
-      mechanisms: [],
+      // Initialize with default values
+      fullName: '', cardId: '', rank: '', specialization: 'لا يوجد',
+      academicQualification: 'لا يوجد', major: '', batch: 'لا يوجد', administration: '',
+      certificateType: '', status: 'بالطابور', statusDetail: '', bloodType: '',
+      maritalStatus: '', religion: 'مسلم', notes: '', photo: '', nationalId: '',
+      phoneNumbers: { sudani: '', zain: '', mtn: '' }, state: '', city: '',
+      locality: '', address: '', nextOfKinName: '', nextOfKinPhone: '',
+      nextOfKinAddress: '', importantJobs: [], serviceOperations: [], decisiveStorm: [],
+      trainingCourses: [], serviceHistory: [], medals: [], languages: [],
+      fatherName: '', fatherAddress: '', motherName: '', wifeName: '',
+      children: [], brothers: [], sisters: [], mechanisms: [],
     },
   });
 
-  const { fields: jobFields, append: appendJob, remove: removeJob } = useFieldArray({
-    control: form.control,
-    name: "importantJobs",
-  });
+  const loadData = useCallback(async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+        const personToEdit = await getPersonnelById(id);
 
-  const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({
-    control: form.control,
-    name: "serviceOperations",
-  });
-  
-  const { fields: decisiveStormFields, append: appendDecisiveStorm, remove: removeDecisiveStorm } = useFieldArray({
-    control: form.control,
-    name: "decisiveStorm",
-  });
+        if (personToEdit) {
+          form.reset({
+            ...personToEdit,
+            fullName: personToEdit.name,
+            appointmentDate: parseDate(personToEdit.appointmentDate),
+            lastReturnDate: parseDate(personToEdit.lastReturnDate),
+            transferDate: parseDate(personToEdit.transferDate),
+            reportingDate: parseDate(personToEdit.reportingDate),
+            dateOfBirth: parseDate(personToEdit.dateOfBirth),
+            statusDate: parseDate(personToEdit.statusDate),
+            importantJobs: personToEdit.importantJobs?.map((j: any) => ({ ...j, periodFrom: parseDate(j.periodFrom), periodTo: parseDate(j.periodTo) })),
+            serviceOperations: personToEdit.serviceOperations?.map((s: any) => ({ ...s, periodFrom: parseDate(s.periodFrom), periodTo: parseDate(s.periodTo) })),
+            decisiveStorm: personToEdit.decisiveStorm?.map((d: any) => ({ ...d, periodFrom: parseDate(d.periodFrom), periodTo: parseDate(d.periodTo) })),
+            trainingCourses: personToEdit.trainingCourses?.map((c: any) => ({ ...c, periodFrom: parseDate(c.periodFrom), periodTo: parseDate(c.periodTo) })),
+            serviceHistory: personToEdit.serviceHistory?.map((h: any) => ({ ...h, periodFrom: parseDate(h.periodFrom), periodTo: parseDate(h.periodTo) })),
+            mechanisms: personToEdit.mechanisms?.map((v: any) => ({ ...v, periodFrom: parseDate(v.periodFrom), periodTo: parseDate(v.periodTo) })),
+          });
 
-  const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({
-    control: form.control,
-    name: "trainingCourses",
-  });
-  
-  const { fields: serviceHistoryFields, append: appendServiceHistory, remove: removeServiceHistory } = useFieldArray({
-    control: form.control,
-    name: "serviceHistory",
-  });
-  
-  const { fields: medalFields, append: appendMedal, remove: removeMedal } = useFieldArray({
-    control: form.control,
-    name: "medals",
-  });
+          if (personToEdit.photo) {
+            setPhotoPreview(personToEdit.photo);
+          }
+        } else {
+            toast({ title: 'خطأ', description: 'الضابط غير موجود.', variant: 'destructive' });
+            router.push('/dashboard/personnel-list');
+        }
+    } catch (error) {
+        console.error("Failed to load personnel data for editing:", error);
+        toast({ title: 'خطأ', description: 'فشل تحميل البيانات.', variant: 'destructive' });
+    }
+    setLoading(false);
+  }, [id, form, router]);
 
-  const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({
-    control: form.control,
-    name: "languages",
-  });
+  useEffect(() => {
+    if (isEditMode) {
+      loadData();
+    }
+  }, [isEditMode, loadData]);
 
-  const { fields: childrenFields, append: appendChild, remove: removeChild } = useFieldArray({
-    control: form.control,
-    name: "children",
-  });
-  
-  const { fields: brothersFields, append: appendBrother, remove: removeBrother } = useFieldArray({
-    control: form.control,
-    name: "brothers",
-  });
 
-  const { fields: sistersFields, append: appendSister, remove: removeSister } = useFieldArray({
-    control: form.control,
-    name: "sisters",
-  });
+  const { fields: jobFields, append: appendJob, remove: removeJob } = useFieldArray({ control: form.control, name: "importantJobs" });
+  const { fields: serviceFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "serviceOperations" });
+  const { fields: decisiveStormFields, append: appendDecisiveStorm, remove: removeDecisiveStorm } = useFieldArray({ control: form.control, name: "decisiveStorm" });
+  const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({ control: form.control, name: "trainingCourses" });
+  const { fields: serviceHistoryFields, append: appendServiceHistory, remove: removeServiceHistory } = useFieldArray({ control: form.control, name: "serviceHistory" });
+  const { fields: medalFields, append: appendMedal, remove: removeMedal } = useFieldArray({ control: form.control, name: "medals" });
+  const { fields: languageFields, append: appendLanguage, remove: removeLanguage } = useFieldArray({ control: form.control, name: "languages" });
+  const { fields: childrenFields, append: appendChild, remove: removeChild } = useFieldArray({ control: form.control, name: "children" });
+  const { fields: brothersFields, append: appendBrother, remove: removeBrother } = useFieldArray({ control: form.control, name: "brothers" });
+  const { fields: sistersFields, append: appendSister, remove: removeSister } = useFieldArray({ control: form.control, name: "sisters" });
+  const { fields: mechanismFields, append: appendMechanism, remove: removeMechanism } = useFieldArray({ control: form.control, name: "mechanisms" });
 
-  const { fields: mechanismFields, append: appendMechanism, remove: removeMechanism } = useFieldArray({
-    control: form.control,
-    name: "mechanisms",
-  });
 
   const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -287,45 +270,42 @@ export function AddPersonnelForm() {
   const academicQualificationValue = form.watch("academicQualification");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    
-    const toISO = (date: Date | undefined) => date?.toISOString();
-    const mapTimeBasedArray = (arr: any[] | undefined) => arr?.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) })) || [];
-
-    const dataToSave = {
-        ...values,
-        name: values.fullName,
-        appointmentDate: toISO(values.appointmentDate),
-        lastReturnDate: toISO(values.lastReturnDate),
-        transferDate: toISO(values.transferDate),
-        reportingDate: toISO(values.reportingDate),
-        dateOfBirth: toISO(values.dateOfBirth),
-        statusDate: toISO(values.statusDate),
-        importantJobs: mapTimeBasedArray(values.importantJobs),
-        serviceOperations: mapTimeBasedArray(values.serviceOperations),
-        decisiveStorm: mapTimeBasedArray(values.decisiveStorm),
-        trainingCourses: mapTimeBasedArray(values.trainingCourses),
-        serviceHistory: mapTimeBasedArray(values.serviceHistory),
-        mechanisms: mapTimeBasedArray(values.mechanisms),
-    };
-    
     try {
-        await addPersonnel(dataToSave);
+      if (isEditMode && id) {
+        await updatePersonnel(id, values);
+        logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
+        toast({
+          title: 'تم التحديث بنجاح',
+          description: `تم تحديث بيانات الضابط ${values.fullName}.`,
+        });
+      } else {
+        await addPersonnel(values);
         logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
-
         toast({
           title: 'تم الحفظ بنجاح',
           description: `تمت إضافة الضابط ${values.fullName} إلى السجل.`,
         });
-        router.push('/dashboard/personnel-list');
+      }
+      router.push('/dashboard/personnel-list');
     } catch (error) {
-        toast({ title: 'خطأ', description: 'فشل إضافة الضابط.', variant: 'destructive' });
+      toast({ title: 'خطأ', description: `فشل ${isEditMode ? 'تحديث' : 'إضافة'} الضابط.`, variant: 'destructive' });
     }
+  }
+
+  if (loading) {
+    return (
+        <Card className="shadow-md">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+            </CardContent>
+        </Card>
+    );
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Accordion type="multiple" defaultValue={['item-1']} className="w-full">
+        <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
                 
                  <AccordionItem value="item-1">
                     <AccordionTrigger className="text-xl font-semibold">المعلومات الأساسية</AccordionTrigger>
@@ -358,7 +338,7 @@ export function AddPersonnelForm() {
                                     />
                                     <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
                                         <Upload className="ml-2 h-4 w-4" />
-                                        اختر صورة
+                                        {isEditMode ? "تغيير الصورة" : "اختر صورة"}
                                     </Button>
                                   </div>
                                 </FormControl>
@@ -373,16 +353,16 @@ export function AddPersonnelForm() {
                                     <FormItem><FormLabel>رقم البطاقة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="administration" render={({ field }) => (
-                                    <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الإدارة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الإدارة" /></SelectTrigger></FormControl><SelectContent>{administrations.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="rank" render={({ field }) => (
-                                    <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="specialization" render={({ field }) => (
-                                    <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="academicQualification" render={({ field }) => (
-                                    <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>المؤهل الأكاديمي</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر المؤهل" /></SelectTrigger></FormControl><SelectContent>{academicQualifications.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                                  {['بكالوريوس', 'ماجستير', 'دكتوراه', 'دبلوم'].includes(academicQualificationValue || '') && (
                                     <FormField control={form.control} name="major" render={({ field }) => (
@@ -420,7 +400,7 @@ export function AddPersonnelForm() {
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="certificateType" render={({ field }) => (
-                                    <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>نوع البراءة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر نوع البراءة" /></SelectTrigger></FormControl><SelectContent>{certificateTypes.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                             </div>
                         </div>
@@ -456,13 +436,13 @@ export function AddPersonnelForm() {
                                         <FormItem><FormLabel>الرقم الوطني</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="bloodType" render={({ field }) => (
-                                        <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>فصيلة الدم</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر فصيلة الدم" /></SelectTrigger></FormControl><SelectContent>{bloodTypes.map(bt => <SelectItem key={bt} value={bt}>{bt}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                     )} />
                                      <FormField control={form.control} name="maritalStatus" render={({ field }) => (
-                                        <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>الحالة الاجتماعية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة الاجتماعية" /></SelectTrigger></FormControl><SelectContent>{maritalStatuses.map(ms => <SelectItem key={ms} value={ms}>{ms}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="religion" render={({ field }) => (
-                                        <FormItem><FormLabel>الديانة</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الديانة" /></SelectTrigger></FormControl><SelectContent>{religions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>الديانة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الديانة" /></SelectTrigger></FormControl><SelectContent>{religions.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                     )} />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -485,7 +465,7 @@ export function AddPersonnelForm() {
                              <h4 className="text-lg font-semibold mb-4">بيانات العنوان وأقرب الأقربين</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                                  <FormField control={form.control} name="state" render={({ field }) => (
-                                    <FormItem><FormLabel>الولاية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الولاية" /></SelectTrigger></FormControl><SelectContent>{states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الولاية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الولاية" /></SelectTrigger></FormControl><SelectContent>{states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name="city" render={({ field }) => (
                                     <FormItem><FormLabel>المدينة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
@@ -722,13 +702,13 @@ export function AddPersonnelForm() {
                                       <FormItem><FormLabel>المعهد</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`trainingCourses.${index}.courseType`} render={({ field }) => (
-                                    <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>النوع</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر النوع" /></SelectTrigger></FormControl><SelectContent><SelectItem value="داخلية">داخلية</SelectItem><SelectItem value="خارجية">خارجية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                                   )} />
                                   <FormField control={form.control} name={`trainingCourses.${index}.imperativeness`} render={({ field }) => (
-                                    <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>الحتمية</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحتمية" /></SelectTrigger></FormControl><SelectContent><SelectItem value="حتمية">حتمية</SelectItem><SelectItem value="غير حتمية">غير حتمية</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`trainingCourses.${index}.grade`} render={({ field }) => (
-                                    <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>التقدير</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التقدير" /></SelectTrigger></FormControl><SelectContent>{courseGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                   )} />
                                    <FormField control={form.control} name={`trainingCourses.${index}.periodFrom`} render={({ field }) => (
                                       <FormItem><FormLabel>الفترة من</FormLabel><Popover open={dateFieldOpen[`courseFrom${index}`]} onOpenChange={(open) => setDateFieldOpen(prev => ({...prev, [`courseFrom${index}`]: open}))}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-between pr-3 pl-3 text-left font-normal h-10", !field.value && "text-muted-foreground")}>{field.value ? (format(field.value, "d MMMM yyyy", { locale: arSA })) : (<span>اختر تاريخ</span>)}<CalendarIcon className="ml-auto h-4 w-4 opacity-50" /></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setDateFieldOpen(prev => ({...prev, [`courseFrom${index}`]: false}))}} disabled={(date) => date > new Date()} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>
@@ -838,7 +818,7 @@ export function AddPersonnelForm() {
                     <AccordionContent className="pt-4 space-y-8">
                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           <FormField control={form.control} name="status" render={({ field }) => (
-                              <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                              <FormItem><FormLabel>الحالة</FormLabel><Select dir="rtl" onValueChange={(value) => { field.onChange(value); form.setValue('statusDetail', ''); form.setValue('statusDate', undefined); }} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الحالة" /></SelectTrigger></FormControl><SelectContent>{statuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                           )} />
                           {statusesWithDetails.includes(statusValue) && (
                             statusRequiresDate.includes(statusValue) ? (
@@ -938,5 +918,3 @@ export function AddPersonnelForm() {
     </Form>
   );
 }
-
-    

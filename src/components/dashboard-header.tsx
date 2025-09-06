@@ -97,6 +97,7 @@ export function DashboardHeader() {
   }, []);
 
   const handleLogout = () => {
+    sessionStorage.removeItem('isAuthenticated');
     toast({ title: 'تم تسجيل الخروج بنجاح' });
     setLogoutModalOpen(false);
     router.push('/login');
