@@ -5,7 +5,7 @@ import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers"
 import { rankOrder } from "@/lib/constants";
 
 // This file acts as a service layer for personnel data.
-// Currently, it uses localStorage to simulate a database.
+// It uses an in-memory array and simulates async operations.
 
 export type Personnel = {
   id: number;
@@ -71,6 +71,22 @@ const initialPersonnelData: Personnel[] = [
     { id: 7, cardId: '30410150201240', name: 'عبدالله تركي', rank: 'فريق أول', specialization: 'لا يوجد', academicQualification: 'دكتوراه', major: 'استراتيجية وأمن قومي', batch: 'الدفعة 38', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: '1993-12-01T00:00:00.000Z', certificateType: 'مستديمة', bloodType: 'B-', maritalStatus: 'متزوج', religion: 'مسلم', state: 'الشمالية', city: 'دنقلا', locality: 'دنقلا', address: 'حي القصر', dateOfBirth: '1973-10-05T00:00:00.000Z', nationalId: '7890123456', phoneNumbers: { sudani: '0912345684' }, nextOfKinName: 'تركي عبدالله', nextOfKinPhone: '0912345676', nextOfKinAddress: 'دنقلا، حي القصر', importantJobs: [], serviceOperations: [], decisiveStorm: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], children: [], brothers: [], sisters: [], mechanisms: [], fatherName: 'تركي عبدالله', fatherAddress: 'دنقلا', motherName: 'حصة الفيصل', wifeName: 'لمياء خالد' },
 ];
 
+let personnelStore: Personnel[] = [];
+let isInitialized = false;
+
+function initializeData() {
+    if (!isInitialized) {
+        let data = getLocalStorage('personnelData', null);
+        if (data === null || data.length === 0) {
+            updateLocalStorage('personnelData', initialPersonnelData);
+            personnelStore = JSON.parse(JSON.stringify(initialPersonnelData));
+        } else {
+            personnelStore = data;
+        }
+        isInitialized = true;
+    }
+}
+
 
 async function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -101,15 +117,9 @@ const mapDatesToISO = (data: Partial<Personnel>): Partial<Personnel> => {
 
 export async function getAllPersonnel(): Promise<Personnel[]> {
   await delay(200); // Simulate network delay
-  
-  let data = getLocalStorage('personnelData', null);
-  
-  if (data === null || data.length === 0) {
-    updateLocalStorage('personnelData', initialPersonnelData);
-    data = initialPersonnelData;
-  }
+  initializeData();
     
-  const sortedData = data.sort((a: Personnel, b: Personnel) => {
+  const sortedData = [...personnelStore].sort((a: Personnel, b: Personnel) => {
     const rankA = rankOrder[a.rank] || 99;
     const rankB = rankOrder[b.rank] || 99;
     return rankA - rankB;
@@ -120,13 +130,13 @@ export async function getAllPersonnel(): Promise<Personnel[]> {
 
 export async function getPersonnelById(id: number): Promise<Personnel | undefined> {
   await delay(100);
-  const personnelList = getLocalStorage('personnelData', []) as Personnel[];
-  return personnelList.find(p => p.id === id);
+  initializeData();
+  return personnelStore.find(p => p.id === id);
 }
 
 export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Promise<Personnel> {
   await delay(300);
-  const personnelList = getLocalStorage('personnelData', []) as Personnel[];
+  initializeData();
 
   const processedData = mapDatesToISO(newPersonnelData);
   
@@ -135,19 +145,19 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
     id: Date.now(),
   } as Personnel;
 
-  const updatedList = [...personnelList, newPersonnel];
-  updateLocalStorage('personnelData', updatedList);
+  personnelStore.push(newPersonnel);
+  updateLocalStorage('personnelData', personnelStore);
   return newPersonnel;
 }
 
 export async function updatePersonnel(id: number, updatedData: Partial<Omit<Personnel, 'id'>>): Promise<Personnel> {
     await delay(300);
-    const personnelList = getLocalStorage('personnelData', []) as Personnel[];
+    initializeData();
 
     const processedData = mapDatesToISO(updatedData);
-
     let updatedPersonnel: Personnel | undefined;
-    const updatedList = personnelList.map(p => {
+
+    personnelStore = personnelStore.map(p => {
         if (p.id === id) {
             updatedPersonnel = { ...p, ...processedData };
             return updatedPersonnel;
@@ -159,18 +169,22 @@ export async function updatePersonnel(id: number, updatedData: Partial<Omit<Pers
         throw new Error("Personnel not found");
     }
 
-    updateLocalStorage('personnelData', updatedList);
+    updateLocalStorage('personnelData', personnelStore);
     return updatedPersonnel;
 }
 
 export async function deletePersonnel(id: number): Promise<void> {
     await delay(200);
-    const personnelList = getLocalStorage('personnelData', []) as Personnel[];
-    const updatedList = personnelList.filter(p => p.id !== id);
+    initializeData();
+    
+    const initialLength = personnelStore.length;
+    personnelStore = personnelStore.filter(p => p.id !== id);
 
-    if (personnelList.length === updatedList.length) {
+    if (initialLength === personnelStore.length) {
         throw new Error("Personnel not found to delete");
     }
 
-    updateLocalStorage('personnelData', updatedList);
+    updateLocalStorage('personnelData', personnelStore);
 }
+
+    

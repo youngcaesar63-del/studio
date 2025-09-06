@@ -204,7 +204,9 @@ export default function ReportsPage() {
     const formatDateSafely = (dateString: string | undefined): string => {
         if (!dateString) return "غير محدد";
         try {
-            return format(parseISO(dateString), 'd MMMM yyyy', { locale: arSA });
+            const date = parseISO(dateString);
+            if(isNaN(date.getTime())) return "تاريخ غير صالح";
+            return format(date, 'd MMMM yyyy', { locale: arSA });
         } catch {
             return "تاريخ غير صالح";
         }
@@ -562,5 +564,7 @@ export default function ReportsPage() {
   );
 }
 
+
+    
 
     
