@@ -195,10 +195,10 @@ export function DashboardHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center w-full"><span>الملف الشخصي</span><UserIcon className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center w-full"><span>الإعدادات</span><Settings className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center justify-end w-full"><span>الملف الشخصي</span><UserIcon className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link href="/dashboard/settings" className="flex items-center justify-end w-full"><span>الإعدادات</span><Settings className="mr-2 h-4 w-4"/></Link></DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center w-full">
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center justify-end w-full">
                   <span>تسجيل الخروج</span>
                   <LogOut className="mr-2 h-4 w-4"/>
                 </DropdownMenuItem>
@@ -215,8 +215,8 @@ export function DashboardHeader() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
