@@ -1,3 +1,4 @@
+
 const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 
@@ -18,7 +19,7 @@ function createWindow() {
 
   const appUrl = dev
     ? 'http://localhost:9002' // URL for development server
-    : `file://${path.join(__dirname, '../.next/server/app/index.html')}`; // Path to production build
+    : `file://${path.join(__dirname, '../out/index.html')}`; // Path to production build
 
   mainWindow.loadURL(appUrl);
 
