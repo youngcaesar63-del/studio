@@ -28,6 +28,9 @@ export default function LoginPage() {
         try {
             const usersData = await getAllUsers();
             setUsers(usersData);
+            if (usersData.length > 0 && !username) {
+                // setUsername(usersData[0].name); // Optionally default to the first user
+            }
         } catch (error) {
             toast({
                 title: 'خطأ',
