@@ -11,6 +11,9 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
+import type { User as UserData } from '@/services/users.service';
+import { updateUser } from '@/services/users.service';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const themes = [ 'افتراضي', 'أخضر غابي', 'رمادي حجري', 'برتقالي مشمس' ];
 
@@ -18,6 +21,11 @@ const themes = [ 'افتراضي', 'أخضر غابي', 'رمادي حجري', '
 export default function SettingsPage() {
     const { theme: mode, setTheme: setMode } = useTheme();
     const { toast } = useToast();
+    const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+    const [name, setName] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     
     const [notificationPreferences, setNotificationPreferences] = useState({
         email: true,
@@ -31,6 +39,13 @@ export default function SettingsPage() {
         const savedThemeName = localStorage.getItem('app-theme-name') || themes[0];
         document.documentElement.dataset.theme = savedThemeName;
         setActiveThemeName(savedThemeName);
+
+        const userData = sessionStorage.getItem('user');
+        if(userData) {
+            const user = JSON.parse(userData);
+            setCurrentUser(user);
+            setName(user.name);
+        }
     }, []);
 
     const handleSetTheme = (themeName: string) => {
@@ -46,18 +61,46 @@ export default function SettingsPage() {
     };
 
 
-    const handleSaveChanges = () => {
-        toast({
-            title: 'تم الحفظ',
-            description: 'تم حفظ تغييرات الملف الشخصي بنجاح.',
-        });
+    const handleSaveChanges = async () => {
+        if (!currentUser || !name.trim()) {
+            toast({ title: 'خطأ', description: 'اسم المستخدم لا يمكن أن يكون فارغًا.', variant: 'destructive' });
+            return;
+        }
+        try {
+            const updatedUser = await updateUser(currentUser.id, { name: name.trim() });
+            sessionStorage.setItem('user', JSON.stringify(updatedUser)); // Update session
+            setCurrentUser(updatedUser);
+            toast({
+                title: 'تم الحفظ',
+                description: 'تم حفظ تغييرات الملف الشخصي بنجاح.',
+            });
+        } catch (error) {
+            toast({ title: 'خطأ', description: 'فشل حفظ التغييرات.', variant: 'destructive' });
+        }
     };
 
-    const handlePasswordChange = () => {
-        toast({
-            title: 'تم تغيير كلمة المرور',
-            description: 'تم تحديث كلمة المرور الخاصة بك بنجاح.',
-        });
+    const handlePasswordChange = async () => {
+        if (!currentUser) return;
+        if (newPassword !== confirmPassword) {
+            toast({ title: 'خطأ', description: 'كلمتا المرور الجديدتان غير متطابقتين.', variant: 'destructive' });
+            return;
+        }
+        if (!newPassword || !currentPassword) {
+            toast({ title: 'خطأ', description: 'الرجاء ملء جميع حقول كلمة المرور.', variant: 'destructive' });
+            return;
+        }
+        try {
+            await updateUser(currentUser.id, { password: newPassword });
+            toast({
+                title: 'تم تغيير كلمة المرور',
+                description: 'تم تحديث كلمة المرور الخاصة بك بنجاح.',
+            });
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error) {
+             toast({ title: 'خطأ', description: 'فشل تغيير كلمة المرور. تأكد من كلمة المرور الحالية.', variant: 'destructive' });
+        }
     };
 
     const handleNotificationPreferences = () => {
@@ -82,7 +125,7 @@ export default function SettingsPage() {
                 </CardHeader>
             </Card>
 
-            <Tabs defaultValue="appearance" className="w-full" dir="rtl">
+            <Tabs defaultValue="profile" className="w-full" dir="rtl">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="profile"><User className="ml-2 h-4 w-4" />الملف الشخصي</TabsTrigger>
                     <TabsTrigger value="notifications"><Bell className="ml-2 h-4 w-4" />الإشعارات</TabsTrigger>
@@ -96,32 +139,36 @@ export default function SettingsPage() {
                             <CardDescription>تحديث بياناتك الشخصية وتغيير كلمة المرور.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">الاسم</Label>
-                                <Input id="name" defaultValue="مدير النظام" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">البريد الإلكتروني</Label>
-                                <Input id="email" type="email" defaultValue="admin@example.com" disabled />
-                            </div>
-                            <Button onClick={handleSaveChanges}>حفظ التغييرات</Button>
-                            <hr/>
-                             <div className="space-y-4">
-                                <h3 className="text-lg font-medium flex items-center gap-2"><Lock className="h-5 w-5" />تغيير كلمة المرور</h3>
+                            {!currentUser ? <Skeleton className="h-48 w-full" /> : 
+                            <>
                                 <div className="space-y-2">
-                                    <Label htmlFor="current-password">كلمة المرور الحالية</Label>
-                                    <Input id="current-password" type="password" />
+                                    <Label htmlFor="name">الاسم</Label>
+                                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
-                                    <Input id="new-password" type="password" />
+                                    <Label htmlFor="role">الدور</Label>
+                                    <Input id="role" value={currentUser.role} disabled />
                                 </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="confirm-password">تأكيد كلمة المرور الجديدة</Label>
-                                    <Input id="confirm-password" type="password" />
+                                <Button onClick={handleSaveChanges}>حفظ التغييرات</Button>
+                                <hr/>
+                                 <div className="space-y-4">
+                                    <h3 className="text-lg font-medium flex items-center gap-2"><Lock className="h-5 w-5" />تغيير كلمة المرور</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="current-password">كلمة المرور الحالية</Label>
+                                        <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}/>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="new-password">كلمة المرور الجديدة</Label>
+                                        <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}/>
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor="confirm-password">تأكيد كلمة المرور الجديدة</Label>
+                                        <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+                                    </div>
+                                    <Button onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
                                 </div>
-                                <Button onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
-                            </div>
+                            </>
+                            }
                         </CardContent>
                     </Card>
                 </TabsContent>

@@ -23,53 +23,45 @@ type UpcomingEvent = {
 
 const generateEvents = async (): Promise<UpcomingEvent[]> => {
     let events: UpcomingEvent[] = [];
-    const personnelData: Personnel[] = await getAllPersonnel();
-    const today = new Date();
+    try {
+        const personnelData: Personnel[] = await getAllPersonnel();
+        const today = new Date();
 
-    // Check for leave ending soon
-    personnelData.forEach(p => {
-        if (p.status === 'إجازة' && p.statusDate) {
-            try {
-                const endDate = parseISO(p.statusDate);
-                const daysRemaining = differenceInDays(endDate, today);
-                if (daysRemaining >= 0 && daysRemaining <= 7) {
-                    events.push({
-                        icon: Plane,
-                        iconBg: 'bg-amber-100 dark:bg-amber-900',
-                        iconColor: 'text-amber-600 dark:text-amber-300',
-                        title: `انتهاء إجازة: ${p.name}`,
-                        description: `تنتهي إجازة الضابط قريبًا.`,
-                        time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
-                    });
+        // Check for leave ending soon
+        personnelData.forEach(p => {
+            if (p.status === 'إجازة' && p.statusDate) {
+                try {
+                    const endDate = parseISO(p.statusDate);
+                    const daysRemaining = differenceInDays(endDate, today);
+                    if (daysRemaining >= 0 && daysRemaining <= 7) {
+                        events.push({
+                            icon: Plane,
+                            iconBg: 'bg-amber-100 dark:bg-amber-900',
+                            iconColor: 'text-amber-600 dark:text-amber-300',
+                            title: `انتهاء إجازة: ${p.name}`,
+                            description: `تنتهي إجازة الضابط قريبًا.`,
+                            time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
+                        });
+                    }
+                } catch(e) {
+                    console.error(`Invalid date for personnel ${p.id}: ${p.statusDate}`)
                 }
-            } catch(e) {
-                console.error(`Invalid date for personnel ${p.id}: ${p.statusDate}`)
             }
-        }
-        
-        if (p.status === 'دورة تدريبية' && p.statusDetail) {
-             events.push({
-                icon: Award,
-                iconBg: 'bg-blue-100 dark:bg-blue-900',
-                iconColor: 'text-blue-600 dark:text-blue-300',
-                title: `دورة تدريبية: ${p.name}`,
-                description: `يخضع حاليًا لدورة: ${p.statusDetail}`,
-                time: 'حاليًا',
-            });
-        }
-    });
-    
-    // Static event for example
-     events.push({ 
-        icon: Calendar, 
-        iconBg: 'bg-indigo-100 dark:bg-indigo-900', 
-        iconColor: 'text-indigo-600 dark:text-indigo-300', 
-        title: 'اجتماع الإدارة', 
-        description: 'اجتماع دوري لمناقشة سير العمل', 
-        time: 'غدًا - ١٠:٠٠ صباحًا' 
-    });
-
-
+            
+            if (p.status === 'دورة تدريبية' && p.statusDetail) {
+                 events.push({
+                    icon: Award,
+                    iconBg: 'bg-blue-100 dark:bg-blue-900',
+                    iconColor: 'text-blue-600 dark:text-blue-300',
+                    title: `دورة تدريبية: ${p.name}`,
+                    description: `يخضع حاليًا لدورة: ${p.statusDetail}`,
+                    time: 'حاليًا',
+                });
+            }
+        });
+    } catch(e) {
+        console.error("Failed to generate events", e);
+    }
     return events.slice(0, 3); // Return max 3 events
 };
 
@@ -84,6 +76,19 @@ export function UpcomingEvents() {
 
     useEffect(() => {
         fetchEvents();
+        
+        const handleStorageChange = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
+                fetchEvents();
+            }
+        };
+
+        window.addEventListener('storage-update', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage-update', handleStorageChange);
+        };
     }, [fetchEvents]);
     
     if (events.length === 0) {

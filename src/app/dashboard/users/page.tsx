@@ -28,6 +28,7 @@ type User = {
     role: string;
     lastLogin: string;
     status: 'نشط' | 'غير نشط';
+    password?: string;
 };
 
 type Role = {
@@ -45,10 +46,12 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const loadData = useCallback(() => {
     try {
-        const usersData = db.prepare('SELECT * FROM users').all() as User[];
+        const usersData = db.prepare('SELECT id, name, role, lastLogin, status FROM users').all() as User[];
         setUsers(usersData);
 
         const rolesData = db.prepare('SELECT name FROM roles').all() as { name: string }[];
@@ -67,6 +70,8 @@ export default function UsersPage() {
     setEditingUser(null);
     setUserName('');
     setUserRole('');
+    setPassword('');
+    setConfirmPassword('');
     setDialogOpen(true);
   }
 
@@ -74,6 +79,8 @@ export default function UsersPage() {
     setEditingUser(user);
     setUserName(user.name);
     setUserRole(user.role);
+    setPassword('');
+    setConfirmPassword('');
     setDialogOpen(true);
   };
 
@@ -83,28 +90,49 @@ export default function UsersPage() {
         return;
     }
 
+    if (!editingUser && !password) {
+        toast({ title: "خطأ", description: "الرجاء إدخال كلمة مرور للمستخدم الجديد.", variant: "destructive" });
+        return;
+    }
+    
+    if(password !== confirmPassword) {
+        toast({ title: "خطأ", description: "كلمتا المرور غير متطابقتين.", variant: "destructive" });
+        return;
+    }
+
     try {
       if (editingUser) {
           // Edit existing user
-          const stmt = db.prepare('UPDATE users SET name = ?, role = ? WHERE id = ?');
-          stmt.run(userName, userRole, editingUser.id);
+          const updates: Partial<User> = { name: userName, role: userRole };
+          if(password) {
+              updates.password = password;
+          }
+          const columns = Object.keys(updates).map(k => `${k} = ?`).join(', ');
+          const values = [...Object.values(updates), editingUser.id];
+          const stmt = db.prepare(`UPDATE users SET ${columns} WHERE id = ?`);
+          stmt.run(...values);
           toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
       } else {
           // Add new user
           const newUser: Omit<User, 'id' | 'lastLogin'> = {
               name: userName,
+              password: password,
               role: userRole,
               status: 'نشط',
           };
-          const stmt = db.prepare('INSERT INTO users (name, role, status, lastLogin) VALUES (?, ?, ?, ?)');
-          stmt.run(newUser.name, newUser.role, newUser.status, 'لم يسجل دخول بعد');
+          const stmt = db.prepare('INSERT INTO users (name, password, role, status, lastLogin) VALUES (?, ?, ?, ?, ?)');
+          stmt.run(newUser.name, newUser.password, newUser.role, newUser.status, 'لم يسجل دخول بعد');
           toast({ title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
       }
       loadData(); // Reload data from DB
       setDialogOpen(false);
-    } catch(error) {
+    } catch(error: any) {
       console.error("Failed to save user", error);
-      toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
+       if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+            toast({ title: 'خطأ', description: 'اسم المستخدم هذا موجود بالفعل.', variant: 'destructive'});
+        } else {
+            toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
+        }
     }
   };
 
@@ -205,6 +233,31 @@ export default function UsersPage() {
                   )) : <div className='p-4 text-sm text-muted-foreground text-center'>لا توجد أدوار، يرجى إضافتها من صفحة الصلاحيات.</div>}
                 </SelectContent>
               </Select>
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="password" className="text-right">
+                كلمة المرور
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="col-span-3"
+                placeholder={editingUser ? 'اتركها فارغة لعدم التغيير' : ''}
+              />
+            </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="confirm-password" className="text-right">
+                تأكيد المرور
+              </Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="col-span-3"
+              />
             </div>
           </div>
           <DialogFooter>

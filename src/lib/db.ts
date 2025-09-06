@@ -165,7 +165,8 @@ if (!dbExists) {
     -- Users Table
     CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
+        password TEXT,
         role TEXT NOT NULL,
         lastLogin TEXT,
         status TEXT NOT NULL
@@ -195,33 +196,11 @@ if (!dbExists) {
   `;
   db.exec(createTablesScript);
 
-  // Seed initial data
-    const initialPersonnelData = [
-        { id: 1, cardId: '29804150201234', name: 'أحمد محمد علي', rank: 'نقيب', specialization: 'لا يوجد', academicQualification: 'بكالوريوس', major: 'علوم حاسوب', batch: 'الدفعة 65', administration: 'رئاسة الهيئة', status: 'بالطابور', appointmentDate: '2020-10-01T00:00:00.000Z', certificateType: 'مستديمة', bloodType: 'A+', maritalStatus: 'أعزب', religion: 'مسلم', state: 'الخرطوم', city: 'الخرطوم', locality: 'بحري', address: 'شارع النيل', dateOfBirth: '1998-04-15T00:00:00.000Z', nationalId: '1234567890', phoneNumbers: { sudani: '0912345678' }, nextOfKinName: 'محمد علي', nextOfKinPhone: '0912345670', nextOfKinAddress: 'الخرطوم، بحري', importantJobs: [], serviceOperations: [], decisiveStorm: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], children: [], brothers: [], sisters: [], mechanisms: [], fatherName: 'محمد علي', fatherAddress: 'الخرطوم', motherName: 'فاطمة أحمد', wifeName: '' },
-        { id: 2, cardId: '29905150201235', name: 'محمد خالد سعيد', rank: 'رائد', specialization: 'طيار', academicQualification: 'ماجستير', major: 'هندسة طيران', batch: 'الدفعة 62', administration: 'الإدارة العامة للأمن العسكري', status: 'إجازة', statusDate: '2024-08-15T00:00:00.000Z', appointmentDate: '2018-05-20T00:00:00.000Z', certificateType: 'مستديمة', bloodType: 'O+', maritalStatus: 'متزوج', religion: 'مسلم', state: 'الجزيرة', city: 'ود مدني', locality: 'شرق الجزيرة', address: 'حي المطار', dateOfBirth: '1990-05-15T00:00:00.000Z', nationalId: '2345678901', phoneNumbers: { zain: '0912345679' }, nextOfKinName: 'خالد سعيد', nextOfKinPhone: '0912345671', nextOfKinAddress: 'ود مدني، حي المطار', importantJobs: [], serviceOperations: [], decisiveStorm: [], trainingCourses: [], serviceHistory: [], medals: [], languages: [], children: [], brothers: [], sisters: [], mechanisms: [], fatherName: 'خالد سعيد', fatherAddress: 'ود مدني', motherName: 'عائشة الحسن', wifeName: 'سارة عمر' },
-    ];
-    
-    const stmt = db.prepare(`
-        INSERT INTO personnel (name, cardId, rank, specialization, academicQualification, major, batch, administration, status, statusDate, appointmentDate, certificateType, bloodType, maritalStatus, religion, state, city, locality, address, dateOfBirth, nationalId, phoneNumbers, nextOfKinName, nextOfKinPhone, nextOfKinAddress, fatherName, fatherAddress, motherName, wifeName)
-        VALUES (@name, @cardId, @rank, @specialization, @academicQualification, @major, @batch, @administration, @status, @statusDate, @appointmentDate, @certificateType, @bloodType, @maritalStatus, @religion, @state, @city, @locality, @address, @dateOfBirth, @nationalId, @phoneNumbers, @nextOfKinName, @nextOfKinPhone, @nextOfKinAddress, @fatherName, @fatherAddress, @motherName, @wifeName)
-    `);
-    
-    const insertMany = db.transaction((personnel) => {
-        for (const person of personnel) {
-            stmt.run({
-                ...person,
-                phoneNumbers: JSON.stringify(person.phoneNumbers),
-            });
-        }
-    });
-    
-    insertMany(initialPersonnelData);
-
-    // Seed initial user
-    const insertUser = db.prepare("INSERT INTO users (id, name, role, lastLogin, status) VALUES (?, ?, ?, ?, ?)");
-    insertUser.run(1, 'مدير النظام', 'مسؤول', '2024-05-20 10:30 ص', 'نشط');
-    
-    console.log('Database initialized and seeded.');
+  // Seed initial user
+  const insertUser = db.prepare("INSERT INTO users (id, name, password, role, lastLogin, status) VALUES (?, ?, ?, ?, ?, ?)");
+  insertUser.run(1, 'مدير النظام', 'password', 'مسؤول', 'لم يسجل دخول بعد', 'نشط');
+  
+  console.log('Database initialized and seeded.');
 }
 
 // Enable WAL mode for better concurrency

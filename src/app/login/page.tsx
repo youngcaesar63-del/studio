@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { getAllUsers } from '@/services/users.service';
-import type { User as UserData } from '@/services/users.service';
+import { login } from '@/services/users.service';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,31 +20,38 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // In a real app, you'd verify against a database
-      if (password === 'password' && username) {
-        
-        sessionStorage.setItem('isAuthenticated', 'true');
+    try {
+        const user = await login(username, password);
+        if (user) {
+            sessionStorage.setItem('isAuthenticated', 'true');
+            sessionStorage.setItem('user', JSON.stringify(user));
 
+            toast({
+                title: 'تم تسجيل الدخول بنجاح',
+                description: `مرحباً بعودتك، ${user.name}!`,
+            });
+            router.push('/dashboard/welcome');
+        } else {
+            toast({
+                title: 'خطأ في تسجيل الدخول',
+                description: 'اسم المستخدم أو كلمة المرور غير صحيحة.',
+                variant: 'destructive',
+            });
+            setIsLoading(false);
+        }
+    } catch (error) {
+        console.error(error);
         toast({
-          title: 'تم تسجيل الدخول بنجاح',
-          description: `مرحباً بعودتك، ${username}!`,
-        });
-        router.push('/dashboard/welcome');
-      } else {
-        toast({
-          title: 'خطأ في تسجيل الدخول',
-          description: 'اسم المستخدم أو كلمة المرور غير صحيحة.',
-          variant: 'destructive',
+            title: 'خطأ في تسجيل الدخول',
+            description: 'حدث خطأ أثناء محاولة تسجيل الدخول.',
+            variant: 'destructive',
         });
         setIsLoading(false);
-      }
-    }, 1500);
+    }
   };
 
   return (

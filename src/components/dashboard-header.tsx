@@ -28,6 +28,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
 import { getAllPersonnel } from '@/services/personnel.service';
+import type { User } from '@/services/users.service';
 
 
 type Notification = {
@@ -45,40 +46,24 @@ const formatArabicNumber = (num: number) => {
 
 const generateNotifications = async (): Promise<Notification[]> => {
     let notifications: Notification[] = [];
-    const personnelData = await getAllPersonnel();
-    
-    // Check for incomplete data
-    const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
-    if (incompletePersonnel.length > 0) {
-        notifications.push({
-            id: 'incomplete-data',
-            title: 'بيانات غير مكتملة',
-            description: `هناك ${formatArabicNumber(incompletePersonnel.length)} ضباط ببيانات غير مكتملة تحتاج إلى مراجعة.`,
-            icon: AlertTriangle,
-            style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 focus:bg-red-100 dark:focus:bg-red-800/50',
-            time: 'الآن',
-        });
+    try {
+        const personnelData = await getAllPersonnel();
+        
+        // Check for incomplete data
+        const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
+        if (incompletePersonnel.length > 0) {
+            notifications.push({
+                id: 'incomplete-data',
+                title: 'بيانات غير مكتملة',
+                description: `هناك ${formatArabicNumber(incompletePersonnel.length)} ضباط ببيانات غير مكتملة تحتاج إلى مراجعة.`,
+                icon: AlertTriangle,
+                style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 focus:bg-red-100 dark:focus:bg-red-800/50',
+                time: 'الآن',
+            });
+        }
+    } catch(e) {
+        console.error("Failed to generate notifications", e);
     }
-
-    // Static notifications
-    notifications.push({
-        id: 'renewal-dates',
-        title: 'مواعيد تجديد',
-        description: `هناك ${formatArabicNumber(12)} وثيقة تحتاج إلى تجديد خلال الشهر القادم.`,
-        icon: Clock,
-        style: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 focus:bg-amber-100 dark:focus:bg-amber-800/50',
-        time: 'تذكير',
-    });
-
-    notifications.push({
-        id: 'performance-review',
-        title: 'مراجعة الأداء',
-        description: 'حان وقت مراجعة أداء الضباط للربع الحالي.',
-        icon: UserCheck,
-        style: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 focus:bg-blue-100 dark:focus:bg-blue-800/50',
-        time: 'تذكير',
-    });
-
     return notifications;
 };
 
@@ -89,6 +74,14 @@ export function DashboardHeader() {
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
   const [readNotifications, setReadNotifications] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const userData = sessionStorage.getItem('user');
+    if(userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
         const allNotifications = await generateNotifications();
@@ -101,6 +94,7 @@ export function DashboardHeader() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('user');
     toast({ title: 'تم تسجيل الخروج بنجاح' });
     setLogoutModalOpen(false);
     router.push('/login');
@@ -156,16 +150,16 @@ export function DashboardHeader() {
             <DropdownMenuContent className="w-80" align="end">
               <div className="p-2">
                 <div className="flex justify-between items-center mb-3 px-2">
-                  <h4 className="font-bold text-foreground">الإشعارات</h4>
-                  {activeNotifications.length > 0 &&
+                   <h4 className="font-bold text-foreground text-right">الإشعارات</h4>
+                   {activeNotifications.length > 0 &&
                     <Button variant="link" className="text-xs h-auto p-0" onClick={clearNotifications}>تعيين الكل كمقروء</Button>
                   }
                 </div>
                 <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activeNotifications.length > 0 ? activeNotifications.map((notification, index) => (
-                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3 text-right">
+                       <DropdownMenuItem key={notification.id} className="p-2 rounded-lg cursor-pointer flex items-start gap-3">
                            <notification.icon className="h-5 w-5 mt-1 flex-shrink-0" />
-                           <div className="flex-grow">
+                           <div className="flex-grow text-right">
                                <p className="text-sm font-medium">{notification.title}</p>
                                <p className="text-xs text-muted-foreground">{notification.description}</p>
                                <p className="text-xs text-muted-foreground/80 mt-1">{notification.time}</p>
@@ -187,28 +181,30 @@ export function DashboardHeader() {
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <UserIcon className="h-5 w-5 text-primary" />
                 </div>
-                <div className='text-right'>
-                    <p className='text-sm font-medium'>مدير النظام</p>
-                    <p className='text-xs text-muted-foreground'>مسؤول</p>
-                </div>
+                {currentUser && (
+                    <div className='text-right'>
+                        <p className='text-sm font-medium'>{currentUser.name}</p>
+                        <p className='text-xs text-muted-foreground'>{currentUser.role}</p>
+                    </div>
+                )}
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
-                  <span>الملف الشخصي</span>
-                  <UserIcon className="h-4 w-4"/>
+                <Link href="/dashboard/settings" className="flex items-center w-full gap-2 justify-end">
+                   <span>الملف الشخصي</span>
+                   <UserIcon className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings" className="flex items-center w-full justify-end gap-2">
-                  <span>الإعدادات</span>
-                  <Settings className="h-4 w-4"/>
+                <Link href="/dashboard/settings" className="flex items-center w-full gap-2 justify-end">
+                   <span>الإعدادات</span>
+                   <Settings className="h-4 w-4"/>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive justify-end gap-2">
+                <DropdownMenuItem onSelect={() => setLogoutModalOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center w-full gap-2 justify-end">
                   <span>تسجيل الخروج</span>
                   <LogOut className="h-4 w-4"/>
                 </DropdownMenuItem>
@@ -225,8 +221,8 @@ export function DashboardHeader() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
+             <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">تسجيل الخروج</AlertDialogAction>
+             <AlertDialogCancel>إلغاء</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
