@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { Combobox } from '@/components/ui/combobox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAllUsers } from '@/services/users.service';
 import type { User as UserData } from '@/services/users.service';
 
@@ -99,13 +99,18 @@ export default function LoginPage() {
               <Label htmlFor="username" className="col-span-3 text-right">اسم المستخدم</Label>
               <div className="relative col-span-9">
                 <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
-                 <Combobox
-                    options={userOptions}
-                    value={username}
-                    onChange={setUsername}
-                    placeholder="اختر اسم المستخدم"
-                    filterPlaceholder="ابحث عن مستخدم..."
-                  />
+                 <Select dir="rtl" value={username} onValueChange={setUsername}>
+                    <SelectTrigger id="username" className="pr-10">
+                        <SelectValue placeholder="اختر اسم المستخدم" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {userOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="grid grid-cols-12 items-center gap-4">
