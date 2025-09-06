@@ -82,7 +82,7 @@ export default function SettingsPage() {
                 </CardHeader>
             </Card>
 
-            <Tabs defaultValue="profile" className="w-full" dir="rtl">
+            <Tabs defaultValue="appearance" className="w-full" dir="rtl">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="profile"><User className="ml-2 h-4 w-4" />الملف الشخصي</TabsTrigger>
                     <TabsTrigger value="notifications"><Bell className="ml-2 h-4 w-4" />الإشعارات</TabsTrigger>
