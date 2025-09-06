@@ -16,9 +16,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <AuthGuard>
       <div className={cn("min-h-screen w-full bg-muted/40", isWelcomePage && "flex flex-col")}>
         {!isWelcomePage && <DashboardHeader />}
-        <div className={cn("container mx-auto py-6 px-4 flex rtl:space-x-reverse space-x-6 relative", isWelcomePage && "flex-grow flex items-center justify-center p-0 m-0")}>
+        <div className={cn("flex", isWelcomePage && "flex-grow")}>
           {!isWelcomePage && <DashboardSidebar />}
-          <main className={cn("flex-1", isWelcomePage && "w-full h-full")}>
+          <main className={cn("flex-1 p-6", isWelcomePage && "flex items-center justify-center p-0 m-0 w-full h-full")}>
             {children}
           </main>
         </div>

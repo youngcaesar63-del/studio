@@ -90,7 +90,7 @@ const NavContent = () => {
 export function DashboardSidebar() {
   return (
     <>
-      <aside className="w-64 bg-card text-card-foreground rounded-lg shadow-md mr-6 h-fit sticky top-24 transition-all duration-300 hidden lg:block no-print">
+      <aside className="w-64 bg-card text-card-foreground rounded-lg shadow-md m-6 mr-0 h-fit sticky top-24 transition-all duration-300 hidden lg:block no-print">
         <NavContent />
       </aside>
       <Sheet>
