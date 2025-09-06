@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getAllUsers } from '@/services/users.service';
+import type { User } from '@/services/users.service';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +21,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+        try {
+            const usersData = await getAllUsers();
+            setUsers(usersData);
+        } catch (error) {
+            toast({
+                title: 'خطأ',
+                description: 'فشل تحميل قائمة المستخدمين.',
+                variant: 'destructive',
+            });
+        }
+    }
+    fetchUsers();
+  }, [toast]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +45,14 @@ export default function LoginPage() {
 
     // Simulate API call
     setTimeout(() => {
-      if (username === 'admin' && password === 'password') {
+      // In a real app, you'd verify against the selected user
+      if (password === 'password') {
         
         sessionStorage.setItem('isAuthenticated', 'true');
 
         toast({
           title: 'تم تسجيل الدخول بنجاح',
-          description: 'مرحباً بعودتك!',
+          description: `مرحباً بعودتك، ${username || 'مسؤول'}!`,
         });
         router.push('/dashboard/welcome');
       } else {
@@ -70,14 +91,16 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="username">اسم المستخدم</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="ادخل اسم المستخدم"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+              <Select dir="rtl" onValueChange={setUsername} value={username} required>
+                <SelectTrigger id="username">
+                  <SelectValue placeholder="اختر اسم المستخدم" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map(user => (
+                    <SelectItem key={user.id} value={user.name}>{user.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">كلمة المرور</Label>
@@ -103,7 +126,7 @@ export default function LoginPage() {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || !username}>
               {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
             </Button>
           </form>
