@@ -360,9 +360,7 @@ export function AddPersonnelForm() {
                                 <FormField control={form.control} name="rank" render={({ field }) => (
                                     <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
-                                 <FormField control={form.control} name="jobTitle" render={({ field }) => (
-                                    <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )} />
+                                 
                                 <FormField control={form.control} name="specialization" render={({ field }) => (
                                     <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
                                 )} />
