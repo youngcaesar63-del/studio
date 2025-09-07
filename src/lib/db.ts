@@ -198,7 +198,7 @@ if (!dbExists) {
 
   // Seed initial user
   const insertUser = db.prepare("INSERT INTO users (id, name, password, role, lastLogin, status) VALUES (?, ?, ?, ?, ?, ?)");
-  insertUser.run(1, 'مدير النظام', 'password', 'مسؤول', 'لم يسجل دخول بعد', 'نشط');
+  insertUser.run(1, 'ahmed', '1234', 'مدير', 'لم يسجل دخول بعد', 'نشط');
   
   console.log('Database initialized and seeded.');
 }
