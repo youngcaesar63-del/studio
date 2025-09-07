@@ -35,7 +35,7 @@ const getBackups = () => db.prepare("SELECT id, date, size, status FROM settings
 
 const getBackupData = (backupId: string) => {
     const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(`backup-${backupId}`) as { value: string };
-    return row ? JSON.parse(row.value) : null;
+    return row ? JSON.parse(row.value).data : null;
 };
 
 
@@ -63,7 +63,20 @@ export default function BackupPage() {
             const settings = settingsRow ? JSON.parse(settingsRow.value) : { enabled: false, frequency: 'weekly' };
             
             setAutoBackupSettings(settings);
-            setBackupHistory(getBackups());
+            
+            const rawBackups = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'backup-%' ORDER BY JSON_EXTRACT(value, '$.date') DESC").all() as { key: string, value: string }[];
+            const parsedBackups = rawBackups.map(b => {
+              const val = JSON.parse(b.value);
+              return {
+                id: val.id,
+                date: val.date,
+                size: val.size,
+                status: val.status,
+              }
+            });
+
+            setBackupHistory(parsedBackups);
+
         } catch (error) {
             console.error("Failed to load backup data", error);
         }
@@ -93,14 +106,14 @@ export default function BackupPage() {
             const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
             const sizeInMB = (blob.size / (1024 * 1024)).toFixed(2);
             
-            const backupId = `backup-${Date.now()}`;
-            const newBackup: Omit<Backup, 'data'> & {key: string; value: string} = {
-                id: Date.now().toString(),
-                key: backupId,
+            const backupId = Date.now().toString();
+            const newBackup = {
+                id: backupId,
+                key: `backup-${backupId}`,
                 date: new Date().toISOString(),
                 size: `${sizeInMB} MB`,
                 status: 'مكتمل',
-                value: dataString
+                data: allData
             };
 
             const stmt = db.prepare("INSERT INTO settings (key, value) VALUES (@key, @value)");
@@ -111,7 +124,7 @@ export default function BackupPage() {
                    size: newBackup.size,
                    status: newBackup.status,
                    id: newBackup.id,
-                   data: allData
+                   data: newBackup.data
                 })
             });
 
@@ -275,11 +288,16 @@ export default function BackupPage() {
     };
     
     const formatDateSafely = (dateString: string) => {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            return format(date, "d MMMM yyyy, h:mm:ss a", { locale: arSA });
+        if (!dateString) return "تاريخ غير متوفر";
+        try {
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) {
+            return "تاريخ غير صالح";
+          }
+          return format(date, "d MMMM yyyy, h:mm:ss a", { locale: arSA });
+        } catch(e) {
+            return "تاريخ غير صالح";
         }
-        return "تاريخ غير صالح";
     };
 
     const handleAutoBackupSettingsChange = (key: keyof AutoBackupSettings, value: any) => {

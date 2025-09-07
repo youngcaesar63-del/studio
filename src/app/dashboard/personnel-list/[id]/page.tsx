@@ -484,10 +484,10 @@ export default function ViewPersonnelPage() {
                     <TooltipTrigger asChild>
                         <Button
                             onClick={() => router.back()}
-                            className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg flex items-center justify-center z-50"
+                            className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg z-50"
+                            aria-label="العودة"
                         >
                            <ArrowRight className="h-6 w-6" />
-                           <span className="sr-only">العودة</span>
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent side="right">

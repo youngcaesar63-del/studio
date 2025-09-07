@@ -80,7 +80,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <Label htmlFor="username" className="text-right">اسم المستخدم</Label>
               <div className="relative">
-                <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+                <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                  <Input
                   id="username"
                   type="text"

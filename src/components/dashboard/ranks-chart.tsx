@@ -28,6 +28,16 @@ const rankColors: { [key: string]: string } = {
 
 const chartConfig = {
   personnel: { label: 'ضباط' },
+  'ملازم': { label: 'ملازم', color: 'hsl(var(--chart-1))' },
+  'ملازم أول': { label: 'ملازم أول', color: 'hsl(var(--chart-2))' },
+  'نقيب': { label: 'نقيب', color: 'hsl(var(--chart-3))' },
+  'رائد': { label: 'رائد', color: 'hsl(var(--chart-4))' },
+  'مقدم': { label: 'مقدم', color: 'hsl(var(--chart-5))' },
+  'عقيد': { label: 'عقيد', color: '#F59E0B' },
+  'عميد': { label: 'عميد', color: '#10B981' },
+  'لواء': { label: 'لواء', color: '#3B82F6' },
+  'فريق': { label: 'فريق', color: '#6366F1' },
+  'فريق أول': { label: 'فريق أول', color: '#8B5CF6' },
 };
 
 export function RanksChart() {
@@ -116,7 +126,7 @@ export function RanksChart() {
           {chartType === 'doughnut' ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" hideLabel />} />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" nameKey="rank" />} />
                 <Pie
                   data={chartData}
                   dataKey="personnel"
