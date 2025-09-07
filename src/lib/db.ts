@@ -223,12 +223,12 @@ function initializeDatabase() {
 
   // Seed initial user if not present
   try {
-    const defaultPassword = 'manager123';
     const insertUser = db.prepare(`
       INSERT OR IGNORE INTO users (id, name, password, role, lastLogin, status) 
       VALUES (1, 'manager', ?, 'مدير', 'لم يسجل دخول بعد', 'نشط')
     `);
-    insertUser.run(defaultPassword);
+    // NOTE: In a real app, hash this password. For this project, it's plaintext.
+    insertUser.run('manager123'); 
   } catch (error: any) {
     console.error('Failed to seed default user:', error);
   }

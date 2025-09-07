@@ -24,7 +24,6 @@ export async function login(username: string, password: string):Promise<User | n
     const user = stmt.get(username) as User | undefined;
     
     // In a real app, you would use a library like bcrypt to compare a hashed password.
-    // For this project, we'll do a simple string comparison for the default password.
     if (!user || user.password !== password) {
       return null;
     }
