@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -97,7 +98,7 @@ export function RanksChart() {
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
           {chartType === 'doughnut' ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" nameKey="rank" />} />
                 <Pie
@@ -123,7 +124,7 @@ export function RanksChart() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-             <ResponsiveContainer width="100%" height={300}>
+             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} layout="vertical" margin={{ right: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" hide />
