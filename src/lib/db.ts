@@ -6,7 +6,7 @@ import path from 'path';
 const dbPath = path.join(process.cwd(), 'db.sqlite');
 const dbExists = fs.existsSync(dbPath);
 
-const db = new Database(dbPath, { verbose: console.log });
+const db = new Database(dbPath);
 
 if (!dbExists) {
   console.log('Database does not exist, initializing...');
@@ -166,7 +166,7 @@ if (!dbExists) {
     CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        password TEXT,
+        password TEXT NOT NULL,
         role TEXT NOT NULL,
         lastLogin TEXT,
         status TEXT NOT NULL
