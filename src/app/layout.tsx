@@ -27,7 +27,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const theme = localStorage.getItem('app-theme-name') || 'افتراضي';
+                const theme = localStorage.getItem('app-theme-name') || 'برتقالي مشمس';
                 document.documentElement.setAttribute('data-theme', theme);
               })();
             `,
