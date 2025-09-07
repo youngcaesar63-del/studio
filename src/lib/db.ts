@@ -215,7 +215,7 @@ function initializeDatabase() {
   try {
     const insertUser = db.prepare(`
       INSERT OR IGNORE INTO users (id, name, password, role, lastLogin, status) 
-      VALUES (1, 'admin', 'admin', 'مدير', 'لم يسجل دخول بعد', 'نشط')
+      VALUES (1, 'manager', 'password', 'مدير', 'لم يسجل دخول بعد', 'نشط')
     `);
     insertUser.run();
   } catch (error: any) {
