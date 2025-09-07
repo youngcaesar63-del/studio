@@ -13,8 +13,8 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
       <Image 
         src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={140} 
-        height={140} 
+        width={100} 
+        height={100} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg"
@@ -27,8 +27,8 @@ const GeneralStaffLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
       <Image 
         src="https://i.postimg.cc/s2qS0JsR/86bed723-4023-4a33-b9eb-0adca9006dfd-removebg-preview.png" 
         alt="شعار رئاسة هيئة الأركان" 
-        width={140} 
-        height={140} 
+        width={100} 
+        height={100} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg"
@@ -62,8 +62,8 @@ export default function WelcomePage() {
     const dateTimeTimer = setInterval(() => {
       const now = new Date();
       const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Khartoum' };
-      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Africa/Khartoum' };
-      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Africa/Khartoum' };
+      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
+      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
 
       setTime(new Intl.DateTimeFormat('ar-SA-u-nu-latn', timeOptions).format(now));
       setDate({

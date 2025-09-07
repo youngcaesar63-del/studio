@@ -20,7 +20,7 @@ export function DateTimeDisplay() {
       const hijriDateString = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now);
       setHijriDate(hijriDateString);
       
-      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: 'Africa/Khartoum' };
+      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
       const gregorianDateString = new Intl.DateTimeFormat('ar-SA-u-nu-latn', gregorianDateOptions).format(now);
       setGregorianDate(gregorianDateString);
     };
