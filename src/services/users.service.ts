@@ -20,11 +20,11 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function login(username: string, password: string):Promise<User | null> {
-    const stmt = db.prepare('SELECT * FROM users WHERE name = ? AND password = ?');
-    const user = stmt.get(username, password) as User | undefined;
+    const stmt = db.prepare('SELECT * FROM users WHERE name = ?');
+    const user = stmt.get(username) as User | undefined;
     
-    // if a user is found, the credentials are correct
-    if (user) {
+    // if a user is found, check password
+    if (user && user.password === password) {
         // Update last login
         const updateStmt = db.prepare("UPDATE users SET lastLogin = ? WHERE id = ?");
         updateStmt.run(new Date().toISOString(), user.id);

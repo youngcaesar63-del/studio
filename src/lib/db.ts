@@ -197,8 +197,8 @@ if (!dbExists) {
   db.exec(createTablesScript);
 
   // Seed initial user
-  const insertUser = db.prepare("INSERT INTO users (id, name, password, role, lastLogin, status) VALUES (?, ?, ?, ?, ?, ?)");
-  insertUser.run(1, 'admin', 'admin', 'مدير', 'لم يسجل دخول بعد', 'نشط');
+  const insertUser = db.prepare("INSERT INTO users (id, name, password, role, lastLogin, status) VALUES (1, 'admin', 'admin', 'مدير', 'لم يسجل دخول بعد', 'نشط')");
+  insertUser.run();
   
   console.log('Database initialized and seeded.');
 }
