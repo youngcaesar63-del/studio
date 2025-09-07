@@ -12,8 +12,8 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
       <Image 
         src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={100} 
-        height={100} 
+        width={160} 
+        height={160} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg"
@@ -26,8 +26,8 @@ const GeneralStaffLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
       <Image 
         src="https://i.postimg.cc/s2qS0JsR/86bed723-4023-4a33-b9eb-0adca9006dfd-removebg-preview.png" 
         alt="شعار رئاسة هيئة الأركان" 
-        width={100} 
-        height={100} 
+        width={144} 
+        height={144} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg"
@@ -66,7 +66,7 @@ export default function WelcomePage() {
 
       setTime(new Intl.DateTimeFormat('ar-SA-u-nu-latn', timeOptions).format(now));
       setDate({
-        hijri: new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now),
+        hijri: new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now).replace('،', ''),
         gregorian: new Intl.DateTimeFormat('ar-SA-u-nu-latn', gregorianDateOptions).format(now),
       });
       setLoading(false);
@@ -86,17 +86,17 @@ export default function WelcomePage() {
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
-        <div className="flex justify-around items-center w-full mb-8 md:mb-16">
-          <GeneralStaffLogo className="w-36 h-36" />
-          <div className="text-center px-2">
+        <div className="flex justify-around items-center w-full mb-8">
+          <GeneralStaffLogo />
+          <div className="text-center px-4">
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
             <h2 className="text-2xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-40 h-40" />
+          <MilitaryIntelligenceLogo />
         </div>
 
 
-        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl mt-4">
+        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl mt-8">
             {loading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-8 w-1/3 mx-auto" />
@@ -112,7 +112,7 @@ export default function WelcomePage() {
                 <div className="flex flex-col gap-3 text-muted-foreground">
                     <div className="flex items-center justify-center gap-2 text-base md:text-lg">
                         <Calendar className="h-5 w-5" />
-                        <span>{date.hijri.replace(/،/g, '')}</span>
+                        <span>{date.hijri}</span>
                     </div>
                      <div className="flex items-center justify-center gap-2 text-xs md:text-sm">
                         <Calendar className="h-4 w-4 opacity-70" />
@@ -127,7 +127,7 @@ export default function WelcomePage() {
             )}
         </div>
 
-        <div className="w-full max-w-lg mt-10 space-y-2">
+        <div className="w-full max-w-lg mt-12 space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground animate-pulse">...جاري توجيهك إلى لوحة التحكم</p>
         </div>
