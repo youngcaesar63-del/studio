@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -27,7 +26,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
-import { getAllPersonnel } from '@/services/personnel.service';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 import type { User } from '@/services/users.service';
 
 
@@ -44,11 +43,9 @@ const formatArabicNumber = (num: number) => {
     return new Intl.NumberFormat('ar-EG').format(num);
 }
 
-const generateNotifications = async (): Promise<Notification[]> => {
+const generateNotifications = (personnelData: any[]): Notification[] => {
     let notifications: Notification[] = [];
     try {
-        const personnelData = await getAllPersonnel();
-        
         // Check for incomplete data
         const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
         if (incompletePersonnel.length > 0) {
@@ -71,6 +68,7 @@ const generateNotifications = async (): Promise<Notification[]> => {
 export function DashboardHeader() {
   const { setTheme } = useTheme();
   const router = useRouter();
+  const { personnel, loading } = usePersonnel();
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const [activeNotifications, setActiveNotifications] = useState<Notification[]>([]);
   const [readNotifications, setReadNotifications] = useState<string[]>([]);
@@ -83,14 +81,13 @@ export function DashboardHeader() {
     }
   }, []);
 
-  const fetchNotifications = useCallback(async () => {
-        const allNotifications = await generateNotifications();
-        setActiveNotifications(allNotifications.filter(n => !readNotifications.includes(n.id)));
-  }, [readNotifications]);
-
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    if (!loading && personnel.length > 0) {
+      const allNotifications = generateNotifications(personnel);
+      setActiveNotifications(allNotifications.filter(n => !readNotifications.includes(n.id)));
+    }
+  }, [personnel, loading, readNotifications]);
+
 
   const handleLogout = () => {
     sessionStorage.removeItem('isAuthenticated');
@@ -100,8 +97,8 @@ export function DashboardHeader() {
     router.push('/login');
   };
 
-  const clearNotifications = async () => {
-    const allNotifications = await generateNotifications();
+  const clearNotifications = () => {
+    const allNotifications = generateNotifications(personnel);
     const allNotificationIds = allNotifications.map(n => n.id);
     setReadNotifications(allNotificationIds);
     toast({

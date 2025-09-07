@@ -1,9 +1,8 @@
-
 'use client';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { useEffect, useState, useCallback } from 'react';
-import { getAllPersonnel } from '@/services/personnel.service';
+import { useEffect, useState } from 'react';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 
 type Alert = {
@@ -15,25 +14,20 @@ type Alert = {
   iconStyle: string;
 };
 
-const generateAlerts = async (): Promise<Alert[]> => {
+const generateAlerts = (personnelData: any[]): Alert[] => {
     let alerts: Alert[] = [];
-    try {
-        const personnelData = await getAllPersonnel();
-        
-        // Check for incomplete data
-        const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
-        if (incompletePersonnel.length > 0) {
-            alerts.push({
-                id: 'incomplete-data',
-                title: 'بيانات غير مكتملة',
-                description: `هناك ${new Intl.NumberFormat('ar-EG').format(incompletePersonnel.length)} ضباط ببيانات غير مكتملة تحتاج مراجعة.`,
-                icon: AlertTriangle,
-                style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-                iconStyle: 'bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-300',
-            });
-        }
-    } catch(e) {
-        console.error("Failed to generate alerts", e);
+    
+    // Check for incomplete data
+    const incompletePersonnel = personnelData.filter((p: any) => !p.cardId || !p.rank || !p.administration);
+    if (incompletePersonnel.length > 0) {
+        alerts.push({
+            id: 'incomplete-data',
+            title: 'بيانات غير مكتملة',
+            description: `هناك ${new Intl.NumberFormat('ar-EG').format(incompletePersonnel.length)} ضباط ببيانات غير مكتملة تحتاج مراجعة.`,
+            icon: AlertTriangle,
+            style: 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+            iconStyle: 'bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-300',
+        });
     }
 
     return alerts;
@@ -41,36 +35,22 @@ const generateAlerts = async (): Promise<Alert[]> => {
 
 
 export function ImportantAlerts() {
+    const { personnel, loading } = usePersonnel();
     const [alerts, setAlerts] = useState<Alert[]>([]);
     
-    const fetchAlerts = useCallback(async () => {
-        const allAlerts = await generateAlerts();
-        setAlerts(allAlerts); 
-    }, []);
-
     useEffect(() => {
-        fetchAlerts();
-        
-        const handleStorageChange = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-                fetchAlerts();
-            }
-        };
-
-        window.addEventListener('storage-update', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage-update', handleStorageChange);
-        };
-    }, [fetchAlerts]);
+        if (!loading && personnel.length > 0) {
+            const allAlerts = generateAlerts(personnel);
+            setAlerts(allAlerts);
+        }
+    }, [personnel, loading]);
 
     const formatArabicNumber = (num: number) => {
         return new Intl.NumberFormat('ar-SA').format(num);
     }
     
-    if (alerts.length === 0) {
-        return null; // Don't render the card if there are no alerts
+    if (loading || alerts.length === 0) {
+        return null; // Don't render the card if there are no alerts or still loading
     }
 
     return (

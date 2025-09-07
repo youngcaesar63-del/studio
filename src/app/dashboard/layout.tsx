@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -7,6 +6,7 @@ import { DashboardHeader } from '@/components/dashboard-header';
 import { DashboardSidebar } from '@/components/dashboard-sidebar';
 import { AuthGuard } from '@/components/auth-guard';
 import { cn } from '@/lib/utils';
+import { PersonnelProvider } from '@/contexts/PersonnelContext';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -14,15 +14,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <AuthGuard>
-      <div className={cn("min-h-screen w-full bg-muted/40", isWelcomePage && "flex flex-col")}>
-        {!isWelcomePage && <DashboardHeader />}
-        <div className={cn("flex", isWelcomePage && "flex-grow")}>
-          {!isWelcomePage && <DashboardSidebar />}
-          <main className={cn("flex-1 p-6", isWelcomePage && "flex items-center justify-center p-0 m-0 w-full h-full")}>
-            {children}
-          </main>
+      <PersonnelProvider>
+        <div className={cn("min-h-screen w-full bg-muted/40", isWelcomePage && "flex flex-col")}>
+          {!isWelcomePage && <DashboardHeader />}
+          <div className={cn("flex", isWelcomePage && "flex-grow")}>
+            {!isWelcomePage && <DashboardSidebar />}
+            <main className={cn("flex-1 p-6", isWelcomePage && "flex items-center justify-center p-0 m-0 w-full h-full")}>
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </PersonnelProvider>
     </AuthGuard>
   );
 }

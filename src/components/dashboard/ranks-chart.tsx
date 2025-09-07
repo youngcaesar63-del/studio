@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
@@ -9,8 +8,8 @@ import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { rankOrder } from '@/lib/constants';
-import { getAllPersonnel, Personnel } from '@/services/personnel.service';
 import { toast } from '@/hooks/use-toast';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 
 const rankColors: { [key: string]: string } = {
@@ -42,54 +41,28 @@ const chartConfig = {
 
 export function RanksChart() {
   const [chartType, setChartType] = useState<'doughnut' | 'bar'>('doughnut');
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { personnel, loading } = usePersonnel();
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-        const personnelList = await getAllPersonnel();
-        
-        const rankCounts: { [key: string]: number } = {};
-        personnelList.forEach(p => {
-            rankCounts[p.rank] = (rankCounts[p.rank] || 0) + 1;
-        });
-
-        let data = Object.entries(rankCounts).map(([rank, count]) => ({
-            rank,
-            personnel: count,
-            fill: rankColors[rank] || '#ccc',
-        }));
-        
-        // Sort data based on rank order
-        data.sort((a,b) => (rankOrder[a.rank] || 99) - (rankOrder[b.rank] || 99));
-
-        setChartData(data);
-    } catch (e) {
-        console.error("Failed to load chart data", e);
-        toast({ title: 'خطأ', description: 'فشل تحميل بيانات مخطط الرتب', variant: 'destructive' });
-        setChartData([]);
-    } finally {
-        setLoading(false);
+  const chartData = useMemo(() => {
+    if (loading || personnel.length === 0) {
+      return [];
     }
-  }, [toast]);
+    const rankCounts: { [key: string]: number } = {};
+    personnel.forEach(p => {
+        rankCounts[p.rank] = (rankCounts[p.rank] || 0) + 1;
+    });
 
-  useEffect(() => {
-    loadData();
+    let data = Object.entries(rankCounts).map(([rank, count]) => ({
+        rank,
+        personnel: count,
+        fill: rankColors[rank] || '#ccc',
+    }));
+    
+    data.sort((a,b) => (rankOrder[a.rank] || 99) - (rankOrder[b.rank] || 99));
 
-    const handleStorageChange = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-            loadData();
-        }
-    };
+    return data;
+  }, [personnel, loading]);
 
-    window.addEventListener('storage-update', handleStorageChange);
-
-    return () => {
-        window.removeEventListener('storage-update', handleStorageChange);
-    };
-  }, [loadData]);
 
   if (loading) {
     return <Skeleton className="h-[386px] w-full" />

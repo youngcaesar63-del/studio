@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,9 +16,10 @@ import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow, WidthType, TextRun, AlignmentType, BorderStyle } from 'docx';
 import { administrations, ranks, rankOrder, statuses } from '@/lib/constants';
 import { logActivity } from '@/lib/activity-log';
-import { getAllPersonnel, Personnel } from '@/services/personnel.service';
+import { Personnel } from '@/services/personnel.service';
 import { parseISO, format } from 'date-fns';
 import { arSA } from 'date-fns/locale';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 const reportTypes = [
   { value: 'by-administration', label: 'تقرير حسب الإدارة' },
@@ -34,33 +34,14 @@ const confidentialityLevels = ['سري', 'سري للغاية', 'سري وشخص
 export default function ReportsPage() {
   const [reportType, setReportType] = useState<string | null>(null);
   const [filterValue, setFilterValue] = useState<string | null>(null);
-  const [personnelData, setPersonnelData] = useState<Personnel[]>([]);
+  const { personnel: personnelData, loading: isDataLoading } = usePersonnel();
   const [reportData, setReportData] = useState<Personnel[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isDataLoading, setIsDataLoading] = useState(true);
   const { toast } = useToast();
   const [isPrintDialogOpen, setPrintDialogOpen] = useState(false);
   const [confidentiality, setConfidentiality] = useState(confidentialityLevels[0]);
   const [reportTitleInput, setReportTitleInput] = useState('');
   const [includeAdministration, setIncludeAdministration] = useState(false);
-
-
-  const loadData = useCallback(async () => {
-    setIsDataLoading(true);
-    try {
-      const data = await getAllPersonnel();
-      setPersonnelData(data);
-    } catch (error) {
-      console.error("Failed to load personnel data", error);
-      toast({ title: 'خطأ', description: 'فشل تحميل بيانات الضباط.', variant: 'destructive' });
-    } finally {
-      setIsDataLoading(false);
-    }
-  }, [toast]);
-  
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   const handleGenerateReport = () => {
     if (!reportType) {
@@ -452,9 +433,9 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button onClick={handleGenerateReport} disabled={loading || !reportType}>
-                        {loading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <FileText className="ml-2 h-4 w-4" />}
-                        {loading ? 'جاري الإنشاء...' : 'إنشاء التقرير'}
+                    <Button onClick={handleGenerateReport} disabled={loading || !reportType || isDataLoading}>
+                        {loading || isDataLoading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <FileText className="ml-2 h-4 w-4" />}
+                        {loading || isDataLoading ? 'جاري الإنشاء...' : 'إنشاء التقرير'}
                     </Button>
                 </div>
             </CardContent>

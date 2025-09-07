@@ -1,15 +1,14 @@
-
 'use client';
 
 import { Calendar, Award, User, Plane } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { differenceInDays, format, parseISO } from 'date-fns';
 import { arSA } from 'date-fns/locale';
-import { getAllPersonnel } from '@/services/personnel.service';
 import type { Personnel } from '@/services/personnel.service';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 
 type UpcomingEvent = {
@@ -21,84 +20,68 @@ type UpcomingEvent = {
   time: string;
 };
 
-const generateEvents = async (): Promise<UpcomingEvent[]> => {
+const generateEvents = (personnelData: Personnel[]): UpcomingEvent[] => {
     let events: UpcomingEvent[] = [];
-    try {
-        const personnelData: Personnel[] = await getAllPersonnel();
-        const today = new Date();
+    const today = new Date();
 
-        // Check for leave ending soon
-        personnelData.forEach(p => {
-            if (p.status === 'إجازة' && p.statusDate) {
-                try {
-                    const endDate = parseISO(p.statusDate);
-                    const daysRemaining = differenceInDays(endDate, today);
-                    if (daysRemaining >= 0 && daysRemaining <= 7) {
-                        events.push({
-                            icon: Plane,
-                            iconBg: 'bg-amber-100 dark:bg-amber-900',
-                            iconColor: 'text-amber-600 dark:text-amber-300',
-                            title: `انتهاء إجازة: ${p.name}`,
-                            description: `تنتهي إجازة الضابط قريبًا.`,
-                            time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
-                        });
-                    }
-                } catch(e) {
-                    console.error(`Invalid date for personnel ${p.id}: ${p.statusDate}`)
+    // Check for leave ending soon
+    personnelData.forEach(p => {
+        if (p.status === 'إجازة' && p.statusDate) {
+            try {
+                const endDate = parseISO(p.statusDate);
+                const daysRemaining = differenceInDays(endDate, today);
+                if (daysRemaining >= 0 && daysRemaining <= 7) {
+                    events.push({
+                        icon: Plane,
+                        iconBg: 'bg-amber-100 dark:bg-amber-900',
+                        iconColor: 'text-amber-600 dark:text-amber-300',
+                        title: `انتهاء إجازة: ${p.name}`,
+                        description: `تنتهي إجازة الضابط قريبًا.`,
+                        time: `في ${format(endDate, 'd MMMM', { locale: arSA })}`,
+                    });
                 }
+            } catch(e) {
+                console.error(`Invalid date for personnel ${p.id}: ${p.statusDate}`)
             }
-            
-            if (p.status === 'دورة تدريبية' && p.statusDetail) {
-                 events.push({
-                    icon: Award,
-                    iconBg: 'bg-blue-100 dark:bg-blue-900',
-                    iconColor: 'text-blue-600 dark:text-blue-300',
-                    title: `دورة تدريبية: ${p.name}`,
-                    description: `يخضع حاليًا لدورة: ${p.statusDetail}`,
-                    time: 'حاليًا',
-                });
-            }
-        });
-    } catch(e) {
-        console.error("Failed to generate events", e);
-    }
+        }
+        
+        if (p.status === 'دورة تدريبية' && p.statusDetail) {
+             events.push({
+                icon: Award,
+                iconBg: 'bg-blue-100 dark:bg-blue-900',
+                iconColor: 'text-blue-600 dark:text-blue-300',
+                title: `دورة تدريبية: ${p.name}`,
+                description: `يخضع حاليًا لدورة: ${p.statusDetail}`,
+                time: 'حاليًا',
+            });
+        }
+    });
+    
     return events.slice(0, 3); // Return max 3 events
 };
 
 
 export function UpcomingEvents() {
+    const { personnel, loading } = usePersonnel();
     const [events, setEvents] = useState<UpcomingEvent[]>([]);
 
-    const fetchEvents = useCallback(async () => {
-        const upcomingEvents = await generateEvents();
-        setEvents(upcomingEvents);
-    }, []);
-
     useEffect(() => {
-        fetchEvents();
-        
-        const handleStorageChange = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-                fetchEvents();
-            }
-        };
-
-        window.addEventListener('storage-update', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage-update', handleStorageChange);
-        };
-    }, [fetchEvents]);
+        if (!loading && personnel.length > 0) {
+            const upcomingEvents = generateEvents(personnel);
+            setEvents(upcomingEvents);
+        }
+    }, [personnel, loading]);
     
-    if (events.length === 0) {
+    if (loading || events.length === 0) {
         return (
             <Card className="shadow-md">
                 <CardHeader>
                     <CardTitle>الأحداث القادمة</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-center text-muted-foreground py-8">لا توجد أحداث قادمة مسجلة.</p>
+                    <p className="text-center text-muted-foreground py-8">
+                      {loading ? 'جاري التحميل...' : 'لا توجد أحداث قادمة مسجلة.'}
+                    </p>
                 </CardContent>
             </Card>
         );

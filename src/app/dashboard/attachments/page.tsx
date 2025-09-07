@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { getAttachmentsForPersonnel, addAttachments, updateAttachment, deleteAttachment, Attachment } from '@/services/attachments';
-import { getAllPersonnel } from "@/services/personnel.service";
+import { usePersonnel } from "@/contexts/PersonnelContext";
 import type { Personnel } from "@/services/personnel.service";
 
 
@@ -30,9 +29,8 @@ export default function AttachmentsPage() {
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [allPersonnel, setAllPersonnel] = useState<Personnel[]>([]);
+  const { personnel: allPersonnel, loading: isPersonnelLoading } = usePersonnel();
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Personnel[]>([]);
   const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,19 +39,12 @@ export default function AttachmentsPage() {
   const [editingAttachment, setEditingAttachment] = useState<Attachment | null>(null);
   const [newAttachmentName, setNewAttachmentName] = useState("");
 
-  const loadAllPersonnel = useCallback(async () => {
-    try {
-        const personnelData = await getAllPersonnel();
-        setAllPersonnel(personnelData);
-    } catch (error) {
-        toast({ title: "خطأ", description: "فشل تحميل قائمة الضباط للبحث.", variant: "destructive" });
-    }
-  }, [toast]);
-
-  // Load all personnel for searching
-  useEffect(() => {
-    loadAllPersonnel();
-  }, [loadAllPersonnel]);
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim() === '') return [];
+    return allPersonnel.filter(p =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.cardId.includes(searchQuery)
+    ).slice(0, 5); // Limit to 5 results
+  }, [allPersonnel, searchQuery]);
 
   // Effect to select a person if an ID is passed in the URL
   useEffect(() => {
@@ -89,20 +80,11 @@ export default function AttachmentsPage() {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    if (query.trim() === '') {
-      setSearchResults([]);
-      return;
-    }
-    const results = allPersonnel.filter(p =>
-      p.name.toLowerCase().includes(query.toLowerCase()) || p.cardId.includes(query)
-    );
-    setSearchResults(results.slice(0, 5)); // Limit to 5 results
   };
   
   const handleSelectPersonnel = (person: Personnel) => {
     setSelectedPersonnel(person);
     setSearchQuery('');
-    setSearchResults([]);
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,6 +193,7 @@ export default function AttachmentsPage() {
               className="pr-10" 
               value={searchQuery}
               onChange={handleSearch}
+              disabled={isPersonnelLoading}
             />
             {searchResults.length > 0 && (
               <div className="absolute z-10 w-full bg-card border rounded-md shadow-lg mt-1">

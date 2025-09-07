@@ -1,47 +1,18 @@
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PersonnelTable } from '@/components/dashboard/personnel-table';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllPersonnel, deletePersonnel } from '@/services/personnel.service';
+import { deletePersonnel } from '@/services/personnel.service';
 import type { Personnel } from '@/services/personnel.service';
 import { toast } from '@/hooks/use-toast';
 import { logActivity } from '@/lib/activity-log';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 
 export default function PersonnelListPage() {
-  const [personnelData, setPersonnelData] = useState<Personnel[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-        const data = await getAllPersonnel();
-        setPersonnelData(data);
-    } catch(error) {
-        toast({ title: 'خطأ', description: 'فشل تحميل بيانات الضباط.', variant: 'destructive' });
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    loadData();
-
-    const handleStorageChange = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-            loadData();
-        }
-    };
-    
-    window.addEventListener('storage-update', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage-update', handleStorageChange);
-    };
-  }, [loadData]);
+  const { personnel, loading } = usePersonnel();
 
   const handleDelete = async (person: Personnel) => {
     try {
@@ -52,7 +23,7 @@ export default function PersonnelListPage() {
           description: `تم حذف بيانات الضابط: ${person.name}`,
           variant: 'destructive'
         });
-        // The storage event will trigger a reload of the data
+        // The storage event will trigger a reload of the data via the context
     } catch (error) {
         toast({ title: 'خطأ', description: 'فشل حذف الضابط.', variant: 'destructive' });
     }
@@ -74,7 +45,7 @@ export default function PersonnelListPage() {
                 <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <PersonnelTable data={personnelData} onDelete={handleDelete} />
+            <PersonnelTable data={personnel} onDelete={handleDelete} />
           )}
         </CardContent>
       </Card>

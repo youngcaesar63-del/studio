@@ -1,15 +1,14 @@
-
 'use client';
 
-import { useEffect, useState, useCallback }from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getAllPersonnel, Personnel } from '@/services/personnel.service';
-import { toast } from '@/hooks/use-toast';
+import { Personnel } from '@/services/personnel.service';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
 const rankOrder: { [key: string]: number } = {
   'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10,
@@ -63,72 +62,57 @@ const StatsDetailCard = ({ title, icon: Icon, total, data, loading, onItemClick 
 
 
 export default function StatisticsPage() {
-    const [personnelData, setPersonnelData] = useState<Personnel[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { personnel: personnelData, loading } = usePersonnel();
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogData, setDialogData] = useState<Personnel[]>([]);
 
-
-    const loadData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const data = await getAllPersonnel();
-            setPersonnelData(data);
-        } catch (error) {
-            toast({ title: "خطأ", description: "فشل تحميل البيانات.", variant: "destructive" });
-        } finally {
-            setLoading(false);
-        }
-    }, [toast]);
-
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
-
     const processChartData = (key: keyof Personnel) => {
-        if (loading || personnelData.length === 0) return { total: 0, data: [] };
-        
-        const counts = personnelData.reduce((acc, p) => {
-            const value = p[key] || 'غير محدد';
-            // Ensure value is a string before using it as a key
-            const stringValue = String(value);
-            acc[stringValue] = (acc[stringValue] || 0) + 1;
-            return acc;
-        }, {} as {[key: string]: number});
+        return useMemo(() => {
+            if (loading || personnelData.length === 0) return { total: 0, data: [] };
+            
+            const counts = personnelData.reduce((acc, p) => {
+                const value = p[key] || 'غير محدد';
+                const stringValue = String(value);
+                acc[stringValue] = (acc[stringValue] || 0) + 1;
+                return acc;
+            }, {} as {[key: string]: number});
 
-        let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+            let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
 
-        if (key === 'rank') {
-            data.sort((a,b) => (rankOrder[a.name] || 99) - (rankOrder[b.name] || 99));
-        } else {
-            data.sort((a, b) => b.value - a.value);
-        }
-        
-        const total = data.reduce((sum, item) => sum + item.value, 0);
+            if (key === 'rank') {
+                data.sort((a,b) => (rankOrder[a.name] || 99) - (rankOrder[b.name] || 99));
+            } else {
+                data.sort((a, b) => b.value - a.value);
+            }
+            
+            const total = data.reduce((sum, item) => sum + item.value, 0);
 
-        return { total, data };
+            return { total, data };
+        }, [personnelData, loading, key]);
     }
     
     const processArrayChartData = (key: keyof Personnel, nameKey: string) => {
-        if (loading || personnelData.length === 0) return { total: 0, data: [] };
+        return useMemo(() => {
+            if (loading || personnelData.length === 0) return { total: 0, data: [] };
 
-        const counts = personnelData.reduce((acc, p) => {
-            const items = p[key] as any[];
-            if (items && items.length > 0) {
-                items.forEach(item => {
-                    const value = item[nameKey] || 'غير محدد';
-                    acc[value] = (acc[value] || 0) + 1;
-                })
-            }
-            return acc;
-        }, {} as {[key: string]: number});
-        
-        let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
-        data.sort((a, b) => b.value - a.value);
-        const total = data.length; // Total unique items
+            const counts = personnelData.reduce((acc, p) => {
+                const items = p[key] as any[];
+                if (items && items.length > 0) {
+                    items.forEach(item => {
+                        const value = item[nameKey] || 'غير محدد';
+                        acc[value] = (acc[value] || 0) + 1;
+                    })
+                }
+                return acc;
+            }, {} as {[key: string]: number});
+            
+            let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+            data.sort((a, b) => b.value - a.value);
+            const total = data.length; // Total unique items
 
-        return { total, data };
+            return { total, data };
+        }, [personnelData, loading, key, nameKey]);
     };
 
     const handleStatItemClick = (category: keyof Personnel, itemName: string, titlePrefix: string) => {

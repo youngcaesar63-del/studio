@@ -1,16 +1,14 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
-import { getAllPersonnel } from '@/services/personnel.service';
-import { toast } from '@/hooks/use-toast';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 
-type Personnel = {
+type PersonnelSummary = {
   id: number;
   name: string;
   cardId: string;
@@ -20,38 +18,7 @@ type Personnel = {
 export function QuickSearch() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [allPersonnel, setAllPersonnel] = useState<Personnel[]>([]);
-  const [isDataLoading, setIsDataLoading] = useState(true);
-
-  const loadData = useCallback(async () => {
-    setIsDataLoading(true);
-    try {
-        const data = await getAllPersonnel();
-        setAllPersonnel(data);
-    } catch (error) {
-        toast({ title: 'خطأ', description: 'فشل تحميل بيانات البحث.', variant: 'destructive' });
-    } finally {
-        setIsDataLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    loadData();
-
-    const handleStorageChange = (event: Event) => {
-        const customEvent = event as CustomEvent;
-        if (customEvent.detail.key === 'personnelData' || customEvent.detail.key === 'all') {
-            loadData();
-        }
-    };
-    
-    window.addEventListener('storage-update', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage-update', handleStorageChange);
-    };
-  }, [loadData]);
-
+  const { personnel: allPersonnel, loading: isDataLoading } = usePersonnel();
 
   const searchResults = useMemo(() => {
     if (!searchQuery) {
@@ -62,7 +29,7 @@ export function QuickSearch() {
     ).slice(0, 7); // Limit to 7 results
   }, [searchQuery, allPersonnel]);
 
-  const handleSelectPersonnel = (person: Personnel) => {
+  const handleSelectPersonnel = (person: PersonnelSummary) => {
     router.push(`/dashboard/personnel-list/${person.id}`);
     setSearchQuery('');
   };
