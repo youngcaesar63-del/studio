@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -93,7 +92,7 @@ export default function WelcomePage() {
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
             <h2 className="text-2xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-36 h-36" />
+          <MilitaryIntelligenceLogo className="w-40 h-40" />
         </div>
 
 
@@ -113,7 +112,7 @@ export default function WelcomePage() {
                 <div className="flex flex-col gap-3 text-muted-foreground">
                     <div className="flex items-center justify-center gap-2 text-base md:text-lg">
                         <Calendar className="h-5 w-5" />
-                        <span>{date.hijri}</span>
+                        <span>{date.hijri.replace(/،/g, '')}</span>
                     </div>
                      <div className="flex items-center justify-center gap-2 text-xs md:text-sm">
                         <Calendar className="h-4 w-4 opacity-70" />
