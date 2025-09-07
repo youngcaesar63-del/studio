@@ -23,17 +23,16 @@ export async function login(username: string, password: string):Promise<User | n
     const stmt = db.prepare('SELECT * FROM users WHERE name = ?');
     const user = stmt.get(username) as User | undefined;
     
-    // if a user is found, check password
-    if (user && user.password === password) {
-        // Update last login
-        const updateStmt = db.prepare("UPDATE users SET lastLogin = ? WHERE id = ?");
-        updateStmt.run(new Date().toISOString(), user.id);
-        
-        delete user.password;
-        return user;
+    if (!user || user.password !== password) {
+      return null;
     }
 
-    return null;
+    // Update last login
+    const updateStmt = db.prepare("UPDATE users SET lastLogin = ? WHERE id = ?");
+    updateStmt.run(new Date().toISOString(), user.id);
+    
+    delete user.password;
+    return user;
 }
 
 export async function updateUser(id: number, updates: Partial<User>): Promise<User> {
