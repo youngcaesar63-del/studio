@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { Eye, EyeOff, User, Lock } from 'lucide-react';
+import { Eye, EyeOff, User, Lock, Loader2 } from 'lucide-react';
 import { login } from '@/services/users.service';
 
 export default function LoginPage() {
@@ -41,15 +41,15 @@ export default function LoginPage() {
                 description: 'اسم المستخدم أو كلمة المرور غير صحيحة.',
                 variant: 'destructive',
             });
-            setIsLoading(false);
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         toast({
-            title: 'خطأ في تسجيل الدخول',
-            description: 'حدث خطأ أثناء محاولة تسجيل الدخول.',
+            title: 'خطأ فادح',
+            description: 'حدث خطأ غير متوقع أثناء محاولة تسجيل الدخول. ' + error.message,
             variant: 'destructive',
         });
+    } finally {
         setIsLoading(false);
     }
   };
@@ -117,7 +117,8 @@ export default function LoginPage() {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !username}>
+            <Button type="submit" className="w-full" disabled={isLoading || !username || !password}>
+              {isLoading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
               {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
             </Button>
           </form>

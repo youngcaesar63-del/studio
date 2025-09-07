@@ -195,23 +195,31 @@ const schema = `
 
 // --- Initialization ---
 function initializeDatabase() {
-  // Apply schema
   db.exec(schema);
+
+  // Migration: Check if users table has password column, if not, add it.
+  try {
+    const columns = db.pragma('table_info(users)');
+    const hasPasswordColumn = columns.some((col: any) => col.name === 'password');
+
+    if (!hasPasswordColumn) {
+        console.log("Migrating users table: Adding password column.");
+        db.exec('ALTER TABLE users ADD COLUMN password TEXT');
+    }
+  } catch(e) {
+    // This might fail if the users table doesn't exist yet, which is fine.
+    // The schema execution above will handle creating it.
+  }
 
   // Seed initial user if not present
   try {
     const insertUser = db.prepare(`
-      INSERT INTO users (id, name, password, role, lastLogin, status) 
+      INSERT OR IGNORE INTO users (id, name, password, role, lastLogin, status) 
       VALUES (1, 'admin', 'admin', 'مدير', 'لم يسجل دخول بعد', 'نشط')
     `);
     insertUser.run();
-    console.log('Default admin user created.');
   } catch (error: any) {
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-      // This is expected if the user already exists, so we can ignore it.
-    } else {
-      console.error('Failed to seed default user:', error);
-    }
+    console.error('Failed to seed default user:', error);
   }
 
   // Seed default role if not present
@@ -224,22 +232,16 @@ function initializeDatabase() {
         { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: true },
     ]);
     const insertRole = db.prepare(`
-      INSERT INTO roles (name, description, permissions) 
+      INSERT OR IGNORE INTO roles (name, description, permissions) 
       VALUES ('مدير', 'يمتلك جميع صلاحيات الوصول للنظام.', ?)
     `);
     insertRole.run(defaultPermissions);
-     console.log('Default "مدير" role created.');
   } catch (error: any) {
-    if (error.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-       // This is expected if the role already exists.
-    } else {
       console.error('Failed to seed default role:', error);
-    }
   }
 }
 
-
-// Run initialization logic
+// Run initialization logic every time
 initializeDatabase();
 
 export default db;
