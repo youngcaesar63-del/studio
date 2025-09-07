@@ -66,12 +66,12 @@ export default function LoginPage() {
                 height={120} 
                 data-ai-hint="military emblem"
                 priority
-                className="drop-shadow-lg"
+                className="drop-shadow-lg h-auto w-auto"
               />
           </div>
           <div>
             <CardTitle className="text-3xl">هيئة الاستخبارات العسكرية</CardTitle>
-            <CardDescription className="text-2xl mt-1">نظام شئون الضباط</CardDescription>
+            <CardDescription className="text-xl mt-1">نظام شئون الضباط</CardDescription>
           </div>
           <CardDescription className="pt-4">الرجاء تسجيل الدخول للمتابعة</CardDescription>
         </CardHeader>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,11 +13,11 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
       <Image 
         src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={160} 
-        height={160} 
+        width={200} 
+        height={200} 
         data-ai-hint="military emblem"
         priority
-        className="drop-shadow-lg"
+        className="drop-shadow-lg h-auto w-auto"
       />
     </div>
 );
@@ -86,7 +87,7 @@ export default function WelcomePage() {
       <div className="absolute bottom-0 right-0 translate-x-1/4 translate-y-1/4 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl opacity-50"></div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
-        <div className="flex justify-around items-center w-full mb-8">
+        <div className="flex justify-around items-center w-full mb-6">
           <GeneralStaffLogo />
           <div className="text-center px-4">
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
@@ -96,7 +97,7 @@ export default function WelcomePage() {
         </div>
 
 
-        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl mt-8">
+        <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-lg p-6 md:p-8 shadow-lg w-full max-w-3xl mt-6">
             {loading ? (
                 <div className="space-y-4">
                     <Skeleton className="h-8 w-1/3 mx-auto" />
