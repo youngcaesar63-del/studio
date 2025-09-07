@@ -42,6 +42,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { logActivity } from '@/lib/activity-log';
 import { addPersonnel, updatePersonnel, getPersonnelById, Personnel as PersonnelData } from '@/services/personnel.service';
 import { Skeleton } from '../ui/skeleton';
+import { Card, CardContent } from '../ui/card';
 
 const importantJobSchema = z.object({
   jobTitle: z.string().min(1, 'المسمى الوظيفي مطلوب'),
