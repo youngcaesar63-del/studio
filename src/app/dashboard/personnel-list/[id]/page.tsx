@@ -144,7 +144,7 @@ export default function ViewPersonnelPage() {
                         <div className="p-1 bg-gradient-to-tr from-primary to-accent rounded-full">
                            <div className="bg-card p-2 rounded-full relative w-24 h-24 flex items-center justify-center">
                                 {person.photo ? (
-                                    <Image src={person.photo} alt={person.name} layout="fill" className="rounded-full object-cover" />
+                                    <Image src={person.photo} alt={person.name} fill className="rounded-full object-cover" />
                                 ) : (
                                     <User className="h-16 w-16 text-primary" />
                                 )}
