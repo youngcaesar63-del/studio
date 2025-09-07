@@ -112,6 +112,7 @@ const formSchema = z.object({
   rank: z.string().min(1, 'الرتبة مطلوبة'),
   specialization: z.string().optional(),
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
+  jobTitle: z.string().optional(),
   batch: z.string().optional(),
   academicQualification: z.string().optional(),
   major: z.string().optional(),
@@ -182,7 +183,7 @@ export function AddPersonnelForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       // Initialize with default values
-      fullName: '', cardId: '', rank: '', specialization: 'لا يوجد',
+      fullName: '', cardId: '', rank: '', jobTitle: '', specialization: 'لا يوجد',
       academicQualification: 'لا يوجد', major: '', batch: 'لا يوجد', administration: '',
       certificateType: '', status: 'بالطابور', statusDetail: '', bloodType: '',
       maritalStatus: '', religion: 'مسلم', notes: '', photo: '', nationalId: '',
@@ -357,6 +358,9 @@ export function AddPersonnelForm() {
                                 )} />
                                 <FormField control={form.control} name="rank" render={({ field }) => (
                                     <FormItem><FormLabel>الرتبة</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر الرتبة" /></SelectTrigger></FormControl><SelectContent>{ranks.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                                )} />
+                                 <FormField control={form.control} name="jobTitle" render={({ field }) => (
+                                    <FormItem><FormLabel>الوظيفة</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="specialization" render={({ field }) => (
                                     <FormItem><FormLabel>التخصص</FormLabel><Select dir="rtl" onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="اختر التخصص" /></SelectTrigger></FormControl><SelectContent>{specializations.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>

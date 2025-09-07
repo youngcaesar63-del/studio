@@ -173,6 +173,7 @@ export default function ViewPersonnelPage() {
                             <Separator />
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 <DetailItem icon={Shield} label="الإدارة" value={person.administration} />
+                                <DetailItem icon={Briefcase} label="الوظيفة" value={person.jobTitle} />
                                 <DetailItem icon={Badge} label="الحالة" value={getStatusDisplay(person)} />
                                 <DetailItem icon={GraduationCap} label="المؤهل الأكاديمي" value={person.academicQualification} />
                                 {person.major && <DetailItem icon={BrainCircuit} label="التخصص الدقيق" value={person.major} />}

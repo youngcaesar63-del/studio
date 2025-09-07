@@ -9,6 +9,7 @@ export type Personnel = {
   name: string;
   cardId: string;
   rank: string;
+  jobTitle?: string;
   specialization?: string;
   academicQualification?: string;
   major?: string;
