@@ -113,7 +113,6 @@ const formSchema = z.object({
   rank: z.string().min(1, 'الرتبة مطلوبة'),
   specialization: z.string().optional(),
   fullName: z.string().min(3, 'الاسم الكامل يجب أن يكون ٣ أحرف على الأقل'),
-  jobTitle: z.string().optional(),
   batch: z.string().optional(),
   academicQualification: z.string().optional(),
   major: z.string().optional(),
@@ -184,7 +183,7 @@ export function AddPersonnelForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       // Initialize with default values
-      fullName: '', cardId: '', rank: '', jobTitle: '', specialization: 'لا يوجد',
+      fullName: '', cardId: '', rank: '', specialization: 'لا يوجد',
       academicQualification: 'لا يوجد', major: '', batch: 'لا يوجد', administration: '',
       certificateType: '', status: 'بالطابور', statusDetail: '', bloodType: '',
       maritalStatus: '', religion: 'مسلم', notes: '', photo: '', nationalId: '',

@@ -17,7 +17,6 @@ const schema = `
       name TEXT NOT NULL,
       cardId TEXT NOT NULL UNIQUE,
       rank TEXT NOT NULL,
-      jobTitle TEXT,
       specialization TEXT,
       academicQualification TEXT,
       major TEXT,
@@ -208,14 +207,6 @@ function initializeDatabase() {
         db.exec('ALTER TABLE users ADD COLUMN password TEXT');
     }
     
-    // Migration: Add jobTitle to personnel table if it doesn't exist
-    const personnelColumns = db.pragma('table_info(personnel)');
-    const hasJobTitleColumn = personnelColumns.some((col: any) => col.name === 'jobTitle');
-    if (!hasJobTitleColumn) {
-        console.log("Migrating personnel table: Adding jobTitle column.");
-        db.exec('ALTER TABLE personnel ADD COLUMN jobTitle TEXT');
-    }
-
   } catch(e) {
     // This might fail if the users table doesn't exist yet, which is fine.
     // The schema execution above will handle creating it.
