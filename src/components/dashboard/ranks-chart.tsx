@@ -95,60 +95,56 @@ export function RanksChart() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+      <CardContent className="flex justify-center">
+        <ChartContainer config={chartConfig} className="min-h-[300px] w-full max-w-sm">
           {chartType === 'doughnut' ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" nameKey="rank" />} />
-                <Pie
-                  data={chartData}
-                  dataKey="personnel"
-                  nameKey="rank"
-                  innerRadius={60}
-                  strokeWidth={5}
-                  labelLine={false}
-                  label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                    const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
-                    const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
-                    return (percent > 0.05) ? (
-                      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-bold">
-                        {`${(percent * 100).toFixed(0)}%`}
-                      </text>
-                    ) : null;
-                  }}
-                >
-                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+            <PieChart>
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" nameKey="rank" />} />
+              <Pie
+                data={chartData}
+                dataKey="personnel"
+                nameKey="rank"
+                innerRadius={60}
+                strokeWidth={5}
+                labelLine={false}
+                label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+                  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                  const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180));
+                  const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180));
+                  return (percent > 0.05) ? (
+                    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-bold">
+                      {`${(percent * 100).toFixed(0)}%`}
+                    </text>
+                  ) : null;
+                }}
+              >
+                  {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
+              </Pie>
+            </PieChart>
           ) : (
-             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} layout="vertical" margin={{ right: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" hide />
-                <YAxis
-                  dataKey="rank"
-                  type="category"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={5}
-                  width={60}
-                  tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
-                  orientation="right"
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Bar dataKey="personnel" radius={[0, 8, 8, 0]} layout="vertical">
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <BarChart data={chartData} layout="vertical" margin={{ right: 40, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" hide />
+              <YAxis
+                dataKey="rank"
+                type="category"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={5}
+                width={60}
+                tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
+                orientation="right"
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="dot" />}
+              />
+              <Bar dataKey="personnel" radius={[0, 8, 8, 0]} layout="vertical">
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
           )}
         </ChartContainer>
       </CardContent>
