@@ -62,12 +62,12 @@ export default function WelcomePage() {
     const dateTimeTimer = setInterval(() => {
       const now = new Date();
       const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Africa/Khartoum' };
-      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
-      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
+      const hijriDateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
+      const gregorianDateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
 
       setTime(new Intl.DateTimeFormat('ar-SA-u-nu-latn', timeOptions).format(now));
       setDate({
-        hijri: new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now),
+        hijri: new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' }).format(now),
         gregorian: new Intl.DateTimeFormat('ar-SA-u-nu-latn', gregorianDateOptions).format(now),
       });
       setLoading(false);
@@ -88,12 +88,12 @@ export default function WelcomePage() {
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-1000 w-full max-w-5xl">
         <div className="flex justify-around items-center w-full mb-8 md:mb-16">
-          <GeneralStaffLogo className="w-28 h-28 md:w-36 md:h-36" />
+          <GeneralStaffLogo className="w-24 h-24 md:w-36 md:h-36" />
           <div className="text-center px-2">
             <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-primary">رئاسة هيئة الأركان</h1>
             <h2 className="text-2xl lg:text-3xl font-extrabold tracking-wider">هيئة الاستخبارات العسكرية</h2>
           </div>
-          <MilitaryIntelligenceLogo className="w-28 h-28 md:w-36 md:h-36" />
+          <MilitaryIntelligenceLogo className="w-24 h-24 md:w-36 md:h-36" />
         </div>
 
 
