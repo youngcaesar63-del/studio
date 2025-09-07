@@ -20,20 +20,20 @@ export async function getAllUsers(): Promise<User[]> {
 }
 
 export async function login(username: string, password: string):Promise<User | null> {
-    const stmt = db.prepare('SELECT * FROM users WHERE name = ?');
-    const user = stmt.get(username) as User | undefined;
+    const stmt = db.prepare('SELECT * FROM users WHERE name = ? AND password = ?');
+    const user = stmt.get(username, password) as User | undefined;
     
-    // Check if user exists AND password is correct
-    if (!user || user.password !== password) {
-        return null;
+    // if a user is found, the credentials are correct
+    if (user) {
+        // Update last login
+        const updateStmt = db.prepare("UPDATE users SET lastLogin = ? WHERE id = ?");
+        updateStmt.run(new Date().toISOString(), user.id);
+        
+        delete user.password;
+        return user;
     }
 
-    // Update last login
-    const updateStmt = db.prepare("UPDATE users SET lastLogin = ? WHERE id = ?");
-    updateStmt.run(new Date().toISOString(), user.id);
-    
-    delete user.password;
-    return user;
+    return null;
 }
 
 export async function updateUser(id: number, updates: Partial<User>): Promise<User> {
@@ -49,4 +49,3 @@ export async function updateUser(id: number, updates: Partial<User>): Promise<Us
     const getStmt = db.prepare('SELECT id, name, role, lastLogin, status FROM users WHERE id = ?');
     return getStmt.get(id) as User;
 }
-
