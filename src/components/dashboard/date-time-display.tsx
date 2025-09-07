@@ -16,11 +16,11 @@ export function DateTimeDisplay() {
       const timeString = new Intl.DateTimeFormat('ar-SA-u-nu-arab', timeOptions).format(now);
       setTime(timeString);
 
-      const hijriDateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
+      const hijriDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
       const hijriDateString = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-arab', hijriDateOptions).format(now);
       setHijriDate(hijriDateString);
       
-      const gregorianDateOptions: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
+      const gregorianDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Africa/Khartoum' };
       const gregorianDateString = new Intl.DateTimeFormat('ar-SA-u-nu-latn', gregorianDateOptions).format(now);
       setGregorianDate(gregorianDateString);
     };
