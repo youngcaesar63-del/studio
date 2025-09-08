@@ -117,7 +117,7 @@ export default function LoginPage() {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !username || !password}>
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
               {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
             </Button>
