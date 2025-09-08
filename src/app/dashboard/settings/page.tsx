@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,6 +25,7 @@ export default function SettingsPage() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
     
     const [notificationPreferences, setNotificationPreferences] = useState({
         email: true,
@@ -66,6 +66,7 @@ export default function SettingsPage() {
             toast({ title: 'خطأ', description: 'اسم المستخدم لا يمكن أن يكون فارغًا.', variant: 'destructive' });
             return;
         }
+        setIsSaving(true);
         try {
             const updatedUser = await updateUser(currentUser.id, { name: name.trim() });
             sessionStorage.setItem('user', JSON.stringify(updatedUser)); // Update session
@@ -76,6 +77,8 @@ export default function SettingsPage() {
             });
         } catch (error) {
             toast({ title: 'خطأ', description: 'فشل حفظ التغييرات.', variant: 'destructive' });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -89,6 +92,7 @@ export default function SettingsPage() {
             toast({ title: 'خطأ', description: 'الرجاء ملء جميع حقول كلمة المرور.', variant: 'destructive' });
             return;
         }
+        setIsSaving(true);
         try {
             await updateUser(currentUser.id, { password: newPassword });
             toast({
@@ -100,6 +104,8 @@ export default function SettingsPage() {
             setConfirmPassword('');
         } catch (error) {
              toast({ title: 'خطأ', description: 'فشل تغيير كلمة المرور. تأكد من كلمة المرور الحالية.', variant: 'destructive' });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -149,7 +155,9 @@ export default function SettingsPage() {
                                     <Label htmlFor="role">الدور</Label>
                                     <Input id="role" value={currentUser.role} disabled />
                                 </div>
-                                <Button onClick={handleSaveChanges}>حفظ التغييرات</Button>
+                                <Button onClick={handleSaveChanges} disabled={isSaving}>
+                                    {isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                                </Button>
                                 <hr/>
                                  <div className="space-y-4">
                                     <h3 className="text-lg font-medium flex items-center gap-2"><Lock className="h-5 w-5" />تغيير كلمة المرور</h3>
@@ -165,7 +173,9 @@ export default function SettingsPage() {
                                         <Label htmlFor="confirm-password">تأكيد كلمة المرور الجديدة</Label>
                                         <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
                                     </div>
-                                    <Button onClick={handlePasswordChange}>تغيير كلمة المرور</Button>
+                                    <Button onClick={handlePasswordChange} disabled={isSaving}>
+                                        {isSaving ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
+                                    </Button>
                                 </div>
                             </>
                             }

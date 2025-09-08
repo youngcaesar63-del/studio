@@ -125,6 +125,14 @@ export default function AttachmentsPage() {
         setIsLoading(false);
     }
   };
+
+  const triggerFileUpload = () => {
+    if (!selectedPersonnel) {
+      toast({ title: "تنبيه", description: "الرجاء اختيار ضابط أولاً قبل رفع الملفات.", variant: "default" });
+      return;
+    }
+    fileInputRef.current?.click();
+  };
   
   const openEditDialog = (attachment: Attachment) => {
     setEditingAttachment(attachment);
@@ -229,7 +237,7 @@ export default function AttachmentsPage() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-            <Button onClick={() => fileInputRef.current?.click()} disabled={isLoading}>
+            <Button onClick={triggerFileUpload} disabled={isLoading}>
               {isLoading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <FileUp className="ml-2 h-4 w-4" />}
               {isLoading ? 'جاري الرفع...' : 'رفع ملف جديد'}
             </Button>

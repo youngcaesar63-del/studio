@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -913,7 +912,7 @@ export function AddPersonnelForm() {
         <div className="flex justify-end space-x-4 rtl:space-x-reverse pt-4 mt-8 border-t">
           <Button type="button" variant="outline" onClick={() => router.back()}>إلغاء</Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'جاري الحفظ...' : 'حفظ'}
+            {form.formState.isSubmitting ? 'جاري الحفظ...' : (isEditMode ? 'حفظ التعديلات' : 'حفظ')}
           </Button>
         </div>
       </form>

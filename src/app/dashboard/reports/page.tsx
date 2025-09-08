@@ -433,7 +433,7 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button onClick={handleGenerateReport} disabled={loading || !reportType || isDataLoading}>
+                    <Button onClick={handleGenerateReport} disabled={loading || isDataLoading}>
                         {loading || isDataLoading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <FileText className="ml-2 h-4 w-4" />}
                         {loading || isDataLoading ? 'جاري الإنشاء...' : 'إنشاء التقرير'}
                     </Button>
@@ -549,3 +549,4 @@ export default function ReportsPage() {
     
 
     
+
