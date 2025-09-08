@@ -66,7 +66,7 @@ export default function LoginPage() {
                 height={120} 
                 data-ai-hint="military emblem"
                 priority
-                className="drop-shadow-lg h-auto w-auto"
+                className="h-auto w-auto"
               />
           </div>
           <div>
