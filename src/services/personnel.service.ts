@@ -73,7 +73,7 @@ const subTables = [
 ];
 
 
-function getSubTableData(personnelId: number, tableName: string) {
+function getSubTableDataForOne(personnelId: number, tableName: string) {
     const stmt = db.prepare(`SELECT * FROM ${tableName} WHERE personnel_id = ?`);
     return stmt.all(personnelId).map((item: any) => {
         delete item.id;
@@ -108,7 +108,7 @@ function insertSubTableData(personnelId: number, tableName: string, data: any[])
     insertMany(data);
 }
 
-const mapPersonnelFromDb = (p: any): Personnel => {
+const mapPersonnelFromDb = (p: any, allSubData: Record<string, any>): Personnel => {
     if (!p) return p;
     const personnel: Personnel = {
         ...p,
@@ -116,7 +116,7 @@ const mapPersonnelFromDb = (p: any): Personnel => {
     };
 
     subTables.forEach(tableInfo => {
-        personnel[tableInfo.name as keyof Personnel] = getSubTableData(p.id, tableInfo.tableName) as any;
+        personnel[tableInfo.name as keyof Personnel] = allSubData[tableInfo.tableName]?.[p.id] || [];
     });
     
     return personnel;
@@ -170,10 +170,29 @@ const mapPersonnelToDb = (data: Partial<Personnel>): any => {
 
 
 export async function getAllPersonnel(): Promise<Personnel[]> {
-  const stmt = db.prepare('SELECT * FROM personnel');
-  const personnelList = stmt.all();
+  const personnelList = db.prepare('SELECT * FROM personnel').all() as any[];
+  
+  if (personnelList.length === 0) {
+    return [];
+  }
 
-  const fullPersonnelList = personnelList.map(p => mapPersonnelFromDb(p));
+  // Fetch all sub-table data in bulk
+  const allSubData: Record<string, any> = {};
+  for (const tableInfo of subTables) {
+    const subItems = db.prepare(`SELECT * FROM ${tableInfo.tableName}`).all() as any[];
+    // Group sub-items by personnel_id for quick lookup
+    allSubData[tableInfo.tableName] = subItems.reduce((acc, item) => {
+      const { id, personnel_id, ...rest } = item;
+      if (!acc[personnel_id]) {
+        acc[personnel_id] = [];
+      }
+      acc[personnel_id].push(rest);
+      return acc;
+    }, {});
+  }
+
+  // Map the data together in memory
+  const fullPersonnelList = personnelList.map(p => mapPersonnelFromDb(p, allSubData));
 
   const sortedData = fullPersonnelList.sort((a: Personnel, b: Personnel) => {
     const rankA = rankOrder[a.rank] || 99;
@@ -185,9 +204,21 @@ export async function getAllPersonnel(): Promise<Personnel[]> {
 }
 
 export async function getPersonnelById(id: number): Promise<Personnel | undefined> {
-  const stmt = db.prepare('SELECT * FROM personnel WHERE id = ?');
-  const person = stmt.get(id);
-  return person ? mapPersonnelFromDb(person) : undefined;
+  const person = db.prepare('SELECT * FROM personnel WHERE id = ?').get(id) as any;
+  if (!person) {
+    return undefined;
+  }
+  
+  const allSubDataForOne: Record<string, any> = {};
+  const onePersonSubData: Record<string, any> = {};
+
+  for (const tableInfo of subTables) {
+     const subData = getSubTableDataForOne(id, tableInfo.tableName);
+     onePersonSubData[id] = subData;
+     allSubDataForOne[tableInfo.tableName] = onePersonSubData;
+  }
+  
+  return mapPersonnelFromDb(person, allSubDataForOne);
 }
 
 export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Promise<Personnel> {
