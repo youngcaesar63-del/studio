@@ -2,7 +2,6 @@
 'use server';
 
 import db from '@/lib/db';
-import type { UpdatePersonnel } from './personnel.service';
 
 export type User = {
     id: number;
@@ -21,7 +20,7 @@ export async function getAllUsers(): Promise<User[]> {
 
 export async function login(username: string, password: string):Promise<User | null> {
     const stmt = db.prepare('SELECT * FROM users WHERE name = ?');
-    const user = stmt.get(username) as User | undefined;
+    const user: User | undefined = stmt.get(username) as User | undefined;
     
     // In a real app, you would use a library like bcrypt to compare a hashed password.
     if (!user || user.password !== password) {
@@ -49,4 +48,3 @@ export async function updateUser(id: number, updates: Partial<User>): Promise<Us
     const getStmt = db.prepare('SELECT id, name, role, lastLogin, status FROM users WHERE id = ?');
     return getStmt.get(id) as User;
 }
-
