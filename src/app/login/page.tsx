@@ -54,6 +54,10 @@ export default function LoginPage() {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40">
       <Card className="w-full max-w-md shadow-2xl animate-in fade-in duration-700">
@@ -110,7 +114,7 @@ export default function LoginPage() {
                   variant="ghost"
                   size="icon"
                   className="absolute left-2 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground"
-                  onClick={() => setShowPassword(prev => !prev)}
+                  onClick={togglePasswordVisibility}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   <span className="sr-only">{showPassword ? 'إخفاء' : 'إظهار'} كلمة المرور</span>
