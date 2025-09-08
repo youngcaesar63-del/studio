@@ -4,13 +4,6 @@ import fs from 'fs';
 import path from 'path';
 
 const dbPath = path.join(process.cwd(), 'db.sqlite');
-const dbFileExists = fs.existsSync(dbPath);
-
-if (!dbFileExists) {
-  // Create an empty file to ensure the database is properly initialized.
-  fs.closeSync(fs.openSync(dbPath, 'w'));
-}
-
 const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrency
@@ -204,57 +197,45 @@ const schema = `
 function initializeDatabase() {
   db.exec(schema);
 
-  // Migration: Check if users table has password column, if not, add it.
-  try {
-    const columns = db.pragma('table_info(users)');
-    const hasPasswordColumn = columns.some((col: any) => col.name === 'password');
-
-    if (!hasPasswordColumn) {
-        console.log("Migrating users table: Adding password column.");
-        db.exec('ALTER TABLE users ADD COLUMN password TEXT');
-    }
-    
-  } catch(e) {
-    // This might fail if the users table doesn't exist yet, which is fine.
-    // The schema execution above will handle creating it.
-  }
-
   // Seed initial user if not present
   try {
-    const insertUser = db.prepare(`
-      INSERT OR IGNORE INTO users (id, name, password, role, lastLogin, status) 
-      VALUES (1, 'manager', ?, 'مدير', 'لم يسجل دخول بعد', 'نشط')
-    `);
-    // NOTE: In a real app, hash this password. For this project, it's plaintext.
-    insertUser.run('manager123'); 
+    const userCount = db.prepare('SELECT count(*) as count FROM users').get() as { count: number };
+    if (userCount.count === 0) {
+      const insertUser = db.prepare(`
+        INSERT INTO users (id, name, password, role, lastLogin, status) 
+        VALUES (1, 'manager', ?, 'مدير', 'لم يسجل دخول بعد', 'نشط')
+      `);
+      // NOTE: In a real app, hash this password. For this project, it's plaintext.
+      insertUser.run('manager123'); 
+    }
   } catch (error: any) {
     console.error('Failed to seed default user:', error);
   }
 
   // Seed default role if not present
   try {
-    const defaultPermissions = JSON.stringify([
-        { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
-        { id: 'p2', name: 'إدارة الضباط', enabled: true },
-        { id: 'p3', name: 'إنشاء التقارير', enabled: true },
-        { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: true },
-        { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: true },
-    ]);
-    const insertRole = db.prepare(`
-      INSERT OR IGNORE INTO roles (name, description, permissions) 
-      VALUES ('مدير', 'يمتلك جميع صلاحيات الوصول للنظام.', ?)
-    `);
-    insertRole.run(defaultPermissions);
+    const roleCount = db.prepare('SELECT count(*) as count FROM roles').get() as { count: number };
+    if (roleCount.count === 0) {
+        const defaultPermissions = JSON.stringify([
+            { id: 'p1', name: 'عرض لوحة التحكم', enabled: true },
+            { id: 'p2', name: 'إدارة الضباط', enabled: true },
+            { id: 'p3', name: 'إنشاء التقارير', enabled: true },
+            { id: 'p4', name: 'إدارة المستخدمين والصلاحيات', enabled: true },
+            { id: 'p5', name: 'الوصول للإعدادات المتقدمة', enabled: true },
+        ]);
+        const insertRole = db.prepare(`
+          INSERT INTO roles (name, description, permissions) 
+          VALUES ('مدير', 'يمتلك جميع صلاحيات الوصول للنظام.', ?)
+        `);
+        insertRole.run(defaultPermissions);
+    }
   } catch (error: any) {
       console.error('Failed to seed default role:', error);
   }
 }
 
-// Run initialization logic only if the DB file was just created
-if (!dbFileExists) {
-    console.log("Database file not found, initializing...");
-    initializeDatabase();
-}
+// Run initialization logic
+initializeDatabase();
 
 
 export default db;
