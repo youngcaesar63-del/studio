@@ -4,6 +4,13 @@ import fs from 'fs';
 import path from 'path';
 
 const dbPath = path.join(process.cwd(), 'db.sqlite');
+const dbFileExists = fs.existsSync(dbPath);
+
+if (!dbFileExists) {
+  // Create an empty file to ensure the database is properly initialized.
+  fs.closeSync(fs.openSync(dbPath, 'w'));
+}
+
 const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrency
@@ -243,7 +250,11 @@ function initializeDatabase() {
   }
 }
 
-// Run initialization logic every time
-initializeDatabase();
+// Run initialization logic only if the DB file was just created
+if (!dbFileExists) {
+    console.log("Database file not found, initializing...");
+    initializeDatabase();
+}
+
 
 export default db;
