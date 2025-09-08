@@ -49,3 +49,4 @@ export async function updateUser(id: number, updates: Partial<User>): Promise<Us
     const getStmt = db.prepare('SELECT id, name, role, lastLogin, status FROM users WHERE id = ?');
     return getStmt.get(id) as User;
 }
+
