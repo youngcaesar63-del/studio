@@ -13,8 +13,8 @@ const MilitaryIntelligenceLogo = (props: React.HTMLAttributes<HTMLDivElement>) =
       <Image 
         src="https://i.postimg.cc/JhCP857V/1-removebg-preview.png" 
         alt="شعار هيئة الاستخبارات العسكرية" 
-        width={200} 
-        height={200} 
+        width={150} 
+        height={150} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg h-auto w-auto"
@@ -27,8 +27,8 @@ const GeneralStaffLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
       <Image 
         src="https://i.postimg.cc/s2qS0JsR/86bed723-4023-4a33-b9eb-0adca9006dfd-removebg-preview.png" 
         alt="شعار رئاسة هيئة الأركان" 
-        width={144} 
-        height={144} 
+        width={150} 
+        height={150} 
         data-ai-hint="military emblem"
         priority
         className="drop-shadow-lg h-auto w-auto"
