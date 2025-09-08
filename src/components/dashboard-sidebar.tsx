@@ -24,7 +24,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from 
 import { Button } from './ui/button';
 import { PanelLeft } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const mainNav = [
   { href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
@@ -57,11 +57,21 @@ const navSections = [
 
 const NavContent = () => {
   const pathname = usePathname();
-  const [openSections, setOpenSections] = useState<string[]>(['الرئيسية']);
+  const [openSections, setOpenSections] = useState<string[]>([]);
+
+  useEffect(() => {
+    const activeSection = navSections.find(section => 
+      section.items.some(item => item.href !== '/dashboard' ? pathname.startsWith(item.href) : pathname === item.href)
+    );
+    if (activeSection) {
+      setOpenSections([activeSection.title]);
+    }
+  }, [pathname]);
+
 
   const toggleSection = (title: string) => {
     setOpenSections(prev => 
-      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+      prev.includes(title) ? prev.filter(t => t !== title) : [title]
     );
   };
 
@@ -86,7 +96,9 @@ const NavContent = () => {
           <CollapsibleContent className="mt-2 data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
             <ul className="space-y-2 pr-4">
               {section.items.map((item) => {
-                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                const isActive = item.href === '/dashboard' 
+                  ? pathname === item.href 
+                  : pathname.startsWith(item.href);
                 return (
                   <li key={item.href}>
                     <Link
