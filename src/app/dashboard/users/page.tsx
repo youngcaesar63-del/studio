@@ -48,6 +48,7 @@ export default function UsersPage() {
   const [userRole, setUserRole] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(() => {
     try {
@@ -100,6 +101,7 @@ export default function UsersPage() {
         return;
     }
 
+    setIsSaving(true);
     try {
       if (editingUser) {
           // Edit existing user
@@ -133,6 +135,8 @@ export default function UsersPage() {
         } else {
             toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
         }
+    } finally {
+        setIsSaving(false);
     }
   };
 
@@ -262,7 +266,9 @@ export default function UsersPage() {
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button type="submit" onClick={handleSaveUser}>{editingUser ? 'حفظ التغييرات' : 'إضافة مستخدم'}</Button>
+            <Button type="submit" onClick={handleSaveUser} disabled={isSaving}>
+              {isSaving ? 'جاري الحفظ...' : (editingUser ? 'حفظ التغييرات' : 'إضافة مستخدم')}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -44,6 +44,7 @@ export default function PermissionsPage() {
   const [roleName, setRoleName] = useState('');
   const [roleDescription, setRoleDescription] = useState('');
   const [rolePermissions, setRolePermissions] = useState<{[key: string]: boolean}>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(() => {
     setLoading(true);
@@ -125,6 +126,7 @@ export default function PermissionsPage() {
         return;
     }
     
+    setIsSaving(true);
     try {
       const newPermissions = allAvailablePermissions.map(p => ({
           ...p,
@@ -151,6 +153,8 @@ export default function PermissionsPage() {
     } catch(error) {
        console.error("Failed to save role", error);
        toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ الدور.', variant: 'destructive'});
+    } finally {
+        setIsSaving(false);
     }
   }
 
@@ -269,7 +273,9 @@ export default function PermissionsPage() {
                 </div>
                 <DialogFooter>
                     <Button type="button" variant="secondary" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-                    <Button type="submit" onClick={handleSaveRole}>حفظ</Button>
+                    <Button type="submit" onClick={handleSaveRole} disabled={isSaving}>
+                      {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
