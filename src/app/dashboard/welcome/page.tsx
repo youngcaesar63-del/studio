@@ -31,7 +31,7 @@ const GeneralStaffLogo = (props: React.HTMLAttributes<HTMLDivElement>) => (
         height={144} 
         data-ai-hint="military emblem"
         priority
-        className="drop-shadow-lg"
+        className="drop-shadow-lg h-auto w-auto"
       />
     </div>
 );
