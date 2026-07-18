@@ -9,6 +9,10 @@ const db = new Database(dbPath);
 // Enable WAL mode for better concurrency
 db.pragma('journal_mode = WAL');
 
+// Enforce foreign key constraints so ON DELETE CASCADE actually works
+// (SQLite has this OFF by default, which would leave orphaned rows in sub-tables)
+db.pragma('foreign_keys = ON');
+
 // --- Schema Definition ---
 const schema = `
   -- Personnel Table

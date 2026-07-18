@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Suspense, useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,7 @@ const getFileIcon = (fileType: string) => {
   return <FileText className="h-5 w-5 text-muted-foreground" />;
 };
 
-export default function AttachmentsPage() {
+function AttachmentsPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -278,7 +278,7 @@ export default function AttachmentsPage() {
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                        سيتم حذف المرفق '{file.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                        سيتم حذف المرفق &apos;{file.name}&apos; بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -333,5 +333,19 @@ export default function AttachmentsPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+// `useSearchParams` must be wrapped in a Suspense boundary by the page,
+// otherwise static prerendering of this route fails at build time.
+export default function AttachmentsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center h-48">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AttachmentsPageContent />
+    </Suspense>
   );
 }

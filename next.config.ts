@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    // Photos and attachments are transferred as base64 data URLs, and full
+    // database backups are sent to the restore server action — the default
+    // 1MB server-action body limit is too small for these payloads.
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

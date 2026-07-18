@@ -12,18 +12,18 @@ import { usePersonnel } from '@/contexts/PersonnelContext';
 
 
 export default function PersonnelListPage() {
-  const { personnel, loading } = usePersonnel();
+  const { personnel, loading, refetch } = usePersonnel();
 
   const handleDelete = async (person: Personnel) => {
     try {
         await deletePersonnel(person.id);
-        logActivity('delete_personnel', `تم حذف الضابط: ${person.name}`, `رقم البطاقة: ${person.cardId}`);
+        await logActivity('delete_personnel', `تم حذف الضابط: ${person.name}`, `رقم البطاقة: ${person.cardId}`);
         toast({
           title: 'تم الحذف بنجاح',
           description: `تم حذف بيانات الضابط: ${person.name}`,
           variant: 'destructive'
         });
-        // The storage event will trigger a reload of the data via the context
+        refetch(); // Refresh the shared personnel data
     } catch (error) {
         toast({ title: 'خطأ', description: 'فشل حذف الضابط.', variant: 'destructive' });
     }

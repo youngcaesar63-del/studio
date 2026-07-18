@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Printer, FileText, Loader2, FileSpreadsheet, FileCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -76,7 +76,8 @@ export default function ReportsPage() {
       setLoading(false);
       
       const reportTypeLabel = reportTypes.find(rt => rt.value === reportType)?.label || '';
-      logActivity('create_report', `تم إنشاء تقرير جديد: ${reportTypeLabel}`, filterValue && filterValue !== 'الكل' ? `فلتر: ${filterValue}` : 'بدون فلتر');
+      logActivity('create_report', `تم إنشاء تقرير جديد: ${reportTypeLabel}`, filterValue && filterValue !== 'الكل' ? `فلتر: ${filterValue}` : 'بدون فلتر')
+        .catch(err => console.error('Failed to log activity:', err));
       
       toast({
         title: 'نجاح',
@@ -162,7 +163,7 @@ export default function ReportsPage() {
                 rows: [tableHeader, ...tableRows],
                 width: { size: 100, type: WidthType.PERCENTAGE },
                 columnWidths: [500, 2000, 1500, 2500, 2000, 1500],
-                bidirectional: true,
+                visuallyRightToLeft: true,
             });
 
             const doc = new Document({

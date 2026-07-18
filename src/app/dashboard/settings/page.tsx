@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from '@/components/ui/separator';
 import type { User as UserData } from '@/services/users.service';
-import { updateUser } from '@/services/users.service';
+import { updateUser, changePassword } from '@/services/users.service';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const themes = [ 'افتراضي', 'أخضر غابي', 'رمادي حجري', 'برتقالي مشمس' ];
@@ -94,7 +94,13 @@ export default function SettingsPage() {
         }
         setIsSaving(true);
         try {
-            await updateUser(currentUser.id, { password: newPassword });
+            const result = await changePassword(currentUser.id, currentPassword, newPassword);
+            if (!result.success) {
+                toast(result.error === 'wrong_password'
+                    ? { title: 'خطأ', description: 'كلمة المرور الحالية غير صحيحة.', variant: 'destructive' }
+                    : { title: 'خطأ', description: 'فشل تغيير كلمة المرور.', variant: 'destructive' });
+                return;
+            }
             toast({
                 title: 'تم تغيير كلمة المرور',
                 description: 'تم تحديث كلمة المرور الخاصة بك بنجاح.',
@@ -103,7 +109,7 @@ export default function SettingsPage() {
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
-             toast({ title: 'خطأ', description: 'فشل تغيير كلمة المرور. تأكد من كلمة المرور الحالية.', variant: 'destructive' });
+             toast({ title: 'خطأ', description: 'فشل تغيير كلمة المرور.', variant: 'destructive' });
         } finally {
             setIsSaving(false);
         }

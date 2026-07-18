@@ -8,8 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Database, Download, RefreshCw, Trash2, PlusCircle, Loader2, Upload, Cog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLocalStorage, updateLocalStorage } from "@/lib/localStorage-helpers";
-import db from '@/lib/db';
 import { saveAs } from 'file-saver';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
@@ -17,31 +15,20 @@ import { arSA } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-type Backup = {
-  id: string;
-  date: string; // ISO Date string
-  size: string;
-  status: 'مكتمل' | 'فشل';
-  // Backup data is not stored in state anymore, it's read from the DB
-};
-
-type AutoBackupSettings = {
-    enabled: boolean;
-    frequency: 'daily' | 'weekly' | 'monthly';
-};
-
-const getBackups = () => db.prepare("SELECT id, date, size, status FROM settings WHERE key LIKE 'backup-%' ORDER BY date DESC").all() as Backup[];
-
-const getBackupData = (backupId: string) => {
-    const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(`backup-${backupId}`) as { value: string };
-    return row ? JSON.parse(row.value).data : null;
-};
-
+import {
+    getBackupHistory,
+    getBackupDataById,
+    createBackup,
+    deleteBackup,
+    restoreBackupData,
+    getAutoBackupSettings,
+    saveAutoBackupSettings,
+} from '@/services/backup.service';
+import type { BackupMeta, AutoBackupSettings } from '@/services/backup.service';
 
 export default function BackupPage() {
     const { toast } = useToast();
-    const [backupHistory, setBackupHistory] = useState<Backup[]>([]);
+    const [backupHistory, setBackupHistory] = useState<BackupMeta[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [isRestoring, setIsRestoring] = useState(false);
@@ -56,34 +43,27 @@ export default function BackupPage() {
         return new Intl.NumberFormat('ar-EG').format(num);
     }
     
-    const loadData = useCallback(() => {
+    const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            const settingsRow = db.prepare("SELECT value FROM settings WHERE key = 'autoBackupSettings'").get() as {value: string} | undefined;
-            const settings = settingsRow ? JSON.parse(settingsRow.value) : { enabled: false, frequency: 'weekly' };
-            
+            const [settings, history] = await Promise.all([getAutoBackupSettings(), getBackupHistory()]);
             setAutoBackupSettings(settings);
-            
-            const rawBackups = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'backup-%' ORDER BY JSON_EXTRACT(value, '$.date') DESC").all() as { key: string, value: string }[];
-            const parsedBackups = rawBackups.map(b => {
-              const val = JSON.parse(b.value);
-              return {
-                id: val.id,
-                date: val.date,
-                size: val.size,
-                status: val.status,
-              }
-            });
-
-            setBackupHistory(parsedBackups);
-
+            setBackupHistory(history);
         } catch (error) {
             console.error("Failed to load backup data", error);
         }
         setLoading(false);
     }, []);
 
-    const createBackup = useCallback((isAuto: boolean = false) => {
+    const downloadDataFile = useCallback((data: Record<string, any>, dateIso?: string) => {
+        const dataString = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
+        const date = dateIso ? new Date(dateIso) : new Date();
+        const timestamp = !isNaN(date.getTime()) ? date.toISOString().replace(/[:.]/g, '-') : 'backup';
+        saveAs(blob, `backup-data-${timestamp}.json`);
+    }, []);
+
+    const runCreateBackup = useCallback(async (isAuto: boolean = false) => {
         if (!isAuto) {
             setIsCreating(true);
             toast({
@@ -93,79 +73,45 @@ export default function BackupPage() {
         }
         
         try {
-            // Get all data from the database
-            const allData: {[key: string]: any} = {};
-            const tables = ['personnel', 'important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 'service_history', 'medals', 'languages', 'children', 'brothers', 'sisters', 'mechanisms', 'attachments', 'users', 'roles', 'activity_log'];
-            tables.forEach(table => {
-                allData[table] = db.prepare(`SELECT * FROM ${table}`).all();
-            });
-            allData['settings'] = db.prepare("SELECT * FROM settings WHERE key NOT LIKE 'backup-%'").all();
+            const result = await createBackup();
+            if (!result.success || !result.data) {
+                throw new Error(result.error || 'create_failed');
+            }
 
-
-            const dataString = JSON.stringify(allData, null, 2);
-            const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
-            const sizeInMB = (blob.size / (1024 * 1024)).toFixed(2);
-            
-            const backupId = Date.now().toString();
-            const newBackup = {
-                id: backupId,
-                key: `backup-${backupId}`,
-                date: new Date().toISOString(),
-                size: `${sizeInMB} MB`,
-                status: 'مكتمل',
-                data: allData
-            };
-
-            const stmt = db.prepare("INSERT INTO settings (key, value) VALUES (@key, @value)");
-            stmt.run({
-                key: newBackup.key,
-                value: JSON.stringify({
-                   date: newBackup.date,
-                   size: newBackup.size,
-                   status: newBackup.status,
-                   id: newBackup.id,
-                   data: newBackup.data
-                })
-            });
-
-            loadData(); // Refresh history
+            await loadData();
 
             if (!isAuto) {
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                saveAs(blob, `backup-data-${timestamp}.json`);
+                downloadDataFile(result.data, result.meta?.date);
                 toast({
                     title: 'اكتمل النسخ الاحتياطي',
                     description: 'تم إنشاء وتنزيل النسخة الاحتياطية بنجاح.',
                 });
             } else {
-                 toast({
+                toast({
                     title: 'نسخ تلقائي مكتمل',
                     description: `تم إنشاء نسخة احتياطية تلقائية بنجاح.`,
                 });
             }
-
         } catch (error) {
             console.error("Backup failed:", error);
-            if (!isAuto) {
-                toast({ title: "خطأ", description: "فشل إنشاء النسخة الاحتياطية.", variant: "destructive" });
-            }
+            toast({ title: "خطأ", description: "فشل إنشاء النسخة الاحتياطية.", variant: "destructive" });
         } finally {
              if (!isAuto) {
                 setIsCreating(false);
              }
         }
-    }, [toast, loadData]);
+    }, [toast, loadData, downloadDataFile]);
 
     useEffect(() => {
         loadData();
     }, [loadData]);
     
-     useEffect(() => {
+    useEffect(() => {
         if (loading || !autoBackupSettings.enabled) return;
 
         const lastBackupDate = backupHistory.length > 0 ? new Date(backupHistory[0].date) : null;
-        if (!lastBackupDate) {
-            createBackup(true);
+        if (!lastBackupDate || isNaN(lastBackupDate.getTime())) {
+            runCreateBackup(true);
             return;
         }
 
@@ -180,21 +126,18 @@ export default function BackupPage() {
         }
         
         if(shouldBackup) {
-            createBackup(true);
+            runCreateBackup(true);
         }
 
-    }, [loading, autoBackupSettings, backupHistory, createBackup]);
+    }, [loading, autoBackupSettings, backupHistory, runCreateBackup]);
 
 
-    const handleDownload = (backupId: string) => {
-         try {
-            const backupData = getBackupData(backupId);
+    const handleDownload = async (backupId: string) => {
+        try {
+            const backupData = await getBackupDataById(backupId);
             if (!backupData) throw new Error("Backup data not found");
-            const dataString = JSON.stringify(backupData, null, 2);
-            const blob = new Blob([dataString], { type: 'application/json;charset=utf-8' });
-            const backupDate = new Date(backupHistory.find(b => b.id === backupId)!.date);
-            const timestamp = !isNaN(backupDate.getTime()) ? backupDate.toISOString().replace(/[:.]/g, '-') : `invalid-date-${backupId}`;
-            saveAs(blob, `backup-data-${timestamp}.json`);
+            const backupDate = backupHistory.find(b => b.id === backupId)?.date;
+            downloadDataFile(backupData, backupDate);
             toast({ title: 'تم التحميل بنجاح' });
         } catch (error) {
             console.error("Download failed:", error);
@@ -205,7 +148,7 @@ export default function BackupPage() {
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && file.type === "application/json") {
-             setFileToRestore(file);
+            setFileToRestore(file);
         } else {
             toast({ title: "ملف غير صالح", description: "الرجاء اختيار ملف بصيغة JSON.", variant: "destructive"});
             setFileToRestore(null);
@@ -217,43 +160,18 @@ export default function BackupPage() {
         setIsRestoring(true);
         
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
                 const text = e.target?.result;
                 const restoredData = JSON.parse(text as string);
 
-                // Basic validation
-                if (!restoredData.personnel || !restoredData.roles) {
-                    throw new Error("Invalid backup file structure.");
+                const result = await restoreBackupData(restoredData);
+                if (!result.success) {
+                    throw new Error(result.error);
                 }
-                
-                db.transaction(() => {
-                    // Clear existing data
-                    const tables = ['personnel', 'important_jobs', 'service_operations', 'decisive_storm', 'training_courses', 'service_history', 'medals', 'languages', 'children', 'brothers', 'sisters', 'mechanisms', 'attachments', 'users', 'roles', 'activity_log', 'settings'];
-                    tables.forEach(table => {
-                        db.prepare(`DELETE FROM ${table}`).run();
-                    });
-
-                    // Restore all data
-                    tables.forEach(table => {
-                        if (restoredData[table]) {
-                            const data = restoredData[table];
-                            if (data.length > 0) {
-                                const columns = Object.keys(data[0]);
-                                const placeholders = columns.map(() => '?').join(', ');
-                                const stmt = db.prepare(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`);
-                                data.forEach((row: any) => {
-                                    stmt.run(...Object.values(row));
-                                });
-                            }
-                        }
-                    });
-                })();
                 
                 toast({ title: "تمت الاستعادة بنجاح", description: "تم استعادة بيانات النظام من النسخة الاحتياطية." });
                 window.location.reload();
-
-
             } catch (error) {
                 console.error("Restore failed:", error);
                 toast({ title: "خطأ في الاستعادة", description: "الملف تالف أو غير متوافق.", variant: "destructive" });
@@ -268,10 +186,10 @@ export default function BackupPage() {
         reader.readAsText(fileToRestore);
     }
     
-    const handleDelete = (backupId: string) => {
+    const handleDelete = async (backupId: string) => {
         try {
-            db.prepare("DELETE FROM settings WHERE key = ?").run(`backup-${backupId}`);
-            loadData();
+            await deleteBackup(backupId);
+            await loadData();
             toast({ title: 'تم الحذف', description: 'تم حذف النسخة الاحتياطية بنجاح.', variant: 'destructive'});
         } catch (error) {
             console.error("Failed to delete backup", error);
@@ -279,7 +197,7 @@ export default function BackupPage() {
         }
     };
 
-    const getStatusVariant = (status: Backup['status']) => {
+    const getStatusVariant = (status: BackupMeta['status']) => {
         switch (status) {
             case 'مكتمل': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
             case 'فشل': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
@@ -300,12 +218,11 @@ export default function BackupPage() {
         }
     };
 
-    const handleAutoBackupSettingsChange = (key: keyof AutoBackupSettings, value: any) => {
+    const handleAutoBackupSettingsChange = async (key: keyof AutoBackupSettings, value: any) => {
         const newSettings = { ...autoBackupSettings, [key]: value };
         setAutoBackupSettings(newSettings);
         try {
-            const stmt = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('autoBackupSettings', ?)");
-            stmt.run(JSON.stringify(newSettings));
+            await saveAutoBackupSettings(newSettings);
             toast({ title: 'تم حفظ الإعدادات', description: 'تم تحديث إعدادات النسخ الاحتياطي التلقائي.' });
         } catch (error) {
             console.error("Failed to save settings", error);
@@ -328,7 +245,7 @@ export default function BackupPage() {
                         </Button>
                         <input type="file" ref={restoreInputRef} onChange={handleFileSelect} accept=".json" className="hidden" />
                         
-                        <Button onClick={() => createBackup(false)} disabled={isCreating}>
+                        <Button onClick={() => runCreateBackup(false)} disabled={isCreating}>
                             {isCreating ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <PlusCircle className="ml-2 h-4 w-4" />}
                             {isCreating ? 'جاري الإنشاء...' : 'إنشاء نسخة احتياطية'}
                         </Button>

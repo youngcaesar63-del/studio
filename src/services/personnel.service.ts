@@ -100,7 +100,8 @@ function insertSubTableData(personnelId: number, tableName: string, data: any[])
     
     const insertMany = db.transaction((items) => {
         for (const item of items) {
-            const values = [personnelId, ...keys.map(k => item[k])];
+            // `?? null` prevents better-sqlite3 from throwing on missing/undefined values
+            const values = [personnelId, ...keys.map(k => item[k] ?? null)];
             stmt.run(...values);
         }
     });
@@ -112,25 +113,48 @@ const mapPersonnelFromDb = (p: any, allSubData: Record<string, any>): Personnel 
     if (!p) return p;
     const personnel: Personnel = {
         ...p,
-        phoneNumbers: p.phoneNumbers ? JSON.parse(p.phoneNumbers) : {},
+        phoneNumbers: typeof p.phoneNumbers === 'string' ? JSON.parse(p.phoneNumbers) : {},
     };
 
     subTables.forEach(tableInfo => {
-        personnel[tableInfo.name as keyof Personnel] = allSubData[tableInfo.tableName]?.[p.id] || [];
+        (personnel as any)[tableInfo.name] = allSubData[tableInfo.tableName]?.[p.id] || [];
     });
     
     return personnel;
 };
 
 // Helper to convert dates to ISO strings for DB storage
-const toISO = (date: Date | undefined | string | null): string | undefined | null => {
+const toISO = (date: Date | undefined | string | null): string | null => {
     if (!date) return null;
-    if (typeof date === 'string') return date; // Already a string
-    return date.toISOString();
+    if (date instanceof Date) return date.toISOString();
+    return date; // Already a string
 };
 
+/**
+ * Input type for creating/updating personnel records.
+ * Accepts the shape produced by the add/edit form: `fullName` instead of `name`,
+ * and `Date` objects (or ISO strings) for date fields.
+ */
+export type PersonnelInput = Omit<Partial<Personnel>,
+    'appointmentDate' | 'lastReturnDate' | 'transferDate' |
+    'reportingDate' | 'dateOfBirth' | 'statusDate'
+> & {
+    fullName?: string;
+    appointmentDate?: Date | string | null;
+    lastReturnDate?: Date | string | null;
+    transferDate?: Date | string | null;
+    reportingDate?: Date | string | null;
+    dateOfBirth?: Date | string | null;
+    statusDate?: Date | string | null;
+};
 
-const mapPersonnelToDb = (data: Partial<Personnel>): any => {
+const mainTableDateFields = [
+    'appointmentDate', 'lastReturnDate', 'transferDate',
+    'reportingDate', 'dateOfBirth', 'statusDate'
+] as const;
+
+
+const mapPersonnelToDb = (data: PersonnelInput): any => {
     const dbData: any = { ...data };
     
     // Map name correctly from form
@@ -140,26 +164,31 @@ const mapPersonnelToDb = (data: Partial<Personnel>): any => {
     }
 
     // Stringify JSON fields
-    if (dbData.phoneNumbers) dbData.phoneNumbers = JSON.stringify(dbData.phoneNumbers);
+    if (dbData.phoneNumbers && typeof dbData.phoneNumbers !== 'string') {
+        dbData.phoneNumbers = JSON.stringify(dbData.phoneNumbers);
+    }
 
     // Convert date objects to ISO strings
-    const dateFields: (keyof Personnel)[] = [
-        'appointmentDate', 'lastReturnDate', 'transferDate', 
-        'reportingDate', 'dateOfBirth', 'statusDate'
-    ];
-    dateFields.forEach(field => {
-        if (dbData[field]) dbData[field] = toISO(dbData[field]);
+    mainTableDateFields.forEach(field => {
+        if (field in dbData) dbData[field] = toISO(dbData[field]);
     });
 
-    const mapTimeBasedArray = (arr: any[] | undefined) => {
+    // better-sqlite3 throws TypeError when binding `undefined`
+    // ("SQLite3 can only bind numbers, strings, bigints, buffers, and null").
+    // Normalize any undefined input to null so inserts/updates never crash.
+    Object.keys(dbData).forEach(key => {
+        if (dbData[key] === undefined) dbData[key] = null;
+    });
+
+    const mapTimeBasedArray = (arr: any[] | undefined | null) => {
       if(!arr) return [];
       return arr.map(item => ({ ...item, periodFrom: toISO(item.periodFrom), periodTo: toISO(item.periodTo) }))
     }
 
     subTables.forEach(table => {
-        const key = table.name as keyof Personnel;
+        const key = table.name;
         if (dbData[key]) {
-            if (['importantJobs', 'serviceOperations', 'decisiveStorm', 'trainingCourses', 'serviceHistory', 'mechanisms'].includes(key as string)) {
+            if (['importantJobs', 'serviceOperations', 'decisiveStorm', 'trainingCourses', 'serviceHistory', 'mechanisms'].includes(key)) {
                 dbData[key] = mapTimeBasedArray(dbData[key]);
             }
         }
@@ -221,18 +250,18 @@ export async function getPersonnelById(id: number): Promise<Personnel | undefine
   return mapPersonnelFromDb(person, allSubDataForOne);
 }
 
-export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Promise<Personnel> {
+export async function addPersonnel(newPersonnelData: PersonnelInput): Promise<Personnel> {
   const dbData = mapPersonnelToDb(newPersonnelData);
 
   const subTableData: {[key: string]: any[]} = {};
   subTables.forEach(table => {
       const key = table.name;
-      if (dbData[key]) {
+      if (Array.isArray(dbData[key])) {
           subTableData[table.tableName] = dbData[key];
           delete dbData[key];
       }
   });
-  
+
   const mainColumns = Object.keys(dbData).filter(k => k !== 'id');
   const mainPlaceholders = mainColumns.map(() => '?').join(', ');
   
@@ -252,14 +281,18 @@ export async function addPersonnel(newPersonnelData: Omit<Personnel, 'id'>): Pro
   return (await getPersonnelById(newId))!;
 }
 
-export async function updatePersonnel(id: number, updatedData: Partial<Omit<Personnel, 'id'>>): Promise<Personnel> {
+export async function updatePersonnel(id: number, updatedData: PersonnelInput): Promise<Personnel> {
     const dbData = mapPersonnelToDb(updatedData);
 
     const subTableData: {[key: string]: any[]} = {};
     subTables.forEach(table => {
         const key = table.name;
-        if (dbData.hasOwnProperty(key)) {
+        // Only touch a sub-table when an actual array was provided, so partial
+        // updates that omit it keep the existing rows instead of wiping them.
+        if (Array.isArray(dbData[key])) {
             subTableData[table.tableName] = dbData[key];
+            delete dbData[key];
+        } else if (key in dbData) {
             delete dbData[key];
         }
     });

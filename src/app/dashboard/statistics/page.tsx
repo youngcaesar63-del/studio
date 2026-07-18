@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { BarChart2, Users, BookOpen, ShieldAlert, Footprints, UserPlus, Briefcase, Plane, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
+import { BarChart2, Users, BookOpen, ShieldAlert, Briefcase, GraduationCap, Shield, LandPlot, Users2, HardHat } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -28,6 +28,52 @@ const formatArabicNumber = (num: number | string) => {
     const str = String(num);
     return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
 };
+
+// Pure helper: aggregate counts of a scalar field across all personnel
+const processChartData = (personnelData: Personnel[], key: keyof Personnel) => {
+    if (personnelData.length === 0) return { total: 0, data: [] as { name: string; value: number }[] };
+
+    const counts = personnelData.reduce((acc, p) => {
+        const value = p[key] || 'غير محدد';
+        const stringValue = String(value);
+        acc[stringValue] = (acc[stringValue] || 0) + 1;
+        return acc;
+    }, {} as {[key: string]: number});
+
+    let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+
+    if (key === 'rank') {
+        data.sort((a,b) => (rankOrder[a.name] || 99) - (rankOrder[b.name] || 99));
+    } else {
+        data.sort((a, b) => b.value - a.value);
+    }
+
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+
+    return { total, data };
+}
+
+// Pure helper: aggregate counts of items inside array fields (e.g. trainingCourses)
+const processArrayChartData = (personnelData: Personnel[], key: keyof Personnel, nameKey: string) => {
+    if (personnelData.length === 0) return { total: 0, data: [] as { name: string; value: number }[] };
+
+    const counts = personnelData.reduce((acc, p) => {
+        const items = p[key] as any[];
+        if (items && items.length > 0) {
+            items.forEach(item => {
+                const value = item[nameKey] || 'غير محدد';
+                acc[value] = (acc[value] || 0) + 1;
+            })
+        }
+        return acc;
+    }, {} as {[key: string]: number});
+
+    let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+    data.sort((a, b) => b.value - a.value);
+    const total = data.length; // Total unique items
+
+    return { total, data };
+}
 
 const StatsDetailCard = ({ title, icon: Icon, total, data, loading, onItemClick }: StatsDetailCardProps) => (
     <Card className="shadow-md flex flex-col">
@@ -67,53 +113,35 @@ export default function StatisticsPage() {
     const [dialogTitle, setDialogTitle] = useState('');
     const [dialogData, setDialogData] = useState<Personnel[]>([]);
 
-    const processChartData = (key: keyof Personnel) => {
-        return useMemo(() => {
-            if (loading || personnelData.length === 0) return { total: 0, data: [] };
-            
-            const counts = personnelData.reduce((acc, p) => {
-                const value = p[key] || 'غير محدد';
-                const stringValue = String(value);
-                acc[stringValue] = (acc[stringValue] || 0) + 1;
-                return acc;
-            }, {} as {[key: string]: number});
+    const statsCardsData = useMemo(() => {
+        if (loading) {
+            return null;
+        }
 
-            let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+        const rankStats = processChartData(personnelData, 'rank');
+        const adminStats = processChartData(personnelData, 'administration');
+        const statusStats = processChartData(personnelData, 'status');
+        const batchStats = processChartData(personnelData, 'batch');
+        const qualificationStats = processChartData(personnelData, 'academicQualification');
+        const specializationStats = processChartData(personnelData, 'specialization');
+        const serviceOpsStats = processArrayChartData(personnelData, 'serviceOperations', 'areaName');
+        const coursesStats = processArrayChartData(personnelData, 'trainingCourses', 'courseName');
+        const stormStats = processArrayChartData(personnelData, 'decisiveStorm', 'name');
+        const mechanismsStats = processArrayChartData(personnelData, 'mechanisms', 'name');
 
-            if (key === 'rank') {
-                data.sort((a,b) => (rankOrder[a.name] || 99) - (rankOrder[b.name] || 99));
-            } else {
-                data.sort((a, b) => b.value - a.value);
-            }
-            
-            const total = data.reduce((sum, item) => sum + item.value, 0);
-
-            return { total, data };
-        }, [personnelData, loading, key]);
-    }
-    
-    const processArrayChartData = (key: keyof Personnel, nameKey: string) => {
-        return useMemo(() => {
-            if (loading || personnelData.length === 0) return { total: 0, data: [] };
-
-            const counts = personnelData.reduce((acc, p) => {
-                const items = p[key] as any[];
-                if (items && items.length > 0) {
-                    items.forEach(item => {
-                        const value = item[nameKey] || 'غير محدد';
-                        acc[value] = (acc[value] || 0) + 1;
-                    })
-                }
-                return acc;
-            }, {} as {[key: string]: number});
-            
-            let data = Object.entries(counts).map(([name, value]) => ({ name, value }));
-            data.sort((a, b) => b.value - a.value);
-            const total = data.length; // Total unique items
-
-            return { total, data };
-        }, [personnelData, loading, key, nameKey]);
-    };
+        return [
+            { title: 'إحصائيات الرتب', icon: Shield, total: rankStats.total, data: rankStats.data, category: 'rank' as const, titlePrefix: 'الضباط برتبة' },
+            { title: 'إحصائيات الإدارات', icon: Users, total: adminStats.total, data: adminStats.data, category: 'administration' as const, titlePrefix: 'الضباط في إدارة' },
+            { title: 'إحصائيات الدفعات', icon: Users, total: batchStats.total, data: batchStats.data, category: 'batch' as const, titlePrefix: 'الضباط من دفعة' },
+            { title: 'إحصائيات الحالة', icon: Briefcase, total: statusStats.total, data: statusStats.data, category: 'status' as const, titlePrefix: 'الضباط بحالة' },
+            { title: 'المؤهلات الأكاديمية', icon: GraduationCap, total: qualificationStats.total, data: qualificationStats.data, category: 'academicQualification' as const, titlePrefix: 'الضباط الحاصلون على' },
+            { title: 'التخصصات', icon: HardHat, total: specializationStats.total, data: specializationStats.data, category: 'specialization' as const, titlePrefix: 'الضباط بتخصص' },
+            { title: 'خدمة العمليات', icon: ShieldAlert, total: serviceOpsStats.total, data: serviceOpsStats.data, category: 'serviceOperations' as const, titlePrefix: 'الضباط المشاركون في' },
+            { title: 'عاصفة الحزم', icon: LandPlot, total: stormStats.total, data: stormStats.data, category: 'decisiveStorm' as const, titlePrefix: 'الضباط المشاركون في' },
+            { title: 'الدورات التدريبية', icon: BookOpen, total: coursesStats.total, data: coursesStats.data, category: 'trainingCourses' as const, titlePrefix: 'الضباط الحاصلون على دورة' },
+            { title: 'الآليات', icon: Users2, total: mechanismsStats.total, data: mechanismsStats.data, category: 'mechanisms' as const, titlePrefix: 'الضباط المشاركون في آلية' },
+        ];
+    }, [personnelData, loading]);
 
     const handleStatItemClick = (category: keyof Personnel, itemName: string, titlePrefix: string) => {
         const filteredData = personnelData.filter(p => {
@@ -125,7 +153,7 @@ export default function StatisticsPage() {
             };
 
             const keyString = category as string;
-            
+
             if (Array.isArray(p[category])) {
                  const nameKey = nameKeyMap[keyString];
                  if(!nameKey) return false;
@@ -140,30 +168,6 @@ export default function StatisticsPage() {
         setDialogOpen(true);
     };
 
-    const rankStats = processChartData('rank');
-    const adminStats = processChartData('administration');
-    const statusStats = processChartData('status');
-    const batchStats = processChartData('batch');
-    const qualificationStats = processChartData('academicQualification');
-    const specializationStats = processChartData('specialization');
-    const serviceOpsStats = processArrayChartData('serviceOperations', 'areaName');
-    const coursesStats = processArrayChartData('trainingCourses', 'courseName');
-    const stormStats = processArrayChartData('decisiveStorm', 'name');
-    const mechanismsStats = processArrayChartData('mechanisms', 'name');
-
-    const statsCardsData = [
-        { title: 'إحصائيات الرتب', icon: Shield, total: rankStats.data.reduce((s,i) => s + i.value, 0), data: rankStats.data, category: 'rank' as const, titlePrefix: 'الضباط برتبة' },
-        { title: 'إحصائيات الإدارات', icon: Users, total: adminStats.data.reduce((s,i) => s + i.value, 0), data: adminStats.data, category: 'administration' as const, titlePrefix: 'الضباط في إدارة' },
-        { title: 'إحصائيات الدفعات', icon: Users, total: batchStats.data.reduce((s,i) => s + i.value, 0), data: batchStats.data, category: 'batch' as const, titlePrefix: 'الضباط من دفعة' },
-        { title: 'إحصائيات الحالة', icon: Briefcase, total: statusStats.data.reduce((s,i) => s + i.value, 0), data: statusStats.data, category: 'status' as const, titlePrefix: 'الضباط بحالة' },
-        { title: 'المؤهلات الأكاديمية', icon: GraduationCap, total: qualificationStats.data.reduce((s,i) => s + i.value, 0), data: qualificationStats.data, category: 'academicQualification' as const, titlePrefix: 'الضباط الحاصلون على' },
-        { title: 'التخصصات', icon: HardHat, total: specializationStats.data.reduce((s,i) => s + i.value, 0), data: specializationStats.data, category: 'specialization' as const, titlePrefix: 'الضباط بتخصص' },
-        { title: 'خدمة العمليات', icon: ShieldAlert, total: serviceOpsStats.total, data: serviceOpsStats.data, category: 'serviceOperations' as const, titlePrefix: 'الضباط المشاركون في' },
-        { title: 'عاصفة الحزم', icon: LandPlot, total: stormStats.total, data: stormStats.data, category: 'decisiveStorm' as const, titlePrefix: 'الضباط المشاركون في' },
-        { title: 'الدورات التدريبية', icon: BookOpen, total: coursesStats.total, data: coursesStats.data, category: 'trainingCourses' as const, titlePrefix: 'الضباط الحاصلون على دورة' },
-        { title: 'الآليات', icon: Users2, total: mechanismsStats.total, data: mechanismsStats.data, category: 'mechanisms' as const, titlePrefix: 'الضباط المشاركون في آلية' },
-    ];
-
 
     return (
         <div className="animate-in fade-in duration-500 space-y-6 mb-12">
@@ -175,7 +179,7 @@ export default function StatisticsPage() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {loading ? [...Array(10)].map((_, i) => <Skeleton key={i} className="h-80 w-full" />) :
+                {loading || !statsCardsData ? [...Array(10)].map((_, i) => <Skeleton key={i} className="h-80 w-full" />) :
                     statsCardsData.map((stat) => (
                         <StatsDetailCard
                             key={stat.title}

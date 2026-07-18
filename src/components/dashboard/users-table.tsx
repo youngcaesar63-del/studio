@@ -75,7 +75,7 @@ export function UsersTable({ data, onDelete, onToggleStatus, onEdit }: UsersTabl
                             <AlertDialogHeader>
                               <AlertDialogTitle>هل أنت متأكد تمامًا؟</AlertDialogTitle>
                               <AlertDialogDescription>
-                                سيتم حذف حساب المستخدم '{user.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                سيتم حذف حساب المستخدم &apos;{user.name}&apos; بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
