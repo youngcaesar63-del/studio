@@ -1,6 +1,3 @@
-import { Recharts } from "recharts"
-
-
 export const rankOrder: { [key: string]: number } = {
   'فريق أول': 1, 'فريق': 2, 'لواء': 3, 'عميد': 4, 'عقيد': 5, 'مقدم': 6, 'رائد': 7, 'نقيب': 8, 'ملازم أول': 9, 'ملازم': 10,
 };

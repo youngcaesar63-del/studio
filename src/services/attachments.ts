@@ -13,10 +13,22 @@ export type Attachment = {
   dataUrl: string;
 };
 
+// Maps a raw DB row (snake_case) to the Attachment type (camelCase)
+const mapRowToAttachment = (row: any): Attachment => ({
+  id: row.id,
+  personnelId: row.personnel_id,
+  name: row.name,
+  type: row.type,
+  size: row.size,
+  uploadDate: row.uploadDate,
+  dataUrl: row.dataUrl,
+});
+
 // Simulates fetching attachments for a specific personnel member from a database.
 export async function getAttachmentsForPersonnel(personnelId: number): Promise<Attachment[]> {
   const stmt = db.prepare('SELECT * FROM attachments WHERE personnel_id = ?');
-  return stmt.all(personnelId) as Attachment[];
+  const rows = stmt.all(personnelId) as any[];
+  return rows.map(mapRowToAttachment);
 }
 
 // Simulates adding multiple new attachments to the database.
@@ -59,7 +71,7 @@ export async function updateAttachment(attachmentId: string, updates: Partial<At
     }
     
     const getStmt = db.prepare('SELECT * FROM attachments WHERE id = ?');
-    return getStmt.get(attachmentId) as Attachment;
+    return mapRowToAttachment(getStmt.get(attachmentId));
 }
 
 // Simulates deleting an attachment from the database.

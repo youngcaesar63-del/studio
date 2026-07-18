@@ -1,15 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Bar, BarChart, Pie, PieChart, ResponsiveContainer, YAxis, XAxis, Cell, Tooltip, CartesianGrid } from 'recharts';
+import { useState, useMemo } from 'react';
+import { Bar, BarChart, Pie, PieChart, YAxis, XAxis, Cell, CartesianGrid } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { PieChart as PieIcon, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { rankOrder } from '@/lib/constants';
-import { toast } from '@/hooks/use-toast';
 import { usePersonnel } from '@/contexts/PersonnelContext';
 
 

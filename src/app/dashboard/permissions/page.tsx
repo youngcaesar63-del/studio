@@ -8,31 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Shield, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import db from "@/lib/db";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-
-type Permission = {
-  id: string;
-  name: string;
-  enabled: boolean;
-};
-
-type Role = {
-  name: string;
-  description: string;
-  permissions: Permission[];
-};
-
-const allAvailablePermissions: Omit<Permission, 'enabled'>[] = [
-    { id: 'p1', name: 'عرض لوحة التحكم' },
-    { id: 'p2', name: 'إدارة الضباط' },
-    { id: 'p3', name: 'إنشاء التقارير' },
-    { id: 'p4', name: 'إدارة المستخدمين والصلاحيات' },
-    { id: 'p5', name: 'الوصول للإعدادات المتقدمة' },
-];
+import { getAllRoles, saveRole, updateRolePermissions } from '@/services/roles.service';
+import { allAvailablePermissions } from '@/lib/permissions';
+import type { Role } from '@/lib/permissions';
 
 export default function PermissionsPage() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -46,29 +28,11 @@ export default function PermissionsPage() {
   const [rolePermissions, setRolePermissions] = useState<{[key: string]: boolean}>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
-        let rolesFromDb = db.prepare('SELECT * FROM roles').all() as any[];
-
-        if (rolesFromDb.length === 0) {
-            // Initialize with a default 'مدير' role if no roles exist
-            const defaultManagerRole: Role = {
-                name: 'مدير',
-                description: 'يمتلك جميع صلاحيات الوصول للنظام.',
-                permissions: allAvailablePermissions.map(p => ({ ...p, enabled: true }))
-            };
-            const stmt = db.prepare('INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)');
-            stmt.run(defaultManagerRole.name, defaultManagerRole.description, JSON.stringify(defaultManagerRole.permissions));
-            rolesFromDb = [defaultManagerRole];
-        }
-
-        const parsedRoles = rolesFromDb.map(role => ({
-            ...role,
-            permissions: typeof role.permissions === 'string' ? JSON.parse(role.permissions) : role.permissions
-        }));
-
-        setRoles(parsedRoles);
+        const rolesFromDb = await getAllRoles();
+        setRoles(rolesFromDb);
     } catch(error) {
         console.error("Failed to load roles", error);
         toast({ title: "خطأ", description: "فشل تحميل الأدوار والصلاحيات.", variant: "destructive" });
@@ -80,29 +44,31 @@ export default function PermissionsPage() {
     loadData();
   }, [loadData]);
 
-  const handlePermissionChange = (roleName: string, permissionId: string, newEnabledState: boolean) => {
+  const handlePermissionChange = async (roleName: string, permissionId: string, newEnabledState: boolean) => {
     try {
         const roleToUpdate = roles.find(r => r.name === roleName);
         if (!roleToUpdate) return;
 
-        const updatedPermissions = roleToUpdate.permissions.map(p => 
+        const updatedPermissions = roleToUpdate.permissions.map(p =>
             p.id === permissionId ? { ...p, enabled: newEnabledState } : p
         );
 
-        const stmt = db.prepare('UPDATE roles SET permissions = ? WHERE name = ?');
-        stmt.run(JSON.stringify(updatedPermissions), roleName);
+        const result = await updateRolePermissions(roleName, updatedPermissions);
+        if (!result.success) {
+            throw new Error(result.error);
+        }
 
         const permission = roleToUpdate.permissions.find(p => p.id === permissionId);
         toast({
             title: 'تم تحديث الصلاحية',
             description: `تم ${newEnabledState ? 'تفعيل' : 'تعطيل'} صلاحية "${permission?.name}" لدور "${roleName}".`,
         });
-        loadData(); // Reload from DB
+        await loadData();
     } catch (error) {
         console.error("Failed to update permission", error);
         toast({ title: "خطأ", description: "فشل تحديث الصلاحية.", variant: "destructive" });
     }
-  };
+  }
 
   const openAddDialog = () => {
     setEditingRole(null);
@@ -120,35 +86,39 @@ export default function PermissionsPage() {
     setDialogOpen(true);
   }
 
-  const handleSaveRole = () => {
+  const handleSaveRole = async () => {
     if (!roleName.trim() || !roleDescription.trim()) {
         toast({ title: 'خطأ', description: 'الرجاء إدخال اسم ووصف الدور.', variant: 'destructive' });
         return;
     }
-    
+
     setIsSaving(true);
     try {
       const newPermissions = allAvailablePermissions.map(p => ({
           ...p,
           enabled: !!rolePermissions[p.id]
       }));
-      const permissionsJson = JSON.stringify(newPermissions);
 
-      if (editingRole) { // Editing existing role
-          const stmt = db.prepare('UPDATE roles SET description = ?, permissions = ? WHERE name = ?');
-          stmt.run(roleDescription, permissionsJson, editingRole.name);
-          toast({ title: 'تم التحديث', description: `تم تحديث دور "${editingRole.name}" بنجاح.` });
-      } else { // Adding new role
-          const existingRole = db.prepare('SELECT * FROM roles WHERE name = ?').get(roleName);
-          if (existingRole) {
+      const isNew = !editingRole;
+      const result = await saveRole(
+          { name: roleName.trim(), description: roleDescription.trim(), permissions: newPermissions },
+          isNew
+      );
+
+      if (!result.success) {
+          if (result.error === 'duplicate') {
               toast({ title: 'خطأ', description: 'هذا الدور موجود بالفعل.', variant: 'destructive' });
-              return;
+          } else {
+              toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ الدور.', variant: 'destructive'});
           }
-          const stmt = db.prepare('INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)');
-          stmt.run(roleName, roleDescription, permissionsJson);
-          toast({ title: 'تمت الإضافة', description: `تم إضافة دور "${roleName}" بنجاح.` });
+          return;
       }
-      loadData();
+
+      toast(isNew
+          ? { title: 'تمت الإضافة', description: `تم إضافة دور "${roleName}" بنجاح.` }
+          : { title: 'تم التحديث', description: `تم تحديث دور "${editingRole!.name}" بنجاح.` });
+
+      await loadData();
       setDialogOpen(false);
     } catch(error) {
        console.error("Failed to save role", error);

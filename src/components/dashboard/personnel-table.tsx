@@ -115,7 +115,7 @@ export function PersonnelTable({ data, onDelete }: { data: Personnel[], onDelete
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    سيتم حذف بيانات الضابط '{person.name}' بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
+                                    سيتم حذف بيانات الضابط &apos;{person.name}&apos; بشكل دائم. لا يمكن التراجع عن هذا الإجراء.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>

@@ -40,6 +40,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { logActivity } from '@/lib/activity-log';
 import { addPersonnel, updatePersonnel, getPersonnelById, Personnel as PersonnelData } from '@/services/personnel.service';
+import { usePersonnel } from '@/contexts/PersonnelContext';
 import { Skeleton } from '../ui/skeleton';
 import { Card, CardContent } from '../ui/card';
 
@@ -172,6 +173,7 @@ export function AddPersonnelForm() {
   const params = useParams();
   const id = params.id ? Number(params.id) : null;
   const isEditMode = id !== null;
+  const { refetch } = usePersonnel();
 
   const [loading, setLoading] = useState(isEditMode);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -273,19 +275,20 @@ export function AddPersonnelForm() {
     try {
       if (isEditMode && id) {
         await updatePersonnel(id, values);
-        logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
+        await logActivity('edit_personnel', `تم تعديل بيانات الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
         toast({
           title: 'تم التحديث بنجاح',
           description: `تم تحديث بيانات الضابط ${values.fullName}.`,
         });
       } else {
         await addPersonnel(values);
-        logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
+        await logActivity('add_personnel', `تمت إضافة الضابط: ${values.fullName}`, `رقم البطاقة: ${values.cardId}`);
         toast({
           title: 'تم الحفظ بنجاح',
           description: `تمت إضافة الضابط ${values.fullName} إلى السجل.`,
         });
       }
+      refetch(); // Refresh shared personnel data before navigating away
       router.push('/dashboard/personnel-list');
     } catch (error) {
       toast({ title: 'خطأ', description: `فشل ${isEditMode ? 'تحديث' : 'إضافة'} الضابط.`, variant: 'destructive' });

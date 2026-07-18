@@ -7,7 +7,6 @@ import { UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useCallback } from 'react';
-import db from '@/lib/db';
 import {
   Dialog,
   DialogContent,
@@ -15,28 +14,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-
-type User = {
-    id: number;
-    name: string;
-    role: string;
-    lastLogin: string;
-    status: 'نشط' | 'غير نشط';
-    password?: string;
-};
-
-type Role = {
-    name: string;
-    description: string;
-    permissions: any[];
-}
-
+import { getAllUsers, addUser, editUser, deleteUser, toggleUserStatus } from '@/services/users.service';
+import type { User } from '@/services/users.service';
+import { getRoleNames } from '@/services/roles.service';
 
 export default function UsersPage() {
   const { toast } = useToast();
@@ -50,13 +34,11 @@ export default function UsersPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const loadData = useCallback(() => {
+  const loadData = useCallback(async () => {
     try {
-        const usersData = db.prepare('SELECT id, name, role, lastLogin, status FROM users').all() as User[];
+        const [usersData, rolesData] = await Promise.all([getAllUsers(), getRoleNames()]);
         setUsers(usersData);
-
-        const rolesData = db.prepare('SELECT name FROM roles').all() as { name: string }[];
-        setRoles(rolesData.map(r => r.name));
+        setRoles(rolesData);
     } catch (error) {
         console.error("Failed to load users/roles data", error);
         toast({ title: "خطأ", description: "فشل تحميل بيانات المستخدمين أو الأدوار.", variant: "destructive" });
@@ -85,7 +67,7 @@ export default function UsersPage() {
     setDialogOpen(true);
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     if (!userName || !userRole) {
         toast({ title: "خطأ", description: "الرجاء إدخال اسم المستخدم والدور.", variant: "destructive" });
         return;
@@ -103,86 +85,65 @@ export default function UsersPage() {
 
     setIsSaving(true);
     try {
-      if (editingUser) {
-          // Edit existing user
-          const updates: Partial<User> = { name: userName, role: userRole };
-          if(password) {
-              updates.password = password;
-          }
-          const columns = Object.keys(updates).map(k => `${k} = ?`).join(', ');
-          const values = [...Object.values(updates), editingUser.id];
-          const stmt = db.prepare(`UPDATE users SET ${columns} WHERE id = ?`);
-          stmt.run(...values);
-          toast({ title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` });
-      } else {
-          // Add new user
-          const newUser: Omit<User, 'id' | 'lastLogin'> = {
-              name: userName,
-              password: password,
-              role: userRole,
-              status: 'نشط',
-          };
-          const stmt = db.prepare('INSERT INTO users (name, password, role, status, lastLogin) VALUES (?, ?, ?, ?, ?)');
-          stmt.run(newUser.name, newUser.password, newUser.role, newUser.status, 'لم يسجل دخول بعد');
-          toast({ title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
-      }
-      loadData(); // Reload data from DB
-      setDialogOpen(false);
-    } catch(error: any) {
-      console.error("Failed to save user", error);
-       if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      const result = editingUser
+        ? await editUser(editingUser.id, { name: userName, role: userRole, password: password || undefined })
+        : await addUser({ name: userName, password, role: userRole });
+
+      if (!result.success) {
+        if (result.error === 'duplicate') {
             toast({ title: 'خطأ', description: 'اسم المستخدم هذا موجود بالفعل.', variant: 'destructive'});
         } else {
             toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
         }
-    } finally {
-        setIsSaving(false);
-    }
-  };
-
-
-  const handleDeleteUser = (userId: number) => {
-    if (userId === 1) {
-        toast({ title: "غير مسموح", description: "لا يمكن حذف حساب مدير النظام الافتراضي.", variant: "destructive" });
         return;
-    }
-    try {
-        const user = users.find(u => u.id === userId);
-        const stmt = db.prepare('DELETE FROM users WHERE id = ?');
-        stmt.run(userId);
-        toast({
-            title: 'تم الحذف',
-            description: `تم حذف المستخدم: ${user?.name}`,
-            variant: 'destructive'
-        });
-        loadData();
+      }
+
+      toast(editingUser
+        ? { title: 'تم التحديث', description: `تم تحديث بيانات المستخدم: ${userName}` }
+        : { title: 'تمت الإضافة', description: `تم إضافة المستخدم: ${userName}` });
+
+      await loadData();
+      setDialogOpen(false);
     } catch(error) {
-       console.error("Failed to delete user", error);
-       toast({ title: "خطأ", description: "فشل حذف المستخدم.", variant: "destructive" });
+      console.error("Failed to save user", error);
+      toast({ title: 'خطأ في الحفظ', description: 'فشلت عملية حفظ المستخدم.', variant: 'destructive'});
+    } finally {
+      setIsSaving(false);
     }
   }
 
-  const handleToggleStatus = (userId: number) => {
-      if (userId === 1) {
-          toast({ title: "غير مسموح", description: "لا يمكن تغيير حالة مدير النظام الافتراضي.", variant: "destructive" });
+
+  const handleDeleteUser = async (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    const result = await deleteUser(userId);
+    if (!result.success) {
+        toast(result.error === 'forbidden'
+            ? { title: "غير مسموح", description: "لا يمكن حذف حساب مدير النظام الافتراضي.", variant: "destructive" }
+            : { title: "خطأ", description: "فشل حذف المستخدم.", variant: "destructive" });
+        return;
+    }
+    toast({
+        title: 'تم الحذف',
+        description: `تم حذف المستخدم: ${user?.name}`,
+        variant: 'destructive'
+    });
+    await loadData();
+  }
+
+  const handleToggleStatus = async (userId: number) => {
+      const user = users.find(u => u.id === userId);
+      const result = await toggleUserStatus(userId);
+      if (!result.success) {
+          toast(result.error === 'forbidden'
+              ? { title: "غير مسموح", description: "لا يمكن تغيير حالة مدير النظام الافتراضي.", variant: "destructive" }
+              : { title: "خطأ", description: "فشل تغيير حالة المستخدم.", variant: "destructive" });
           return;
       }
-      try {
-        const user = users.find(u => u.id === userId);
-        if (user) {
-            const newStatus = user.status === 'نشط' ? 'غير نشط' : 'نشط';
-            const stmt = db.prepare('UPDATE users SET status = ? WHERE id = ?');
-            stmt.run(newStatus, userId);
-            toast({
-                title: 'تم تغيير الحالة',
-                description: `تم تغيير حالة المستخدم: ${user.name}`,
-            });
-            loadData();
-        }
-      } catch (error) {
-        console.error("Failed to toggle user status", error);
-        toast({ title: "خطأ", description: "فشل تغيير حالة المستخدم.", variant: "destructive" });
-      }
+      toast({
+          title: 'تم تغيير الحالة',
+          description: `تم تغيير حالة المستخدم: ${user?.name}`,
+      });
+      await loadData();
   }
   
   return (

@@ -41,9 +41,21 @@ export default function WelcomePage() {
   const router = useRouter();
   const [date, setDate] = useState({ hijri: '', gregorian: '' });
   const [time, setTime] = useState('');
-  const [username] = useState('مدير النظام'); // Hardcoded for now
+  const [username, setUsername] = useState('مدير النظام');
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const userData = sessionStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user?.name) setUsername(user.name);
+      } catch {
+        // keep default
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const REDIRECT_DELAY = 5000; // 5 seconds
